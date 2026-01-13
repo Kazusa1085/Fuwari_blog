@@ -58,15 +58,42 @@ jobs:
             exit 1
           fi
 
-          # 检查是否所有文件都在 src/content/friends/ 目录下且为 json
+          # 禁止修改的关键文件列表（防止代码注入）
+          FORBIDDEN_PATTERNS=(
+            "package.json"
+            "package-lock.json"
+            "pnpm-lock.yaml"
+            "astro.config.*"
+            "vite.config.*"
+            "tailwind.config.*"
+            "tsconfig.*"
+            ".github/"
+            "scripts/"
+            "*.js"
+            "*.ts"
+            "*.mjs"
+            "*.cjs"
+            "*.astro"
+            "*.svelte"
+          )
+
           for file in $CHANGED_FILES; do
+            # 检查是否为友链 JSON 文件
             if [[ ! "$file" =~ ^src/content/friends/.*\.json$ ]]; then
               echo "::error::File $file is not a permitted path. Only src/content/friends/*.json is allowed."
               exit 1
             fi
+
+            # 额外检查禁止的文件模式
+            for pattern in "${FORBIDDEN_PATTERNS[@]}"; do
+              if [[ "$file" == *"$pattern"* ]]; then
+                echo "::error::File $file matches forbidden pattern: $pattern"
+                exit 1
+              fi
+            done
           done
 
-          echo "Success: All changed files are valid."
+          echo "✅ Security check passed: All changed files are valid friend link JSON files."
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
