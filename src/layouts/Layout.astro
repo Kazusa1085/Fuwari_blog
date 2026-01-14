@@ -3,10 +3,15 @@ import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 
-import { profileConfig, siteConfig, googleAnalyticsConfig, antiLeechConfig } from "@/config";
-import ConfigCarrier from "@components/ConfigCarrier.astro";
+import {
+	antiLeechConfig,
+	googleAnalyticsConfig,
+	profileConfig,
+	siteConfig,
+} from "@/config";
 import AntigravityBg from "@components/AntigravityBg.svelte";
-import BackgroundToggle from "@components/BackgroundToggle.svelte";
+import ConfigCarrier from "@components/ConfigCarrier.astro";
+import FloatingControls from "@components/FloatingControls.svelte";
 import ReadingProgressMobile from "@components/ReadingProgressMobile.svelte";
 import {
 	AUTO_MODE,
@@ -341,7 +346,7 @@ const bannerOffset =
 	>
 		<AntigravityBg client:only="svelte" />
 		<ConfigCarrier></ConfigCarrier>
-		<BackgroundToggle client:only="svelte" />
+		<FloatingControls client:only="svelte" />
 		<ReadingProgressMobile client:only="svelte" />
 		<div id="main-content-wrapper">
 			<slot />

@@ -1,27 +1,27 @@
 <script>
-    import { onMount, onDestroy } from "svelte";
-    import {
-        readingProgress,
-        isPostPage,
-        initReadingProgress,
-        destroyReadingProgress,
-    } from "../../stores/readingProgress";
+import { onDestroy, onMount } from "svelte";
+import {
+	destroyReadingProgress,
+	initReadingProgress,
+	isPostPage,
+	readingProgress,
+} from "../../stores/readingProgress";
 
-    let progress = $state(0);
-    let visible = $state(false);
+let progress = $state(0);
+let visible = $state(false);
 
-    // 订阅 store
-    const unsubProgress = readingProgress.subscribe((v) => (progress = v));
-    const unsubVisible = isPostPage.subscribe((v) => (visible = v));
+// 订阅 store
+const unsubProgress = readingProgress.subscribe((v) => (progress = v));
+const unsubVisible = isPostPage.subscribe((v) => (visible = v));
 
-    onMount(() => {
-        initReadingProgress();
-    });
+onMount(() => {
+	initReadingProgress();
+});
 
-    onDestroy(() => {
-        unsubProgress();
-        unsubVisible();
-    });
+onDestroy(() => {
+	unsubProgress();
+	unsubVisible();
+});
 </script>
 
 <!-- 侧边栏进度卡片 -->

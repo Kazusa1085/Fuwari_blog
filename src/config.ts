@@ -13,7 +13,8 @@ import { LinkPreset } from "./types/config";
 export const siteConfig: SiteConfig = {
 	title: "Betsy Blog",
 	subtitle: "分享网络技术、服务器部署、Unity开发、AI技术应用与原理",
-	description: "分享网络技术、服务器部署、Unity开发、AI技术应用与原理、作者为流转星(Betsy)",
+	description:
+		"分享网络技术、服务器部署、Unity开发、AI技术应用与原理、作者为流转星(Betsy)",
 
 	keywords: [],
 	lang: "zh_CN", // 'en', 'zh_CN', 'zh_TW', 'ja', 'ko', 'es', 'th'
@@ -97,8 +98,8 @@ export const siteConfig: SiteConfig = {
 			image: "/favicon/prompts.webp",
 			description: "AI 提示词一键优化工具",
 			external: true,
-		}
-	]
+		},
+	],
 };
 
 export const navBarConfig: NavBarConfig = {
@@ -141,8 +142,8 @@ export const licenseConfig: LicenseConfig = {
 //图片回退
 export const imageFallbackConfig: ImageFallbackConfig = {
 	enable: true,
-	originalDomain: "img.micostar.cc",           // 主力图床 (新项目)
-	fallbackDomain: "image.cloudrunmax.top",         // R2 备用图床 (旧项目)
+	originalDomain: "img.micostar.cc", // 主力图床 (新项目)
+	fallbackDomain: "image.cloudrunmax.top", // R2 备用图床 (旧项目)
 };
 
 export const umamiConfig: UmamiConfig = {
@@ -155,12 +156,11 @@ export const umamiConfig: UmamiConfig = {
 // 防盗链/域名保护配置
 export const antiLeechConfig: AntiLeechConfig = {
 	enable: true,
-	officialSites: [
-		{ url: "https://www.micostar.cc", name: "主站" },
-	],
+	officialSites: [{ url: "https://www.micostar.cc", name: "主站" }],
 	debug: false,
 	warningTitle: "⚠️ 域名安全警告",
-	warningMessage: "您可能正在访问非官方网站，存在安全风险！建议跳转到官方网站。",
+	warningMessage:
+		"您可能正在访问非官方网站，存在安全风险！建议跳转到官方网站。",
 };
 
 export const googleAnalyticsConfig = {

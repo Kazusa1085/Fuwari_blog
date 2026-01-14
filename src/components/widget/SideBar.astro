@@ -1,13 +1,13 @@
 ---
 import type { MarkdownHeading } from "astro";
 
-import Profile from "./Profile.astro";
-import Tag from "./Tags.astro";
-import VisitorInfo from "./VisitorInfo.astro";
-import ReadingProgressCard from "./ReadingProgressCard.svelte";
-import UpdatedPosts from "./UpdatedPosts.svelte";
-import WidgetLayout from "./WidgetLayout.astro";
 import { getSortedPosts } from "../../utils/content-utils";
+import Profile from "./Profile.astro";
+import ReadingProgressCard from "./ReadingProgressCard.svelte";
+import Tag from "./Tags.astro";
+import UpdatedPosts from "./UpdatedPosts.svelte";
+import VisitorInfo from "./VisitorInfo.astro";
+import WidgetLayout from "./WidgetLayout.astro";
 
 const allPosts = await getSortedPosts();
 
@@ -15,21 +15,21 @@ const allPosts = await getSortedPosts();
 // Astro/Zod 把无时区的日期字符串解析为 UTC Date 对象
 // 使用 UTC 方法提取原始值，还原 frontmatter 中的日期字符串
 function toLocalISOString(date: Date | undefined): string | undefined {
-    if (!date) return undefined;
-    const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-    const day = String(date.getUTCDate()).padStart(2, '0');
-    const hours = String(date.getUTCHours()).padStart(2, '0');
-    const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-    const seconds = String(date.getUTCSeconds()).padStart(2, '0');
-    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+	if (!date) return undefined;
+	const year = date.getUTCFullYear();
+	const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+	const day = String(date.getUTCDate()).padStart(2, "0");
+	const hours = String(date.getUTCHours()).padStart(2, "0");
+	const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+	const seconds = String(date.getUTCSeconds()).padStart(2, "0");
+	return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
 }
 
-const simplifiedPosts = allPosts.map(p => ({
-    title: p.data.title,
-    slug: p.slug,
-    published: toLocalISOString(p.data.published),
-    updated: toLocalISOString(p.data.updated)
+const simplifiedPosts = allPosts.map((p) => ({
+	title: p.data.title,
+	slug: p.slug,
+	published: toLocalISOString(p.data.published),
+	updated: toLocalISOString(p.data.updated),
 }));
 
 interface Props {

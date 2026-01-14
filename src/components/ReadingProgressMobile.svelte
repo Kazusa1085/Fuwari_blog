@@ -1,34 +1,34 @@
 <script>
-    /**
-     * 移动端固定顶部阅读进度条
-     * 使用共享 store，避免重复滚动监听
-     */
-    import { onMount, onDestroy } from "svelte";
-    import {
-        readingProgress,
-        isPostPage,
-        showFixedBar,
-        initReadingProgress,
-    } from "../stores/readingProgress";
+/**
+ * 移动端固定顶部阅读进度条
+ * 使用共享 store，避免重复滚动监听
+ */
+import { onDestroy, onMount } from "svelte";
+import {
+	initReadingProgress,
+	isPostPage,
+	readingProgress,
+	showFixedBar,
+} from "../stores/readingProgress";
 
-    let progress = $state(0);
-    let visible = $state(false);
-    let showFixed = $state(false);
+let progress = $state(0);
+let visible = $state(false);
+let showFixed = $state(false);
 
-    // 订阅 store
-    const unsubProgress = readingProgress.subscribe((v) => (progress = v));
-    const unsubVisible = isPostPage.subscribe((v) => (visible = v));
-    const unsubFixed = showFixedBar.subscribe((v) => (showFixed = v));
+// 订阅 store
+const unsubProgress = readingProgress.subscribe((v) => (progress = v));
+const unsubVisible = isPostPage.subscribe((v) => (visible = v));
+const unsubFixed = showFixedBar.subscribe((v) => (showFixed = v));
 
-    onMount(() => {
-        initReadingProgress();
-    });
+onMount(() => {
+	initReadingProgress();
+});
 
-    onDestroy(() => {
-        unsubProgress();
-        unsubVisible();
-        unsubFixed();
-    });
+onDestroy(() => {
+	unsubProgress();
+	unsubVisible();
+	unsubFixed();
+});
 </script>
 
 <!-- 移动端：固定顶部进度条（仅 <lg 显示，且侧边栏卡片滚出后才显示） -->

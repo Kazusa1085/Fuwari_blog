@@ -1,9 +1,9 @@
 ---
 import { Icon } from "astro-icon/components";
 
-import { getDir, url } from "../utils/url-utils";
-import { formatDateToYYYYMMDD } from "../utils/date-utils";
 import { umamiConfig } from "../config";
+import { formatDateToYYYYMMDD } from "../utils/date-utils";
+import { url, getDir } from "../utils/url-utils";
 
 interface Props {
 	class: string;
@@ -53,7 +53,7 @@ const className = Astro.props.class;
             <Icon name="material-symbols:tag-rounded" class="text-xl"></Icon>
         </div>
         <div class="flex flex-row flex-nowrap items-center">
-            {(tags && tags.length > 0) && tags.map((tag, i) => (
+            {(tags && tags.length > 0) && tags.slice(0, 4).map((tag, i) => (
                 <div class:list={[{"hidden": i == 0}, "mx-1.5 text-[var(--meta-divider)] text-sm"]}>/</div>
                 <a href={url(`/archive/tag/${tag}/`)} aria-label=`View all posts with the ${tag} tag`
                    class="link-lg transition text-50 text-sm font-medium
@@ -61,6 +61,9 @@ const className = Astro.props.class;
                     {tag}
                 </a>
             ))}
+            {tags && tags.length > 4 && (
+                <span class="ml-1.5 text-50 text-sm font-medium opacity-70">+{tags.length - 4}</span>
+            )}
             {!(tags && tags.length > 0) && <div class="transition text-50 text-sm font-medium">无标签</div>}
         </div>
     </div>

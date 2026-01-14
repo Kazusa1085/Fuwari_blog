@@ -11,7 +11,7 @@ const postsCollection = defineCollection({
 		tags: z.array(z.string()).optional().default([]),
 		lang: z.string().optional().default(""),
 		pinned: z.boolean().optional().default(false),
-		
+
 		/* 性能优化：预渲染所有内容（包括折叠区），适用于长文章 */
 		prerenderAll: z.boolean().optional().default(false),
 
@@ -33,7 +33,7 @@ const specCollection = defineCollection({
 });
 
 const assetsCollection = defineCollection({
-	type: 'data',
+	type: "data",
 	schema: z.object({
 		title: z.string().optional(),
 		description: z.string().optional(),
@@ -41,7 +41,7 @@ const assetsCollection = defineCollection({
 });
 
 const friendsCollection = defineCollection({
-	type: 'data',
+	type: "data",
 	schema: z.object({
 		name: z.string(),
 		url: z.string(),

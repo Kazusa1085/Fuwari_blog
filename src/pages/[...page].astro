@@ -14,9 +14,10 @@ export const getStaticPaths = (async ({ paginate }) => {
 
 const { page } = Astro.props;
 
-const pageDescription = page.currentPage === 1 
-	? "Betsy 的技术博客，分享网络技术、服务器部署、Unity游戏开发、AI技术应用与原理等领域的原创技术文章与实战教程。" 
-	: `技术博客文章列表第 ${page.currentPage} 页，浏览更多网络技术、Unity开发、AI应用等领域的原创技术分享。`;
+const pageDescription =
+	page.currentPage === 1
+		? "Betsy 的技术博客，分享网络技术、服务器部署、Unity游戏开发、AI技术应用与原理等领域的原创技术文章与实战教程。"
+		: `技术博客文章列表第 ${page.currentPage} 页，浏览更多网络技术、Unity开发、AI应用等领域的原创技术分享。`;
 
 const len = page.data.length;
 ---

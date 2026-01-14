@@ -19,8 +19,6 @@ if (Array.isArray(tags) && tags.length > 0) {
 	);
 }
 
-
-
 const groups: { year: number; posts: typeof posts }[] = (() => {
 	const groupedPosts = posts.reduce(
 		(grouped: { [year: number]: typeof posts }, post) => {

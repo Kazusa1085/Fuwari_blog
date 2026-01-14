@@ -17,6 +17,7 @@
 | **赞赏/捐赠** | `src/pages/donate.astro` | (约第 30-50 行) 替换页面中的微信/支付宝收款码图片路径 (`/donate/wechat.jpg` 等)。 |
 | **静态资源/图片** | `public/` | 替换 `public/favicon/` 下的站点图标，以及 `public/images/avatar.webp` (头像) 和 `public/xinghui.avif` (背景图)。 |
 | **首页打字机文案** | `src/components/widget/Typewriter.svelte` | (约第 12 行 `const lines` 数组) 如果文案是硬编码的，请在此文件中搜索并替换显示的文本。 |
+| **悬浮控制按钮** | `src/components/FloatingControls.svelte` | 右下角悬浮按钮组件，包含排序切换（发布/更新/浏览量）、背景预览、返回顶部功能。排序状态通过 `localStorage` 持久化，换页后自动恢复。 |
 | **关于/隐私页面** | `src/pages/about-privacy.astro` | (正文区域) 修改页面内关于隐私政策的具体文本。 |
 | **SEO 提交脚本** | `scripts/submit-indexnow-incremental.mjs` | (约第 10-15 行) 修改脚本中的 SEO API Key 和域名配置 (`host` 和 `key`)。 |
 | **图片压缩工具** | `scripts/convert-images.ps1` |  PowerShell 脚本。可修改 `$TargetPath` 参数指定扫描目录，默认扫描 `public`。需安装 FFmpeg。 |

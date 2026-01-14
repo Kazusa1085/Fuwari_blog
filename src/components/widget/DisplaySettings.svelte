@@ -1,5 +1,4 @@
 <script lang="ts">
-
 import Icon from "@iconify/svelte";
 import { getDefaultHue, getHue, setHue } from "@utils/setting-utils";
 

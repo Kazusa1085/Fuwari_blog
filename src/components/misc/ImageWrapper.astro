@@ -8,15 +8,25 @@ interface Props {
 	position?: string;
 	basePath?: string;
 	fit?: "cover" | "contain"; // how image should fit its container
-    dim?: boolean; // whether to render the dim overlay layer
-    isLCP?: boolean; // whether this is the Largest Contentful Paint image
-    fetchPriority?: "high" | "low" | "auto"; // fetch priority hint for the browser
+	dim?: boolean; // whether to render the dim overlay layer
+	isLCP?: boolean; // whether this is the Largest Contentful Paint image
+	fetchPriority?: "high" | "low" | "auto"; // fetch priority hint for the browser
 }
 import { Image } from "astro:assets";
-import { url } from "../../utils/url-utils";
 import { imageFallbackConfig, siteConfig } from "../../config";
+import { url } from "../../utils/url-utils";
 
-const { id, src, alt, position = "center", basePath = "/", fit = "cover", dim = true, isLCP = false, fetchPriority } = Astro.props;
+const {
+	id,
+	src,
+	alt,
+	position = "center",
+	basePath = "/",
+	fit = "cover",
+	dim = true,
+	isLCP = false,
+	fetchPriority,
+} = Astro.props;
 // 当 isLCP 为 true 且未显式指定 fetchPriority 时，自动设为 "high"
 const effectiveFetchPriority = fetchPriority ?? (isLCP ? "high" : undefined);
 const className = Astro.props.class;

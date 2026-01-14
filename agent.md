@@ -20,7 +20,7 @@
 | **Type Checking** | TypeScript (Strict Mode) |
 
 ### Key Features
-- **UI/UX**: Dark/Light theme toggle, Page transition animations (Swup), TOC, Sticky posts.
+- **UI/UX**: Dark/Light theme toggle, Page transition animations (Swup), TOC, Sticky posts, **Post sorting** (by published/updated/views with pagination persistence).
 - **Content**: Markdown support with math formulae (KaTeX), syntax highlighting (Expressive Code), Mermaid diagrams.
 - **Performance/Safety**: Image fallback (Dual CDN), Anti-leech protection.
 - **SEO/Analytics**: IndexNow integration, Sitemap, RSS, Umami & Google Analytics integration.

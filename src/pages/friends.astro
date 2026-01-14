@@ -2,10 +2,9 @@
 
 import MainGridLayout from "../layouts/MainGridLayout.astro";
 
-import { getEntry, getCollection } from "astro:content";
+import { getCollection, getEntry } from "astro:content";
 import { render } from "astro:content";
 import Markdown from "@components/misc/Markdown.astro";
-
 
 const friendsPost = await getEntry("spec", "friends");
 
@@ -23,38 +22,41 @@ import { execSync } from "node:child_process";
 const gitDateCache = new Map<string, Date>();
 
 function getGitDate(id: string) {
-    if (gitDateCache.has(id)) {
-        return gitDateCache.get(id)!;
-    }
-    try {
-        const filePath = `src/content/friends/${id}`;
-        // 获取文件首次提交时间 (--diff-filter=A: 添加, --follow: 追踪重命名, %aI: ISO 8601 格式)
-        const output = execSync(`git log --diff-filter=A --follow --format=%aI -1 -- "${filePath}"`, { encoding: 'utf-8' });
-        if (output && output.trim()) {
-            const date = new Date(output.trim());
-            gitDateCache.set(id, date);
-            return date;
-        }
-    } catch (e) {
-        // ignore error (e.g. file not committed yet)
-    }
-    // 如果获取失败（如未提交的新文件），使用文件系统创建时间或当前时间作为后备
-    const now = new Date();
-    gitDateCache.set(id, now);
-    return now;
+	if (gitDateCache.has(id)) {
+		return gitDateCache.get(id)!;
+	}
+	try {
+		const filePath = `src/content/friends/${id}`;
+		// 获取文件首次提交时间 (--diff-filter=A: 添加, --follow: 追踪重命名, %aI: ISO 8601 格式)
+		const output = execSync(
+			`git log --diff-filter=A --follow --format=%aI -1 -- "${filePath}"`,
+			{ encoding: "utf-8" },
+		);
+		if (output && output.trim()) {
+			const date = new Date(output.trim());
+			gitDateCache.set(id, date);
+			return date;
+		}
+	} catch (e) {
+		// ignore error (e.g. file not committed yet)
+	}
+	// 如果获取失败（如未提交的新文件），使用文件系统创建时间或当前时间作为后备
+	const now = new Date();
+	gitDateCache.set(id, now);
+	return now;
 }
 
 // 按提交时间排序：越早越靠前 (Ascending)
 friends.sort((a, b) => {
-    const dateA = getGitDate(a.id).getTime();
-    const dateB = getGitDate(b.id).getTime();
-    
-    // 如果时间相同（例如都是本地未提交文件），则按文件名排序作为二级准则
-    if (dateA === dateB) {
-        return a.id.localeCompare(b.id);
-    }
-    
-    return dateA - dateB;
+	const dateA = getGitDate(a.id).getTime();
+	const dateB = getGitDate(b.id).getTime();
+
+	// 如果时间相同（例如都是本地未提交文件），则按文件名排序作为二级准则
+	if (dateA === dateB) {
+		return a.id.localeCompare(b.id);
+	}
+
+	return dateA - dateB;
 });
 ---
 <MainGridLayout title="友链" description="优质博客友情链接推荐，发现更多技术开发者的精彩内容。欢迎互换友链，共建优质技术社区生态。">
