@@ -1,5 +1,6 @@
 import sitemap from "@astrojs/sitemap";
 import svelte from "@astrojs/svelte";
+import react from "@astrojs/react";
 import tailwind from "@astrojs/tailwind";
 import swup from "@swup/astro";
 import icon from "astro-icon";
@@ -57,7 +58,7 @@ export default defineConfig({
             "fa6-solid": ["*"],
             "simple-icons": ["*"],
         },
-    }), svelte(), sitemap({
+    }), svelte(), react(), sitemap({
         // 添加 sitemap 配置,确保格式正确
         serialize(item) {
             // 移除尾部斜杠(可选,根据您的 URL 结构)

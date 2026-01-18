@@ -9,7 +9,7 @@ import {
 	profileConfig,
 	siteConfig,
 } from "@/config";
-import AntigravityBg from "@components/AntigravityBg.svelte";
+import AntigravityBg from "@components/AntigravityBg.tsx";
 import ConfigCarrier from "@components/ConfigCarrier.astro";
 import FloatingControls from "@components/FloatingControls.svelte";
 import ReadingProgressMobile from "@components/ReadingProgressMobile.svelte";
@@ -344,7 +344,7 @@ const bannerOffset =
 	<body class=" min-h-screen transition " class:list={[{"lg:is-home": isHomePage, "enable-banner": enableBanner}]}
 		  data-overlayscrollbars-initialize
 	>
-		<AntigravityBg client:only="svelte" />
+		<AntigravityBg client:only="react" />
 		<ConfigCarrier></ConfigCarrier>
 		<FloatingControls client:only="svelte" />
 		<ReadingProgressMobile client:only="svelte" />
