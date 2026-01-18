@@ -268,6 +268,8 @@ const style = Astro.props.style;
             } else if (vercelId || vercelCache) {
                 imgEl.src = CDN_IMG_VERCEL;
                 imgEl.alt = 'Vercel';
+                imgEl.style.height = '14px';
+                imgEl.style.width = 'auto';
             } else {
                 imgEl.style.display = 'none';
                 imgEl.alt = 'Unknown CDN';
