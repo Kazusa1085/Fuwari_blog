@@ -22,7 +22,7 @@
 ### Key Features
 - **UI/UX**: Dark/Light theme toggle, Page transition animations (Swup), TOC, Sticky posts, **Post sorting** (by published/updated/views with pagination persistence).
 - **Content**: Markdown support with math formulae (KaTeX), syntax highlighting (Expressive Code), Mermaid diagrams.
-- **Performance/Safety**: Image fallback (Dual CDN), Anti-leech protection.
+- **Performance/Safety**: Image fallback (Dual CDN), Anti-leech protection, **Real-time CDN Detection** (Cloudflare/EdgeOne/Vercel).
 - **SEO/Analytics**: IndexNow integration, Sitemap, RSS, Umami & Google Analytics integration.
 
 ---

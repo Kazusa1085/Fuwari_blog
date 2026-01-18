@@ -224,6 +224,7 @@ const style = Astro.props.style;
     // CDN 资源路径
     const CDN_IMG_CF = '/cdn/cloudflare.svg';
     const CDN_IMG_EO = '/cdn/edgeone.png';
+    const CDN_IMG_VERCEL = '/cdn/vercel.png';
 
 
     const checkCDN = async () => {
@@ -254,12 +255,19 @@ const style = Astro.props.style;
             const eoLogUuid = response.headers.get('eo-log-uuid');
             const eoCacheStatus = response.headers.get('eo-cache-status');
 
+            // Vercel 官方认证的标识符
+            const vercelId = response.headers.get('x-vercel-id');
+            const vercelCache = response.headers.get('x-vercel-cache');
+
             if (cfRay || cfCacheStatus) {
                 imgEl.src = CDN_IMG_CF;
                 imgEl.alt = 'Cloudflare';
             } else if (eoLogUuid || eoCacheStatus) {
                 imgEl.src = CDN_IMG_EO;
                 imgEl.alt = 'EdgeOne';
+            } else if (vercelId || vercelCache) {
+                imgEl.src = CDN_IMG_VERCEL;
+                imgEl.alt = 'Vercel';
             } else {
                 imgEl.style.display = 'none';
                 imgEl.alt = 'Unknown CDN';
