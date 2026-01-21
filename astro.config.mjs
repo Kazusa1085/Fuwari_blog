@@ -22,6 +22,7 @@ import rehypeImageAttrs from "./src/plugins/rehype-image-attrs.mjs";
 import { parseDirectiveNode } from "./src/plugins/remark-directive-rehype.js";
 import { remarkExcerpt } from "./src/plugins/remark-excerpt.js";
 import { remarkReadingTime } from "./src/plugins/remark-reading-time.mjs";
+import rehypeHeadingShift from "./src/plugins/rehype-heading-shift.mjs";
 import rehypeExternalLinks from 'rehype-external-links';
 import expressiveCode from "astro-expressive-code";
 import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections";
@@ -127,6 +128,7 @@ export default defineConfig({
             parseDirectiveNode,
         ],
         rehypePlugins: [
+            rehypeHeadingShift, // 必须放在最前面，将 h1 降级为 h2，避免多个 h1 的 SEO 问题
             rehypeKatex,
             rehypeSlug,
             [rehypeImageFallback, imageFallbackConfig],

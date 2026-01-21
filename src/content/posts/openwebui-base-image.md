@@ -1,7 +1,8 @@
-﻿---
+---
 title: 关于在OpenWebUI中处理Base64返回的图片
 published: 2025-10-01T17:59:24
-description: '接入一些图片模型发现有的不是直接返回图片链接，而是Base64编码的图片数据，本文介绍如何处理这种情况。'
+updated: 2026-01-22T01:17:07
+description: 'OpenWebUI 处理 Base64 图片的函数插件安装与配置教程。解决 AI 绘图模型返回 Base64 编码而非图片链接的问题，支持自定义 API 地址、密钥、模型 ID 和计费参数设置。'
 image: '/images/openwebui-base-image.webp'
 tags: [OpenWebUI, AI绘画, Base64]
 

@@ -1,8 +1,8 @@
-﻿---
+---
 title: 如何获得Github教育优惠
 published: 2025-08-12T08:35:00.000Z
-updated: 2025-08-19T23:19:03.000Z
-description: 免费获得Github两年教育福利
+updated: 2026-01-22T01:17:07
+description: '详细教程：如何申请 GitHub 教育优惠获得两年免费福利。包括教育邮箱绑定、学信网认证材料准备、避免中文 OCR 识别失败的技巧，以及常见问题解决方案。'
 image: '/images/image-1755016403916-475070115.webp'
 tags: [Github教育优惠, Github]
 lang: ""

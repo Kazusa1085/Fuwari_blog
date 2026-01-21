@@ -1,7 +1,8 @@
-﻿---
+---
 title: 如何修改Windows用户名
 published: 2025-09-19T23:21:47
-description: '有些用户在创建Windows账户时使用的是中文名，导致很多软件有兼容性问题，本文介绍如何将Windows用户名修改为英文名。'
+updated: 2026-01-22T01:17:07
+description: 'Windows 中文用户名改英文名完整教程。通过启用 Administrator 超级用户账户，安全重命名用户文件夹并修改注册表 ProfileImagePath，解决软件兼容性问题，避免路径中文乱码。'
 image: '/images/Users.webp'
 tags: [Windows, Windows用户名修改]
 

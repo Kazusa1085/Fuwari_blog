@@ -1,8 +1,8 @@
-﻿---
+---
 title: Google AI Studio的汉化插件
 published: 2025-09-15T00:00:00.000Z
-updated: 2025-09-15T00:00:00.000Z
-description: 因为有时候使用谷歌AI Studio时会遇到语言不通的问题，又懒得开翻译（Edge有时候开自动翻译某些网站会报错）因此开发了这个汉化插件。
+updated: 2026-01-22T01:17:07
+description: 'Google AI Studio 中文汉化脚本，支持暴力猴和篡改猴插件。一键安装即可将 AI Studio 界面翻译为中文，解决 Edge 自动翻译导致网站报错的问题，提升 Gemini AI 使用体验。'
 image: '/images/aistudio.webp'
 tags: [AI, 浏览器插件, 暴力猴脚本, 篡改猴脚本]
 lang: ""

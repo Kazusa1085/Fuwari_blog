@@ -1,7 +1,8 @@
-﻿---
+---
 title: 使用云应用无服务器部署OpenWebUI
 published: 2025-10-01T12:21:05
-description: '使用雨云的云应用来无服务器部署OpenWebUI'
+updated: 2026-01-22T01:17:07
+description: '零服务器运维成本部署 OpenWebUI 完整教程。使用雨云云应用商店一键部署，配合 Cloudflare DNS 和端口转发规则实现自定义域名访问，轻松搭建私有 AI 对话平台。'
 image: '/images/OpenwebuiNO.webp'
 tags: [无服务器, OpenWebUI, Cloudflare]
 

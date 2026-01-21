@@ -1,7 +1,8 @@
-﻿---
+---
 title: 我的ClaudeCode使用笔记
 published: 2025-09-20T19:33:12
-description: '最近正式在一些项目开始使用ClaudeCode，记录一些使用笔记。'
+updated: 2026-01-22T01:17:07
+description: 'Claude Code 实用指南与技巧汇总。涵盖 /init、/mcp、/compact 等核心命令详解，think 系列深度思考模式用法，以及 CLAUDE.md 项目配置最佳实践，助你高效使用 AI 编程助手。'
 image: '/images/claude.webp'
 tags: [AI, ClaudeCode使用笔记]
 
