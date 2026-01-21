@@ -77,7 +77,7 @@ export async function GET(context: APIContext) {
 	}
 
 	return rss({
-		title: siteConfig.title,
+		title: `${siteConfig.title} - ${siteConfig.subtitle || "技术博客"}`,
 		description: siteConfig.subtitle || "No description",
 		site: context.site,
 		items: feed,

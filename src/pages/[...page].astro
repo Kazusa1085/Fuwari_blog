@@ -22,7 +22,7 @@ const pageDescription =
 const len = page.data.length;
 ---
 
-<MainGridLayout title={page.currentPage === 1 ? undefined : `第 ${page.currentPage} 页`} description={pageDescription}>
+<MainGridLayout title={page.currentPage === 1 ? undefined : `技术文章列表 - 第 ${page.currentPage} 页`} description={pageDescription}>
     <!-- SEO: 首页需要 h1 标签 -->
     <h1 class="sr-only">Betsy Blog - 技术博客文章列表{page.currentPage > 1 ? ` - 第 ${page.currentPage} 页` : ''}</h1>
     <PostPage page={page}></PostPage>
