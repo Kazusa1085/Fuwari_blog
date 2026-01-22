@@ -19,7 +19,7 @@
 | **首页打字机文案** | `src/components/widget/Typewriter.svelte` | ⚠️ **硬编码**(约第 12 行 `const lines` 数组) 如果文案是硬编码的，请在此文件中搜索并替换显示的文本。 |
 | **悬浮控制按钮** | `src/components/FloatingControls.svelte` | 右下角悬浮按钮组件，包含排序切换（发布/更新/浏览量）、背景预览、返回顶部功能。排序状态通过 `localStorage` 持久化，换页后自动恢复。 |
 | **关于/隐私页面** | `src/pages/about-privacy.astro` | (正文区域) 修改页面内关于隐私政策的具体文本。 |
-| **SEO 提交脚本** | `scripts/submit-indexnow-incremental.mjs` | (约第 10-15 行) 修改脚本中的 SEO API Key 和域名配置 (`host` 和 `key`)。 |
+| **SEO 提交脚本** | `scripts/submit-indexnow.mjs` / `scripts/submit-indexnow-incremental.mjs` | 现改为读取环境变量：`INDEXNOW_KEY`、`INDEXNOW_HOST`（可选 `INDEXNOW_KEY_LOCATION`）。请保留 `public/{key}.txt` 的公开校验文件，并确保它与 `INDEXNOW_KEY` 匹配。 |
 | **图片压缩工具** | `scripts/convert-images.ps1` |  PowerShell 脚本。可修改 `$TargetPath` 参数指定扫描目录，默认扫描 `public`。需安装 FFmpeg。 |
 
 

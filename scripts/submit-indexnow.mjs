@@ -1,6 +1,19 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 
+function getIndexNowConfig() {
+  const key = process.env.INDEXNOW_KEY;
+  const host = process.env.INDEXNOW_HOST;
+  const keyLocation = process.env.INDEXNOW_KEY_LOCATION || (host && key ? `https://${host}/${key}.txt` : undefined);
+
+  if (!key || !host) {
+    console.error('❌ 缺少 IndexNow 配置，请设置环境变量 INDEXNOW_KEY 与 INDEXNOW_HOST');
+    process.exit(1);
+  }
+
+  return { key, host, keyLocation };
+}
+
 async function submitToIndexNow() {
   try {
     // 读取构建后的 sitemap
@@ -18,10 +31,8 @@ async function submitToIndexNow() {
 
     console.log(`📋 准备提交 ${urls.length} 个 URL 到 IndexNow`);
 
-    // IndexNow 官方配置
-    const key = 'e9df8b96677248069AA19F879F7FDB29';
-    const host = 'www.micostar.cc';
-    const keyLocation = 'https://www.micostar.cc/e9df8b96677248069AA19F879F7FDB29.txt';
+    // IndexNow 官方配置（通过环境变量提供）
+    const { key, host, keyLocation } = getIndexNowConfig();
 
     const payload = {
       host,
