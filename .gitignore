@@ -31,3 +31,6 @@ yarn.lock
 
 # 忽略上游仓库
 ori
+
+# IndexNow 增量提交记录（由 Action 缓存管理）
+.indexnow-submitted.json
