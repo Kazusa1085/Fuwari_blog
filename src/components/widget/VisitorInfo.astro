@@ -450,8 +450,8 @@ const style = Astro.props.style;
                 if (parsed) {
                     finalData = { ...finalData, ...parsed };
                 }
-            } catch (error) {
-                console.error(`Error from ${api.name}:`, error);
+            } catch {
+                // 静默处理，继续尝试下一个 API
             }
         }
 
@@ -465,8 +465,8 @@ const style = Astro.props.style;
                     finalData.lat = data.lat;
                     finalData.lon = data.lon;
                 }
-            } catch (error) {
-                console.error('Error during final coordinate lookup:', error);
+            } catch {
+                // 静默处理
             }
         }
 

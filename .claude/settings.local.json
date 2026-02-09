@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(pnpm install:*)",
-      "SlashCommand(/init)"
+      "SlashCommand(/init)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": []
