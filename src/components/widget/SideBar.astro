@@ -3,7 +3,6 @@ import type { MarkdownHeading } from "astro";
 
 import { getSortedPosts } from "../../utils/content-utils";
 import Profile from "./Profile.astro";
-import ReadingProgressCard from "./ReadingProgressCard.svelte";
 import Tag from "./Tags.astro";
 import UpdatedPosts from "./UpdatedPosts.svelte";
 import VisitorInfo from "./VisitorInfo.astro";
@@ -54,6 +53,5 @@ const className = Astro.props.class;
       </WidgetLayout>
     </div>
 
-    <ReadingProgressCard client:only="svelte" />
     </div>
 </div>

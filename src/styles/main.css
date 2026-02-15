@@ -110,7 +110,7 @@
         @apply opacity-0 pointer-events-none translate-x-4;
     }
 
-    #toc-inner-wrapper {
+    #toc-inner-wrapper #toc {
         -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 2rem, black calc(100% - 2rem), transparent 100%);
         mask-image: linear-gradient(to bottom, transparent 0%, black 2rem, black calc(100% - 2rem), transparent 100%);
     }

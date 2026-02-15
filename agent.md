@@ -20,7 +20,7 @@
 | **Type Checking** | TypeScript (Strict Mode) |
 
 ### Key Features
-- **UI/UX**: Dark/Light theme toggle, Page transition animations (Swup), TOC, Sticky posts, **Post sorting** (by published/updated/views with pagination persistence).
+- **UI/UX**: Dark/Light theme toggle, Page transition animations (Swup), TOC, Sticky posts, **Post sorting** (by published/updated/views with pagination persistence), **Navbar dropdown menus**, **Reading progress indicator**.
 - **Content**: Markdown support with math formulae (KaTeX), syntax highlighting (Expressive Code), Mermaid diagrams.
 - **Performance/Safety**: Image fallback (Dual CDN), Anti-leech protection, **Real-time CDN Detection** (Cloudflare/EdgeOne/Vercel).
 - **SEO/Analytics**: IndexNow integration, Sitemap, RSS, Umami & Google Analytics integration.
@@ -155,3 +155,32 @@ Implemented in `src/pages/posts/[...slug].astro`.
     - `@utils/*` -> `src/utils/*`
     - `@assets/*` -> `src/assets/*`
     - `@/*` -> `src/*`
+
+---
+
+## Navigation Architecture
+
+### Navbar Dropdown Menus
+The navbar supports grouping links into dropdown menus via `NavBarGroup` type in `src/types/config.ts`.
+
+| File | Role |
+| :--- | :--- |
+| `src/types/config.ts` | Defines `NavBarLink`, `NavBarGroup`, `NavBarConfig` types |
+| `src/config.ts` | Configures nav links; groups use `{ name, children: [] }` syntax |
+| `src/components/Navbar.astro` | Resolves config to `NavItem[]`, renders desktop dropdowns (CSS `group-hover`), binds mobile toggle JS |
+| `src/components/widget/NavMenuPanel.astro` | Mobile hamburger menu; groups render as expandable sections (`max-h-0`/`max-h-40` toggle) |
+
+- **Desktop**: Dropdown uses CSS `group-hover` with absolute positioning, solid `var(--card-bg)` background.
+- **Mobile**: Groups use `.nav-group-toggle` buttons with JS click handlers; arrow rotates on expand.
+- **Swup**: Mobile toggle JS re-binds on `swup:contentReplaced` event.
+
+### Reading Progress
+Shared state in `src/stores/readingProgress.ts` drives multiple display components.
+
+| Component | Location | Visibility |
+| :--- | :--- | :--- |
+| `ReadingProgressCard.svelte` | Right-side TOC panel (above TOC list) in `MainGridLayout.astro` | Desktop (`2xl+`), post pages only |
+| `ReadingProgressMobile.svelte` | `Layout.astro` (fixed top bar) | Mobile (`<lg`), post pages only, appears after sidebar scrolls out |
+
+- **TOC panel layout** (`MainGridLayout.astro`): `toc-inner-wrapper` uses `flex flex-col`; `ReadingProgressCard` sits above `#toc` which has `flex-1 overflow-y-scroll`.
+- **CSS mask** (`src/styles/main.css`): Fade gradient applied to `#toc-inner-wrapper #toc` (not the wrapper itself) to avoid affecting the progress card.

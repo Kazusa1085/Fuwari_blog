@@ -2,7 +2,7 @@
 import { Icon } from "astro-icon/components";
 import { navBarConfig, siteConfig } from "../config";
 import { LinkPresets } from "../constants/link-presets";
-import { LinkPreset, type NavBarLink } from "../types/config";
+import { LinkPreset, type NavBarLink, type NavBarGroup } from "../types/config";
 import { url } from "../utils/url-utils";
 
 import MusicPlayer from "./MusicPlayer.svelte";
@@ -11,21 +11,34 @@ import DisplaySettings from "./widget/DisplaySettings.svelte";
 import NavMenuPanel from "./widget/NavMenuPanel.astro";
 const className = Astro.props.class;
 
-let links: NavBarLink[] = navBarConfig.links.map(
-	(item: NavBarLink | LinkPreset): NavBarLink => {
-		if (typeof item === "number") {
-			return LinkPresets[item];
-		}
-		return item;
-	},
-);
+type ResolvedNavBarGroup = { name: string; children: NavBarLink[] };
+type NavItem = NavBarLink | ResolvedNavBarGroup;
+
+function resolveLink(item: NavBarLink | LinkPreset): NavBarLink {
+	return typeof item === "number" ? LinkPresets[item] : item;
+}
+
+function isGroup(item: NavBarLink | LinkPreset | NavBarGroup): item is NavBarGroup {
+	return typeof item === "object" && "children" in item;
+}
+
+function isResolvedGroup(item: NavItem): item is ResolvedNavBarGroup {
+	return "children" in item;
+}
+
+const navItems: NavItem[] = navBarConfig.links.map(item => {
+	if (isGroup(item)) {
+		return { name: item.name, children: item.children.map(resolveLink) };
+	}
+	return resolveLink(item);
+});
 ---
 <div id="navbar" class="z-50 onload-animation sticky top-0">
     <div class="absolute h-8 left-0 right-0 -top-8 bg-[var(--card-bg)] transition"></div> <!-- used for onload animation -->
         <div class:list={[
             className,
             "card-base glass-effect !overflow-visible max-w-[var(--page-width)] h-[4.5rem] !rounded-t-none mx-auto flex items-center px-4"]}>
-            
+
             <!-- Title Area: aligned with sidebar width on lg+ screens -->
             <div class="shrink-0 w-auto lg:w-[17.5rem] flex items-center">
                 <a href={url('/')} class="btn-plain scale-animation rounded-lg h-[3.25rem] px-5 font-bold active:scale-95 hover:bg-[var(--btn-plain-bg-hover)]">
@@ -38,15 +51,41 @@ let links: NavBarLink[] = navBarConfig.links.map(
 
             <!-- Links: Visible on xl+ -->
             <div class="hidden xl:flex items-center gap-1 ml-4">
-                {links.map((l) => {
-                    return <a aria-label={l.name} href={l.external ? l.url : url(l.url)} target={l.external ? "_blank" : null}
-                              class="btn-plain scale-animation rounded-lg h-11 font-bold px-4 active:scale-95 hover:text-[var(--primary)] transition-all duration-300"
-                    >
-                        <div class="flex items-center gap-1 whitespace-nowrap">
-                            {l.name}
-                            {l.external && <Icon name="fa6-solid:arrow-up-right-from-square" class="text-[0.75rem] opacity-50"></Icon>}
-                        </div>
-                    </a>;
+                {navItems.map((item) => {
+                    if (isResolvedGroup(item)) {
+                        return (
+                            <div class="relative group">
+                                <button class="btn-plain scale-animation rounded-lg h-11 font-bold px-4 active:scale-95 hover:text-[var(--primary)] transition-all duration-300 flex items-center gap-1">
+                                    {item.name}
+                                    <Icon name="material-symbols:keyboard-arrow-down-rounded" class="text-[1.25rem]" />
+                                </button>
+                                <div class="absolute left-1/2 -translate-x-1/2 top-full pt-1 hidden group-hover:block z-50">
+                                    <div class="rounded-lg py-1 min-w-[8rem] shadow-xl border border-[var(--line-divider)]"
+                                         style="background-color: var(--card-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
+                                        {item.children.map((child) => (
+                                            <a href={child.external ? child.url : url(child.url)}
+                                               target={child.external ? "_blank" : null}
+                                               class="flex items-center gap-2 px-4 py-2.5 hover:bg-[var(--btn-plain-bg-hover)] active:bg-[var(--btn-plain-bg-active)] transition whitespace-nowrap font-bold text-sm text-black/80 dark:text-white/80 hover:text-[var(--primary)]"
+                                            >
+                                                {child.name}
+                                                {child.external && <Icon name="fa6-solid:arrow-up-right-from-square" class="text-[0.625rem] opacity-50" />}
+                                            </a>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    }
+                    return (
+                        <a aria-label={item.name} href={item.external ? item.url : url(item.url)} target={item.external ? "_blank" : null}
+                           class="btn-plain scale-animation rounded-lg h-11 font-bold px-4 active:scale-95 hover:text-[var(--primary)] transition-all duration-300"
+                        >
+                            <div class="flex items-center gap-1 whitespace-nowrap">
+                                {item.name}
+                                {item.external && <Icon name="fa6-solid:arrow-up-right-from-square" class="text-[0.75rem] opacity-50" />}
+                            </div>
+                        </a>
+                    );
                 })}
             </div>
 
@@ -73,7 +112,7 @@ let links: NavBarLink[] = navBarConfig.links.map(
                 </button>
             </div>
             
-            <NavMenuPanel links={links}></NavMenuPanel>
+            <NavMenuPanel navItems={navItems}></NavMenuPanel>
             <DisplaySettings client:only="svelte"></DisplaySettings>
         </div>
 </div>
@@ -100,6 +139,17 @@ function loadButtonScript() {
             }
         };
     }
+
+    document.querySelectorAll('.nav-group-toggle').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const children = btn.closest('.nav-group')?.querySelector('.nav-group-children');
+            const arrow = btn.querySelector('.nav-group-arrow');
+            if (!children) return;
+            children.classList.toggle('max-h-0');
+            children.classList.toggle('max-h-40');
+            arrow?.classList.toggle('rotate-180');
+        });
+    });
 }
 
 loadButtonScript();
