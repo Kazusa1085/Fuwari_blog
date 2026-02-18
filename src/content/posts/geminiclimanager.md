@@ -1,6 +1,7 @@
-﻿---
+---
 title: GeminiCLI账号切换插件，让你的开发之路不在繁琐！
 published: 2025-12-21T22:00:16
+updated: 2026-02-18T12:05:48
 description: '最近Unity项目开始庞大了，单一的网页交互式AI开发效率远不如编译器内AI，但是我都没拿到钱也不想使用CluadeCode;诶,送了我n个学生Pro的Google大善人又发力了！'
 image: '/images/geminicli1.webp'
 tags: [Gemini,GeminiCLI]
@@ -26,4 +27,4 @@ lang: ''
 
 # 最后使用效果
 - 如图所示，切换丝滑
-![](/images/geminicli2.webp)
+![GeminiCLI账号切换效果](/images/geminicli2.webp)

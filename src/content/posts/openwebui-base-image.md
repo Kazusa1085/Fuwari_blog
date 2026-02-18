@@ -1,7 +1,7 @@
 ---
 title: 关于在OpenWebUI中处理Base64返回的图片
 published: 2025-10-01T17:59:24
-updated: 2026-01-22T01:17:07
+updated: 2026-02-18T12:05:48
 description: 'OpenWebUI 处理 Base64 图片的函数插件安装与配置教程。解决 AI 绘图模型返回 Base64 编码而非图片链接的问题，支持自定义 API 地址、密钥、模型 ID 和计费参数设置。'
 image: '/images/openwebui-base-image.webp'
 tags: [OpenWebUI, AI绘画, Base64]
@@ -25,6 +25,6 @@ https://github.com/Besty0728/OpenWebUI-Base64-Image/blob/main/image_decoder_pipe
 - 请求超时时间（秒）：自定义请求模型供应商的请求超时时间（等待图片）
 
 完成后效果如下
-![](/images/baseimage1.webp)
+![Base64图片处理效果](/images/baseimage1.webp)
 ---
-![](/images/baseimage2.webp)
+![Base64图片解码结果](/images/baseimage2.webp)

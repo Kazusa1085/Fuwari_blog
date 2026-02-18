@@ -5,7 +5,9 @@
       "SlashCommand(/init)",
       "WebSearch",
       "Bash(grep:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(pnpm build:*)",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []

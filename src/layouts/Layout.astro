@@ -38,6 +38,8 @@ interface Props {
 
 let { title, banner, description, lang, setOGTypeArticle } = Astro.props;
 
+const ogImage = banner && banner.trim() !== "" ? new URL(banner, Astro.site).href : undefined;
+
 // apply a class to the body element to decide the height of the banner, only used for initial page load
 // Swup can update the body for each page visit, but it's after the page transition, causing a delay for banner height change
 // so use Swup hooks instead to change the height immediately when a link is clicked
@@ -119,10 +121,14 @@ const bannerOffset =
         <meta property="og:type" content="website" />
         )}
 
+		<link rel="canonical" href={Astro.url} />
+
 		<meta name="twitter:card" content="summary_large_image">
 		<meta property="twitter:url" content={Astro.url}>
 		<meta name="twitter:title" content={pageTitle}>
 		<meta name="twitter:description" content={description}>
+		{ogImage && <meta property="og:image" content={ogImage} />}
+		{ogImage && <meta name="twitter:image" content={ogImage} />}
 
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />

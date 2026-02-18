@@ -26,6 +26,6 @@ export async function getStaticPaths() {
 const tag = Astro.params.tag as string;
 ---
 
-<MainGridLayout title={`${tag} - 标签`} description={`浏览所有带有"${tag}"标签的技术文章，探索相关领域的原创技术分享、开发教程与解决方案。`}>
+<MainGridLayout title={`${tag} - 标签`} description={`浏览所有带有"${tag}"标签的技术文章，探索相关领域的原创技术分享、开发教程与解决方案。Betsy Blog 涵盖 Unity 开发、AI 技术应用、服务器部署等领域的实战经验与教程合集。`}>
     <ArchivePanel tags={[tag]}></ArchivePanel>
 </MainGridLayout>
