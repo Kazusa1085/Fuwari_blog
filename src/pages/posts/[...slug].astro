@@ -39,7 +39,7 @@ const jsonLd = {
 	inLanguage: entry.data.lang
 		? entry.data.lang.replace("_", "-")
 		: siteConfig.lang.replace("_", "-"),
-	...(entry.data.image && { image: new URL(entry.data.image, "https://www.micostar.cc").href }),
+	...(entry.data.image && { image: new URL(entry.data.image, Astro.site).href }),
 };
 ---
 <MainGridLayout banner={entry.data.image} title={entry.data.title} description={entry.data.description} lang={entry.data.lang} setOGTypeArticle={true} headings={headings}>
