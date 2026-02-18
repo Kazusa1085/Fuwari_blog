@@ -29,7 +29,7 @@ function updateProgress() {
 	}
 
 	// 检测侧边栏卡片是否滚出视野
-	if (sidebarCardRef) {
+	if (sidebarCardRef && sidebarCardRef.offsetParent !== null) {
 		const cardRect = sidebarCardRef.getBoundingClientRect();
 		showFixedBar.set(cardRect.bottom < 0);
 	} else {

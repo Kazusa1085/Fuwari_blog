@@ -3,7 +3,9 @@
     "allow": [
       "Bash(pnpm install:*)",
       "SlashCommand(/init)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(grep:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []
