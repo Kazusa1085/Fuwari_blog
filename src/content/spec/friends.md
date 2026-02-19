@@ -3,7 +3,7 @@
 <details>
 <summary>点击查看申请方式与 JSON 格式示例</summary>
 
-为了方便自动化处理，建议通过提交 PR 的方式申请友链；请在 [此处](https://github.com/Besty0728/fuwari/tree/main/src/content/friends) 提交一个 **JSON** 文件即可。
+为了方便自动化处理，建议通过提交 PR 的方式申请友链；请在 [此处](https://github.com/Besty0728/fuwari/tree/main/src/content/friends) 提交一个 <b style="color: red;">JSON</b> 文件即可。
 
 如果您不熟悉 PR 操作，以及告知我您的友链要求，也可以通过 [提交 Issue](https://github.com/Besty0728/fuwari/issues/new?title=友链申请：您的名称) 的方式告知我，我会手动为您添加。
 

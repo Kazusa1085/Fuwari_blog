@@ -629,6 +629,14 @@ const setup = () => {
             if (toc) {
                 toc.classList.remove('toc-not-ready')
             }
+
+            // 移动端文章页：自动滚动到文章内容区域，跳过 sidebar（个人信息/标签）
+            if (window.innerWidth < 1024 && document.getElementById('post-container')) {
+                const target = document.getElementById('swup-container')
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' })
+                }
+            }
         }, 200)
 	});
 }

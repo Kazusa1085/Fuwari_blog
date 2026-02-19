@@ -15,17 +15,21 @@ let sidebarCardRef: HTMLElement | null = null;
 let lastScrollTime = 0;
 const THROTTLE_MS = 16; // ~60fps
 
+let postContainerRef: HTMLElement | null = null;
+
 function updateProgress() {
 	const now = performance.now();
 	if (now - lastScrollTime < THROTTLE_MS) return;
 	lastScrollTime = now;
 
 	const scrollTop = window.scrollY || document.documentElement.scrollTop;
-	const docHeight = document.documentElement.scrollHeight - window.innerHeight;
 
 	// 缓存 DOM 引用
 	if (!sidebarCardRef) {
 		sidebarCardRef = document.getElementById("sidebar-progress-card");
+	}
+	if (!postContainerRef) {
+		postContainerRef = document.getElementById("post-container");
 	}
 
 	// 检测侧边栏卡片是否滚出视野
@@ -36,6 +40,22 @@ function updateProgress() {
 		showFixedBar.set(scrollTop > 600);
 	}
 
+	// 移动端：基于文章区域计算进度，排除 sidebar 等非文章内容
+	if (window.innerWidth < 1024 && postContainerRef) {
+		const postTop = postContainerRef.getBoundingClientRect().top + scrollTop;
+		const postHeight = postContainerRef.scrollHeight;
+		const articleScroll = scrollTop - postTop;
+		const articleTotal = postHeight - window.innerHeight;
+		if (articleTotal <= 0) {
+			readingProgress.set(articleScroll <= 0 ? 0 : 100);
+			return;
+		}
+		const progress = Math.min(Math.max(Math.round((articleScroll / articleTotal) * 100), 0), 100);
+		readingProgress.set(progress);
+		return;
+	}
+
+	const docHeight = document.documentElement.scrollHeight - window.innerHeight;
 	if (docHeight <= 0) {
 		readingProgress.set(0);
 		return;
@@ -57,6 +77,7 @@ export function initReadingProgress() {
 
 	// 清除之前的缓存引用
 	sidebarCardRef = null;
+	postContainerRef = null;
 
 	// 初始更新
 	updateProgress();
@@ -69,6 +90,7 @@ export function initReadingProgress() {
 			window.removeEventListener("scroll", updateProgress);
 			initialized = false;
 			sidebarCardRef = null;
+			postContainerRef = null;
 		};
 	}
 }

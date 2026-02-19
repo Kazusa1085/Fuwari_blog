@@ -1,7 +1,8 @@
 <script>
 /**
- * 移动端固定顶部阅读进度条
+ * 移动端/平板端固定顶部阅读进度条
  * 使用共享 store，避免重复滚动监听
+ * lg 以上时与文章区域对齐，不覆盖侧边栏
  */
 import { onDestroy, onMount } from "svelte";
 import {
@@ -14,28 +15,46 @@ import {
 let progress = $state(0);
 let visible = $state(false);
 let showFixed = $state(false);
+let barLeft = $state("0px");
+let barWidth = $state("100%");
 
-// 订阅 store
 const unsubProgress = readingProgress.subscribe((v) => (progress = v));
 const unsubVisible = isPostPage.subscribe((v) => (visible = v));
 const unsubFixed = showFixedBar.subscribe((v) => (showFixed = v));
 
+function updateBarPosition() {
+	const main = document.getElementById("swup-container");
+	if (main && window.innerWidth >= 1024) {
+		const rect = main.getBoundingClientRect();
+		barLeft = rect.left + "px";
+		barWidth = rect.width + "px";
+	} else {
+		barLeft = "0px";
+		barWidth = "100%";
+	}
+}
+
 onMount(() => {
 	initReadingProgress();
+	updateBarPosition();
+	window.addEventListener("resize", updateBarPosition);
 });
 
 onDestroy(() => {
 	unsubProgress();
 	unsubVisible();
 	unsubFixed();
+	if (typeof window !== "undefined") {
+		window.removeEventListener("resize", updateBarPosition);
+	}
 });
 </script>
 
-<!-- 移动端：固定顶部进度条（仅 <lg 显示，且侧边栏卡片滚出后才显示） -->
+<!-- 移动端/平板端：固定顶部进度条（仅 <2xl 显示，且侧边栏卡片滚出后才显示） -->
 {#if visible && showFixed}
     <div
-        class="lg:hidden fixed top-0 left-0 right-0 z-[60] px-4 py-2 bg-[var(--card-bg)] backdrop-blur-md border-b border-black/5 dark:border-white/10 shadow-sm transition-all duration-300 animate-slide-down"
-        style="-webkit-backdrop-filter: blur(12px);"
+        class="2xl:hidden fixed top-0 z-[60] px-4 py-2 bg-[var(--card-bg)] backdrop-blur-md border-b border-black/5 dark:border-white/10 shadow-sm transition-all duration-300 animate-slide-down"
+        style="left: {barLeft}; width: {barWidth}; -webkit-backdrop-filter: blur(12px);"
     >
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
