@@ -159,24 +159,27 @@ jobs:
         run: |
           git checkout main
           git pull origin main
+
+          cat > /tmp/update_order.py << 'PYEOF'
+          import json, sys
+          order_file = "src/content/friends/_order.json"
+          with open(order_file) as f:
+              order = json.load(f)
+          name = sys.argv[1]
+          if name not in order:
+              order.append(name)
+              with open(order_file, "w") as f:
+                  json.dump(order, f, indent=2, ensure_ascii=False)
+                  f.write("\n")
+              print(f"Added {name} to _order.json")
+          else:
+              print(f"{name} already in _order.json")
+          PYEOF
+
           FILES="${{ steps.verify.outputs.files }}"
           for file in $FILES; do
             ID=$(basename "$file" .json)
-            python3 -c "
-import json, sys
-order_file = 'src/content/friends/_order.json'
-with open(order_file) as f:
-    order = json.load(f)
-name = sys.argv[1]
-if name not in order:
-    order.append(name)
-    with open(order_file, 'w') as f:
-        json.dump(order, f, indent=2, ensure_ascii=False)
-        f.write('\n')
-    print(f'Added {name} to _order.json')
-else:
-    print(f'{name} already in _order.json')
-" "$ID"
+            python3 /tmp/update_order.py "$ID"
           done
           if git diff --quiet; then
             echo "No order changes needed."
