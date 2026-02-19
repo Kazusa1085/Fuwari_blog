@@ -35,6 +35,7 @@
 | `src/config.ts` | **Main Configuration** (Site, Nav, Profile, Feature toggles) |
 | `src/content/posts/` | Blog Posts (Markdown) |
 | `src/content/spec/` | Special Pages (e.g., About) |
+| `src/content/friends/` | Friend Links (JSON + `_order.json` for sorting) |
 | `src/content/config.ts` | Content Collections Schema |
 | `src/components/` | UI Components (Astro + Svelte) |
 | `src/layouts/` | Page Layouts |
@@ -59,6 +60,7 @@
 | `posts` | Blog Posts | `title`, `published`, `updated`, `draft`, `description`, `image`, `tags`, `lang`, `pinned` |
 | `spec` | Special Pages | `title`, `published`, `updated`, `draft` |
 | `assets` | Asset Data | `title`, `description` |
+| `friends` | Friend Links | `name`, `url`, `avatar`, `introduction`, `friendsPage` |
 
 ---
 
@@ -98,6 +100,41 @@ prerenderAll: false           # Optional: Pre-render content (for long posts)
 lang: zh_CN                   # Optional
 ---
 ```
+
+---
+
+## Friend Links Automation
+
+### Data Structure
+Each friend link is a JSON file in `src/content/friends/`:
+```json
+{
+  "name": "Site Name",
+  "url": "https://example.com",
+  "avatar": "https://example.com/avatar.png",
+  "introduction": "Short description",
+  "friendsPage": "https://example.com/friends/"
+}
+```
+
+### Sorting
+- `src/content/friends/_order.json`: Array of friend IDs controlling display order (earliest added first).
+- `src/pages/friends.astro`: Reads `_order.json` for sorting; entries not in the array appear last.
+- The `_` prefix ensures Astro ignores it as a collection entry.
+
+### GitHub Actions Auto-Merge (`friends-auto-merge.yml`)
+| Step | Description |
+| :--- | :--- |
+| **Verify Changed Files** | Whitelist check: only `src/content/friends/<name>.json` allowed; `_order.json` modification blocked |
+| **Validate JSON Content** | Schema validation (required fields, URL format, XSS check, no extra fields, 2KB size limit) |
+| **Check Backlink** | Fetches `friendsPage` URL, checks for `href` containing `www.micostar.cc` |
+| **Build Check** | Runs `pnpm build` to verify no build errors |
+| **Auto Merge** | Squash merge with welcome message |
+| **Update Order** | Appends new friend ID to `_order.json` and pushes to main |
+| **Comment on PR** | Posts backlink check results and success/failure details |
+
+- **Trigger**: `pull_request_target` with `types: [opened, synchronize]`.
+- **Security**: Checkout base first for file verification, then PR head for content validation. `pnpm install --frozen-lockfile` prevents lockfile tampering.
 
 ---
 
@@ -172,7 +209,7 @@ The navbar supports grouping links into dropdown menus via `NavBarGroup` type in
 
 - **Desktop**: Dropdown uses CSS `group-hover` with absolute positioning, solid `var(--card-bg)` background.
 - **Mobile**: Groups use `.nav-group-toggle` buttons with JS click handlers; arrow rotates on expand.
-- **Swup**: Mobile toggle JS re-binds on `swup:contentReplaced` event.
+- **Swup**: Mobile toggle JS re-binds on `swup:contentReplaced` event. Uses `data-bound` attribute to prevent duplicate event listener binding.
 
 ### Reading Progress
 Shared state in `src/stores/readingProgress.ts` drives multiple display components.
@@ -180,7 +217,7 @@ Shared state in `src/stores/readingProgress.ts` drives multiple display componen
 | Component | Location | Visibility |
 | :--- | :--- | :--- |
 | `ReadingProgressCard.svelte` | Right-side TOC panel (above TOC list) in `MainGridLayout.astro` | Desktop (`2xl+`), post pages only |
-| `ReadingProgressMobile.svelte` | `Layout.astro` (fixed top bar) | Mobile (`<lg`), post pages only, appears after sidebar scrolls out |
+| `ReadingProgressMobile.svelte` | `Layout.astro` (fixed top bar) | Mobile & Tablet (`<2xl`), post pages only, appears after sidebar scrolls out |
 
 - **TOC panel layout** (`MainGridLayout.astro`): `toc-inner-wrapper` uses `flex flex-col`; `ReadingProgressCard` sits above `#toc` which has `flex-1 overflow-y-scroll`.
 - **CSS mask** (`src/styles/main.css`): Fade gradient applied to `#toc-inner-wrapper #toc` (not the wrapper itself) to avoid affecting the progress card.

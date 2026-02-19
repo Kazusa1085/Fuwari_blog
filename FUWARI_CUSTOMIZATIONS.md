@@ -10,7 +10,8 @@
 | **背景图设置** | `src/config.ts` | `siteConfig.background.src` (约第 39 行)。当前配置为随机图 API (`img.micostar.cc/random`)，可改为静态图片 URL。 |
 | **页脚 (Footer)** | `src/components/Footer.astro` | (约第 15-31 行) 修改 ICP备案号 (`鲁ICP备...`)、公网安备号、版权年份 (`startYear`) 以及 "Powered by" 链接。 |
 | **访客信息卡片** | `src/components/widget/VisitorInfo.astro` | ⚠️ **硬编码** (约第 220-300 行)。包含经纬度 `BLOGGER_LAT/LON` 设置。**CDN 检测逻辑**位于 `checkCDN` 函数中 (通过 Header 判断)。CDN 图标资源位于 `public/cdn/` (支持 Cloudflare/EdgeOne/Vercel)，可在此处修改判断规则或添加新 CDN。 |
-| **友情链接数据** | `src/content/friends/*.json` | 在 `src/content/friends/` 目录下添加/修改 `.json` 文件。首页说明文案在 `src/content/spec/friends.md`。 |
+| **友情链接数据** | `src/content/friends/*.json` | 在 `src/content/friends/` 目录下添加/修改 `.json` 文件。必需字段：`name`、`url`、`avatar`、`introduction`、`friendsPage`。排序由 `_order.json` 控制。首页说明文案在 `src/content/spec/friends.md`。 |
+| **友链自动合并** | `.github/workflows/friends-auto-merge.yml` | PR 自动验证（JSON 校验 + 互链检测）并合并。新友链自动追加到 `_order.json`。`_order.json` 禁止外部 PR 修改。 |
 | **个人应用面板** | `src/config.ts` | (约第 58-100 行) 修改 `siteConfig.apps` 数组，配置您自己的自建服务链接与图标。 |
 | **防盗链/域名** | `src/config.ts` + `src/layouts/Layout.astro` | ⚠️ **重要：需修改多处！** 详见下方 [防盗链域名配置详解](#防盗链域名配置详解)。 |
 | **图床/图片回退** | `src/config.ts` | (约第 142 行) 修改 `imageFallbackConfig`。如果您没有双图床容灾需求，建议将 `enable` 设为 `false`。 |
