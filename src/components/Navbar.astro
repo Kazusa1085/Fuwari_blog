@@ -141,6 +141,8 @@ function loadButtonScript() {
     }
 
     document.querySelectorAll('.nav-group-toggle').forEach(btn => {
+        if (btn.dataset.bound) return;
+        btn.dataset.bound = 'true';
         btn.addEventListener('click', () => {
             const children = btn.closest('.nav-group')?.querySelector('.nav-group-children');
             const arrow = btn.querySelector('.nav-group-arrow');
