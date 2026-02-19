@@ -15,7 +15,7 @@
   "avatar": "https://img.micostar.cc/images/avatar.webp",
   "introduction": "爱我所爱，我们是彼此永远的动力",
   "url": "https://www.micostar.cc",
-  "friendsPage": "https://www.micostar.cc/friends/"
+  "friendsPage": "https://www.micostar.cc/friends"
 }
 ```
 
@@ -27,12 +27,12 @@
   "avatar": "https://example.com/avatar.png",
   "introduction": "一句话简介",
   "url": "https://example.com",
-  "friendsPage": "https://example.com/friends/"
+  "friendsPage": "https://example.com/friends"
 }
 ```
 
 > **注意**：请确保您的头像链接允许跨域引用（Anti-leech），否则图片可能无法显示。
-> `friendsPage` 为您网站的友链页面地址，用于自动检测是否已添加本站链接。
+> `friendsPage` 为您网站的友链页面地址，请保证`href`含有本博客域名，用于自动检测是否已添加本站链接。
 
 </details>
 
