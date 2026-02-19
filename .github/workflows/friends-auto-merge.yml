@@ -34,6 +34,10 @@ jobs:
           fi
 
           for file in $CHANGED_FILES; do
+            if [[ "$file" == "src/content/friends/_order.json" ]]; then
+              echo "::error::Modifying _order.json is not allowed."
+              exit 1
+            fi
             if [[ ! "$file" =~ ^src/content/friends/[a-zA-Z0-9_-]+\.json$ ]]; then
               echo "::error::File $file is not allowed. Only src/content/friends/<name>.json is permitted."
               exit 1
@@ -58,17 +62,15 @@ jobs:
           import json, sys, re
           with open(sys.argv[1]) as f:
               data = json.load(f)
-          required = ["name", "url", "avatar", "introduction"]
+          required = ["name", "url", "avatar", "introduction", "friendsPage"]
           for field in required:
               if field not in data or not isinstance(data[field], str) or not data[field].strip():
                   print(f"::error::Missing or empty required field: {field}")
                   sys.exit(1)
-          if not re.match(r"^https?://", data["url"]):
-              print("::error::url must start with http:// or https://")
-              sys.exit(1)
-          if not re.match(r"^https?://", data["avatar"]):
-              print("::error::avatar must start with http:// or https://")
-              sys.exit(1)
+          for url_field in ["url", "avatar", "friendsPage"]:
+              if not re.match(r"^https?://", data[url_field]):
+                  print(f"::error::{url_field} must start with http:// or https://")
+                  sys.exit(1)
           for key, val in data.items():
               if not isinstance(val, str):
                   print(f"::error::Field {key} must be a string.")
@@ -76,7 +78,7 @@ jobs:
               if re.search(r"<script|javascript:|on\w+=", val, re.IGNORECASE):
                   print(f"::error::Field {key} contains suspicious content.")
                   sys.exit(1)
-          allowed = {"name", "url", "avatar", "introduction"}
+          allowed = {"name", "url", "avatar", "introduction", "friendsPage"}
           extra = set(data.keys()) - allowed
           if extra:
               print(f"::error::Unknown fields: {extra}")
@@ -97,6 +99,37 @@ jobs:
             fi
             python3 /tmp/validate_friend.py "$file"
           done
+
+      - name: Check Backlink
+        id: backlink
+        shell: bash
+        run: |
+          RESULT=""
+          ALL_PASS=true
+          FILES="${{ steps.verify.outputs.files }}"
+          for file in $FILES; do
+            FRIENDS_PAGE=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1]))['friendsPage'])" "$file")
+            NAME=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1]))['name'])" "$file")
+            HTTP_CODE=$(curl -s -o /tmp/page.html -w "%{http_code}" -L --max-time 15 "$FRIENDS_PAGE" 2>/dev/null || echo "000")
+            if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 400 ]; then
+              if grep -qi 'href="[^"]*www\.micostar\.cc[^"]*"' /tmp/page.html; then
+                RESULT="${RESULT}${NAME}: ✅ 已添加互链\n"
+              else
+                RESULT="${RESULT}${NAME}: ❌ 未检测到 www.micostar.cc 的链接\n"
+                ALL_PASS=false
+              fi
+            else
+              RESULT="${RESULT}${NAME}: ⚠️ 无法访问友链页面 (HTTP ${HTTP_CODE})\n"
+              ALL_PASS=false
+            fi
+          done
+          echo "result<<EOF" >> $GITHUB_OUTPUT
+          echo -e "$RESULT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          if [ "$ALL_PASS" = "false" ]; then
+            echo "::error::Backlink check failed."
+            exit 1
+          fi
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -122,20 +155,66 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Update Order
+        shell: bash
+        run: |
+          git checkout main
+          git pull origin main
+          FILES="${{ steps.verify.outputs.files }}"
+          for file in $FILES; do
+            ID=$(basename "$file" .json)
+            python3 -c "
+import json, sys
+order_file = 'src/content/friends/_order.json'
+with open(order_file) as f:
+    order = json.load(f)
+name = sys.argv[1]
+if name not in order:
+    order.append(name)
+    with open(order_file, 'w') as f:
+        json.dump(order, f, indent=2, ensure_ascii=False)
+        f.write('\n')
+    print(f'Added {name} to _order.json')
+else:
+    print(f'{name} already in _order.json')
+" "$ID"
+          done
+          if git diff --quiet; then
+            echo "No order changes needed."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add src/content/friends/_order.json
+            git commit -m "chore: update friends order"
+            git push origin main
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Comment on PR
         if: always()
+        shell: bash
         run: |
+          BACKLINK_RESULT="${{ steps.backlink.outputs.result }}"
           if [ "${{ job.status }}" = "success" ]; then
-            gh pr comment ${{ github.event.pull_request.number }} --body "🎉 友链已自动合并，欢迎加入！你的链接将在站点下次部署后生效。"
+            BODY="🎉 友链已自动合并，欢迎加入！你的链接将在站点下次部署后生效。
+
+          **互链检测结果：**
+          ${BACKLINK_RESULT}"
           else
-            gh pr comment ${{ github.event.pull_request.number }} --body "❌ 自动验证未通过，请检查：
+            BODY="❌ 自动验证未通过，请检查：
           - JSON 格式是否正确
-          - 必需字段：name、url、avatar、introduction
-          - url 和 avatar 必须以 http(s):// 开头
+          - 必需字段：name、url、avatar、introduction、friendsPage
+          - url、avatar、friendsPage 必须以 http(s):// 开头
           - 只允许修改 src/content/friends/ 下的 JSON 文件
           - 文件名只能包含字母、数字、下划线和连字符
+          - 对方友链页面必须包含指向 www.micostar.cc 的链接
+
+          **互链检测结果：**
+          ${BACKLINK_RESULT}
 
           详情请查看 [Action 日志](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})。"
           fi
+          gh pr comment ${{ github.event.pull_request.number }} --body "$BODY"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

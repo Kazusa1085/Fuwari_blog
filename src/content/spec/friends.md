@@ -14,7 +14,8 @@
   "name": "Betsy Blog",
   "avatar": "https://img.micostar.cc/images/avatar.webp",
   "introduction": "爱我所爱，我们是彼此永远的动力",
-  "url": "https://www.micostar.cc"
+  "url": "https://www.micostar.cc",
+  "friendsPage": "https://www.micostar.cc/friends/"
 }
 ```
 
@@ -25,11 +26,13 @@
   "name": "您的网站名称",
   "avatar": "https://example.com/avatar.png",
   "introduction": "一句话简介",
-  "url": "https://example.com"
+  "url": "https://example.com",
+  "friendsPage": "https://example.com/friends/"
 }
 ```
 
 > **注意**：请确保您的头像链接允许跨域引用（Anti-leech），否则图片可能无法显示。
+> `friendsPage` 为您网站的友链页面地址，用于自动检测是否已添加本站链接。
 
 </details>
 

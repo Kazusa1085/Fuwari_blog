@@ -47,6 +47,7 @@ const friendsCollection = defineCollection({
 		url: z.string(),
 		avatar: z.string(),
 		introduction: z.string(),
+		friendsPage: z.string(),
 	}),
 });
 
