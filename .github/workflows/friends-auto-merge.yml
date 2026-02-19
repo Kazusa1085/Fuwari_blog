@@ -14,18 +14,89 @@ jobs:
     runs-on: ubuntu-latest
     if: github.repository_owner == 'Besty0728'
     steps:
-      - name: Debug Info
+      - name: Checkout Base (safe context)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 0
+
+      - name: Verify Changed Files
+        id: verify
         run: |
-          echo "Event: ${{ github.event_name }}"
-          echo "PR Number: ${{ github.event.pull_request.number }}"
-          echo "Base SHA: ${{ github.event.pull_request.base.sha }}"
-          echo "Head SHA: ${{ github.event.pull_request.head.sha }}"
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
+
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "::error::No files changed."
+            exit 1
+          fi
+
+          for file in $CHANGED_FILES; do
+            if [[ ! "$file" =~ ^src/content/friends/[a-zA-Z0-9_-]+\.json$ ]]; then
+              echo "::error::File $file is not allowed. Only src/content/friends/<name>.json is permitted."
+              exit 1
+            fi
+          done
+
+          echo "files<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "✅ File path check passed."
 
       - name: Checkout PR Head
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+
+      - name: Validate JSON Content
+        shell: bash
+        run: |
+          cat > /tmp/validate_friend.py << 'PYEOF'
+          import json, sys, re
+          with open(sys.argv[1]) as f:
+              data = json.load(f)
+          required = ["name", "url", "avatar", "introduction"]
+          for field in required:
+              if field not in data or not isinstance(data[field], str) or not data[field].strip():
+                  print(f"::error::Missing or empty required field: {field}")
+                  sys.exit(1)
+          if not re.match(r"^https?://", data["url"]):
+              print("::error::url must start with http:// or https://")
+              sys.exit(1)
+          if not re.match(r"^https?://", data["avatar"]):
+              print("::error::avatar must start with http:// or https://")
+              sys.exit(1)
+          for key, val in data.items():
+              if not isinstance(val, str):
+                  print(f"::error::Field {key} must be a string.")
+                  sys.exit(1)
+              if re.search(r"<script|javascript:|on\w+=", val, re.IGNORECASE):
+                  print(f"::error::Field {key} contains suspicious content.")
+                  sys.exit(1)
+          allowed = {"name", "url", "avatar", "introduction"}
+          extra = set(data.keys()) - allowed
+          if extra:
+              print(f"::error::Unknown fields: {extra}")
+              sys.exit(1)
+          print(f"Validated: {sys.argv[1]}")
+          PYEOF
+
+          FILES="${{ steps.verify.outputs.files }}"
+          for file in $FILES; do
+            if [ ! -f "$file" ]; then
+              echo "::error::File $file not found (deleted?)."
+              exit 1
+            fi
+            SIZE=$(stat -c%s "$file")
+            if [ "$SIZE" -gt 2048 ]; then
+              echo "::error::$file exceeds 2KB size limit."
+              exit 1
+            fi
+            python3 /tmp/validate_friend.py "$file"
+          done
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -37,76 +108,34 @@ jobs:
           cache: "pnpm"
 
       - name: Install dependencies
-        run: |
-          echo "Installing dependencies..."
-          pnpm install
-
-      - name: Verify Changed Files
-        id: verify
-        run: |
-          echo "Verifying changed files..."
-          # 获取变更文件名
-          # 在 pull_request_target 中，我们比较 PR head 和 base
-          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
-
-          echo "Changed files list:"
-          echo "$CHANGED_FILES"
-
-          # 检查是否有文件变更
-          if [ -z "$CHANGED_FILES" ]; then
-            echo "::error::No files changed found in the diff."
-            exit 1
-          fi
-
-          # 禁止修改的关键文件列表（防止代码注入）
-          FORBIDDEN_PATTERNS=(
-            "package.json"
-            "package-lock.json"
-            "pnpm-lock.yaml"
-            "astro.config.*"
-            "vite.config.*"
-            "tailwind.config.*"
-            "tsconfig.*"
-            ".github/"
-            "scripts/"
-            "*.js"
-            "*.ts"
-            "*.mjs"
-            "*.cjs"
-            "*.astro"
-            "*.svelte"
-          )
-
-          for file in $CHANGED_FILES; do
-            # 检查是否为友链 JSON 文件
-            if [[ ! "$file" =~ ^src/content/friends/.*\.json$ ]]; then
-              echo "::error::File $file is not a permitted path. Only src/content/friends/*.json is allowed."
-              exit 1
-            fi
-
-            # 额外检查禁止的文件模式
-            for pattern in "${FORBIDDEN_PATTERNS[@]}"; do
-              if [[ "$file" == *"$pattern"* ]]; then
-                echo "::error::File $file matches forbidden pattern: $pattern"
-                exit 1
-              fi
-            done
-          done
-
-          echo "✅ Security check passed: All changed files are valid friend link JSON files."
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: pnpm install --frozen-lockfile
 
       - name: Build Check
-        run: |
-          echo "Starting Astro build to verify changes..."
-          pnpm build
-          echo "Build successful."
+        run: pnpm build
 
       - name: Auto Merge
         run: |
-          echo "Merging PR #${{ github.event.pull_request.number }}..."
-          gh pr merge ${{ github.event.pull_request.number }} --squash --subject "🤝 友链申请：欢迎 ${{ github.event.pull_request.user.login }}" --body "友链机器人自动验证通过 ✅"
-          echo "PR merged successfully."
+          gh pr merge ${{ github.event.pull_request.number }} \
+            --squash \
+            --subject "🤝 友链申请：欢迎 ${{ github.event.pull_request.user.login }}" \
+            --body "友链机器人自动验证通过 ✅"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Comment on PR
+        if: always()
+        run: |
+          if [ "${{ job.status }}" = "success" ]; then
+            gh pr comment ${{ github.event.pull_request.number }} --body "🎉 友链已自动合并，欢迎加入！你的链接将在站点下次部署后生效。"
+          else
+            gh pr comment ${{ github.event.pull_request.number }} --body "❌ 自动验证未通过，请检查：
+          - JSON 格式是否正确
+          - 必需字段：name、url、avatar、introduction
+          - url 和 avatar 必须以 http(s):// 开头
+          - 只允许修改 src/content/friends/ 下的 JSON 文件
+          - 文件名只能包含字母、数字、下划线和连字符
+
+          详情请查看 [Action 日志](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})。"
+          fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
