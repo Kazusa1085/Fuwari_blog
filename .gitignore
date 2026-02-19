@@ -34,3 +34,6 @@ ori
 
 # IndexNow 增量提交记录（由 Action 缓存管理）
 .indexnow-submitted.json
+
+# Claude 配置文件夹
+.claude
