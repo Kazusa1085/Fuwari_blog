@@ -2,8 +2,7 @@ name: Auto Merge Friends PR
 
 on:
   pull_request_target:
-    paths:
-      - "src/content/friends/*.json"
+    types: [opened, synchronize]
 
 permissions:
   contents: write
