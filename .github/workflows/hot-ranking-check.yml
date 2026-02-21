@@ -5,6 +5,9 @@ on:
     - cron: '0 16 * * *'  # UTC 16:00 = 北京时间 0:00
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   check-ranking:
     runs-on: ubuntu-latest
