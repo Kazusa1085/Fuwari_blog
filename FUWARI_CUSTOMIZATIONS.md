@@ -18,7 +18,10 @@
 | **赞赏/捐赠** | `src/pages/donate.astro` | (约第 30-50 行) 替换页面中的微信/支付宝收款码图片路径 (`/donate/wechat.jpg` 等)。 |
 | **静态资源/图片** | `public/` | 替换 `public/favicon/` 下的站点图标，以及 `public/images/avatar.webp` (头像) 和 `public/xinghui.avif` (背景图)。 |
 | **首页打字机文案** | `src/components/widget/Typewriter.svelte` | ⚠️ **硬编码**(约第 12 行 `const lines` 数组) 如果文案是硬编码的，请在此文件中搜索并替换显示的文本。 |
-| **悬浮控制按钮** | `src/components/FloatingControls.svelte` | 右下角悬浮按钮组件，包含排序切换（发布/更新/浏览量）、背景预览、返回顶部功能。排序状态通过 `localStorage` 持久化，换页后自动恢复。 |
+| **悬浮控制按钮** | `src/components/FloatingControls.svelte` | 右下角悬浮按钮组件，包含排序切换（发布/更新/浏览量）、背景预览、返回顶部功能。浏览量排序跳转 `/hot/` 分页，发布时间排序从 `/hot/` 跳回 `/`，更新时间为当前页客户端排序。跨页跳转通过 `sessionStorage` 传递 toast 提示。 |
+| **热门文章分页** | `src/pages/hot/[...page].astro` | 构建时按 Umami pageviews 降序生成的静态分页（`/hot/`、`/hot/2/` 等）。置顶文章仍优先。数据来源于 `getWritingStats().allPostViews`。 |
+| **写作统计/Umami** | `src/utils/writing-stats.ts` | 逐篇请求 Umami `/stats?path=` 端点获取真实 pageviews（非 visitors）。导出 `allPostViews`（全部文章浏览量）和 `popularPosts`（Top 5）。并发请求 + 5 秒超时保护。 |
+| **热门排名自动部署** | `.github/workflows/hot-ranking-check.yml` | 每日 UTC 16:00（北京 0:00）检测 Umami Top 5 文章排名是否变化。排名缓存在 `.hot-ranking-cache.txt`，变化时自动 commit 推送触发重新部署。支持 `workflow_dispatch` 手动触发。 |
 | **关于/隐私页面** | `src/pages/about-privacy.astro` | (正文区域) 修改页面内关于隐私政策的具体文本。 |
 | **SEO 提交脚本** | `scripts/submit-indexnow.mjs` / `scripts/submit-indexnow-incremental.mjs` | 现改为读取环境变量：`INDEXNOW_KEY`、`INDEXNOW_HOST`（可选 `INDEXNOW_KEY_LOCATION`）。请保留 `public/{key}.txt` 的公开校验文件，并确保它与 `INDEXNOW_KEY` 匹配。 |
 | **图片压缩工具** | `scripts/convert-images.ps1` |  PowerShell 脚本。可修改 `$TargetPath` 参数指定扫描目录，默认扫描 `public`。需安装 FFmpeg。 |

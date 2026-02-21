@@ -13,14 +13,26 @@
   let isBackgroundHidden = false;
   let showBackToTop = false;
   let isHomePage = false;
+  let isHotPage = false;
   let isPostPage = false;
 
   // 切换排序
   function cycleSortMode() {
     currentSortIndex = (currentSortIndex + 1) % sortModes.length;
     const mode = sortModes[currentSortIndex];
-    // 保存到 localStorage
     localStorage.setItem("post-sort-mode", mode.key);
+
+    if (mode.key === "views") {
+      sessionStorage.setItem("sort-toast", `已按${mode.label}排序`);
+      window.location.href = "/hot/";
+      return;
+    }
+    if (mode.key === "published" && isHotPage) {
+      sessionStorage.setItem("sort-toast", `已按${mode.label}排序`);
+      window.location.href = "/";
+      return;
+    }
+
     sortPosts(mode.key);
     showToast(`已按${mode.label}排序（当前页）`);
   }
@@ -137,26 +149,36 @@
   // 应用保存的排序状态
   function applySavedSort() {
     const currentPath = window.location.pathname;
-    // 匹配首页 / 以及分页 /2/, /3/, /page/2/ 等
     const isCurrentHomePage =
       currentPath === "/" || /^\/(\d+|page\/\d+)\/?$/.test(currentPath);
+    const isCurrentHotPage = /^\/hot(\/\d+)?\/?$/.test(currentPath);
 
-    if (isCurrentHomePage) {
+    if (isCurrentHomePage || isCurrentHotPage) {
       isHomePage = true;
+      isHotPage = isCurrentHotPage;
       isPostPage = false;
-      const savedSort = localStorage.getItem(
-        "post-sort-mode"
-      ) as SortMode | null;
-      if (savedSort && savedSort !== "published") {
-        const savedIndex = sortModes.findIndex((m) => m.key === savedSort);
-        if (savedIndex !== -1) {
-          currentSortIndex = savedIndex;
-          // 执行排序，需要等待 DOM 和数据加载
-          waitAndSort(savedSort);
+
+      if (isCurrentHotPage) {
+        // /hot/ 页面默认选中 views
+        currentSortIndex = sortModes.findIndex((m) => m.key === "views");
+        localStorage.setItem("post-sort-mode", "views");
+      } else {
+        const savedSort = localStorage.getItem("post-sort-mode") as SortMode | null;
+        if (savedSort && savedSort !== "published") {
+          const savedIndex = sortModes.findIndex((m) => m.key === savedSort);
+          if (savedIndex !== -1) {
+            currentSortIndex = savedIndex;
+            if (savedSort === "views") {
+              // 在首页但选了 views，跳转到 /hot/
+              return;
+            }
+            waitAndSort(savedSort);
+          }
         }
       }
     } else {
       isHomePage = false;
+      isHotPage = false;
       isPostPage = /^\/posts\//.test(currentPath);
     }
   }
@@ -196,6 +218,13 @@
   }
 
   onMount(() => {
+    // 显示跨页 toast
+    const pendingToast = sessionStorage.getItem("sort-toast");
+    if (pendingToast) {
+      sessionStorage.removeItem("sort-toast");
+      showToast(pendingToast);
+    }
+
     // 初始判断并应用排序
     applySavedSort();
 

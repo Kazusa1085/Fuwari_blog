@@ -1,0 +1,35 @@
+---
+import type { GetStaticPaths } from "astro";
+import PostPage from "../../components/PostPage.astro";
+import Pagination from "../../components/control/Pagination.astro";
+import { PAGE_SIZE } from "../../constants/constants";
+import MainGridLayout from "../../layouts/MainGridLayout.astro";
+import { getSortedPosts } from "../../utils/content-utils";
+import { getWritingStats } from "../../utils/writing-stats";
+
+export const getStaticPaths = (async ({ paginate }) => {
+	const allPosts = await getSortedPosts();
+	const { allPostViews } = await getWritingStats();
+	const viewMap = new Map(allPostViews.map(v => [v.slug, v.views]));
+
+	const pinned = allPosts.filter(p => p.data.pinned);
+	const normal = allPosts.filter(p => !p.data.pinned);
+	normal.sort((a, b) => (viewMap.get(b.slug) || 0) - (viewMap.get(a.slug) || 0));
+
+	return paginate([...pinned, ...normal], { pageSize: PAGE_SIZE });
+}) satisfies GetStaticPaths;
+
+const { page } = Astro.props;
+
+const pageDescription = page.currentPage === 1
+	? "按热度排序的技术博客文章列表，浏览最受欢迎的原创技术文章。"
+	: `热门文章列表第 ${page.currentPage} 页，浏览更多热门技术文章。`;
+
+const len = page.data.length;
+---
+
+<MainGridLayout title={`热门文章${page.currentPage > 1 ? ` - 第 ${page.currentPage} 页` : ''}`} description={pageDescription}>
+    <h1 class="sr-only">热门文章列表{page.currentPage > 1 ? ` - 第 ${page.currentPage} 页` : ''}</h1>
+    <PostPage page={page}></PostPage>
+    <Pagination class="mx-auto onload-animation" page={page} style={`animation-delay: calc(var(--content-delay) + ${len * 50}ms)`}></Pagination>
+</MainGridLayout>

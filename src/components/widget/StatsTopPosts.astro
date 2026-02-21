@@ -1,0 +1,17 @@
+---
+import { getPostUrlBySlug } from '../../utils/url-utils'
+interface Props {
+  longestPosts: { title: string; slug: string; words: number }[]
+}
+const { longestPosts } = Astro.props
+const formatWords = (w: number) => w >= 10000 ? (w / 10000).toFixed(1) + '万' : w.toLocaleString()
+---
+<div class="flex flex-col gap-1 text-sm">
+  {longestPosts.map((post, i) => (
+    <a href={getPostUrlBySlug(post.slug)} class="flex items-start gap-2 px-2 py-1 rounded hover:bg-[var(--btn-regular-bg)] transition">
+      <span class="text-xs text-[var(--primary)] shrink-0 mt-0.5">{i + 1}</span>
+      <span class="truncate flex-1 text-neutral-100">{post.title}</span>
+      <span class="text-xs text-[var(--primary)] shrink-0">{formatWords(post.words)}</span>
+    </a>
+  ))}
+</div>

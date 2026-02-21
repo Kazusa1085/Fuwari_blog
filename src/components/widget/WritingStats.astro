@@ -1,0 +1,35 @@
+---
+import WidgetLayout from './WidgetLayout.astro'
+import StatsOverview from './StatsOverview.astro'
+import StatsYearlyChart from './StatsYearlyChart.astro'
+import StatsPopularPosts from './StatsPopularPosts.astro'
+import StatsTopPosts from './StatsTopPosts.astro'
+
+interface Props {
+  totalPosts: number
+  totalWords: number
+  totalMinutes: number
+  avgWords: number
+  postsByYear: { year: number; count: number }[]
+  popularPosts: { title: string; slug: string; views: number }[]
+  longestPosts: { title: string; slug: string; words: number }[]
+  class?: string
+}
+
+const { totalPosts, totalWords, totalMinutes, avgWords, postsByYear, popularPosts, longestPosts } = Astro.props
+const className = Astro.props.class
+---
+<div class:list={[className, "w-full flex flex-col gap-4"]}>
+  <WidgetLayout name="写作概览" id="stats-overview" class="bg-[var(--card-bg)]">
+    <StatsOverview totalPosts={totalPosts} totalWords={totalWords} totalMinutes={totalMinutes} avgWords={avgWords} />
+  </WidgetLayout>
+  <WidgetLayout name="年度发文" id="stats-yearly" class="bg-[var(--card-bg)]">
+    <StatsYearlyChart postsByYear={postsByYear} />
+  </WidgetLayout>
+  {popularPosts.length > 0 && <WidgetLayout name="热门文章" id="stats-popular" class="bg-[var(--card-bg)]">
+    <StatsPopularPosts popularPosts={popularPosts} />
+  </WidgetLayout>}
+  <WidgetLayout name="最长文章" id="stats-posts" class="bg-[var(--card-bg)]">
+    <StatsTopPosts longestPosts={longestPosts} />
+  </WidgetLayout>
+</div>

@@ -3,6 +3,7 @@ import Footer from "@components/Footer.astro";
 import Navbar from "@components/Navbar.astro";
 
 import SideBar from "@components/widget/SideBar.astro";
+import WritingStats from "@components/widget/WritingStats.astro";
 import type { MarkdownHeading } from "astro";
 import { Icon } from "astro-icon/components";
 import ImageWrapper from "../components/misc/ImageWrapper.astro";
@@ -15,6 +16,7 @@ import {
 	MAIN_PANEL_OVERLAPS_BANNER_HEIGHT,
 } from "../constants/constants";
 import Layout from "./Layout.astro";
+import { getWritingStats } from "../utils/writing-stats";
 
 interface Props {
 	title?: string;
@@ -40,6 +42,8 @@ const hasBannerLink = !!siteConfig.banner.credit.url;
 const mainPanelTop = siteConfig.banner.enable
 	? `calc(${BANNER_HEIGHT}vh - ${MAIN_PANEL_OVERLAPS_BANNER_HEIGHT}rem)`
 	: "5.5rem";
+
+const statsProps = await getWritingStats();
 ---
 
 <Layout title={title} banner={banner} description={description} lang={lang} setOGTypeArticle={setOGTypeArticle}>
@@ -64,7 +68,7 @@ const mainPanelTop = siteConfig.banner.enable
 <div class="absolute w-full z-30 pointer-events-none" style=`top: ${mainPanelTop}`>
     <!-- The pointer-events-none here prevent blocking the click event of the TOC -->
     <div class="relative max-w-[var(--page-width)] mx-auto pointer-events-auto">
-        <div id="main-grid" class="transition duration-700 w-full left-0 right-0 grid grid-cols-1 lg:grid-cols-[17.5rem_auto] grid-rows-[auto_1fr_auto] lg:grid-rows-[auto]
+        <div id="main-grid" class="transition duration-700 w-full left-0 right-0 grid grid-cols-1 lg:grid-cols-[17.5rem_auto] 2xl:grid-cols-[17.5rem_auto_16rem] grid-rows-[auto_1fr_auto] lg:grid-rows-[auto]
     mx-auto gap-4 px-0 md:px-4"
         >
             <!-- Banner image credit -->
@@ -88,11 +92,22 @@ const mainPanelTop = siteConfig.banner.enable
                     <!-- the overflow-hidden here prevent long text break the layout-->
                     <!-- make id different from windows.swup global property -->
                     <slot></slot>
+                    <!-- Mobile/tablet writing stats -->
+                    <div class="block 2xl:hidden onload-animation">
+                        <WritingStats {...statsProps} />
+                    </div>
                     <div class="footer col-span-1 onload-animation hidden lg:block">
                         <Footer></Footer>
                     </div>
                 </div>
             </main>
+
+            <!-- Right sidebar: writing stats (2xl+ only) -->
+            <div class="hidden 2xl:block row-start-1 row-end-2 col-span-1 onload-animation">
+                <div class="sticky top-4">
+                    <WritingStats {...statsProps} />
+                </div>
+            </div>
 
             <div class="footer col-span-1 onload-animation block lg:hidden">
                 <Footer></Footer>
@@ -104,7 +119,7 @@ const mainPanelTop = siteConfig.banner.enable
 </div>
 
 <!-- The things that should be under the banner, only the TOC for now -->
-<div class="absolute w-full z-0 hidden 2xl:block">
+<div class="absolute w-full z-0 hidden 3xl:block">
     <div class="relative max-w-[var(--page-width)] mx-auto">
         <!-- TOC component -->
         {siteConfig.toc.enable && <div id="toc-wrapper" class:list={["hidden lg:block transition absolute top-0 -right-[var(--toc-width)] w-[var(--toc-width)] flex items-center",

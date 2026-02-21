@@ -1,0 +1,15 @@
+---
+import { url } from '../../utils/url-utils'
+interface Props {
+  topTags: { name: string; count: number }[]
+}
+const { topTags } = Astro.props
+---
+<div class="flex flex-col gap-1 text-sm">
+  {topTags.map(tag => (
+    <a href={url(`/archive/tag/${tag.name}/`)} class="flex justify-between items-center px-2 py-1 rounded hover:bg-[var(--btn-regular-bg)] transition">
+      <span class="truncate text-neutral-100">#{tag.name}</span>
+      <span class="text-xs text-[var(--primary)] shrink-0 ml-1">{tag.count}</span>
+    </a>
+  ))}
+</div>

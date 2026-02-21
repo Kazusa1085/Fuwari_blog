@@ -1,0 +1,24 @@
+---
+interface Props {
+  totalPosts: number
+  totalWords: number
+  totalMinutes: number
+  avgWords: number
+}
+const { totalPosts, totalWords, totalMinutes, avgWords } = Astro.props
+const formatWords = (w: number) => w >= 10000 ? (w / 10000).toFixed(1) + '万' : w.toLocaleString()
+const formatMinutes = (m: number) => m >= 60 ? (m / 60).toFixed(1) + 'h' : m + 'min'
+---
+<div class="grid grid-cols-2 gap-2 text-sm">
+  {[
+    { label: '文章', value: totalPosts + ' 篇' },
+    { label: '总字数', value: formatWords(totalWords) },
+    { label: '阅读时长', value: formatMinutes(totalMinutes) },
+    { label: '均字数', value: formatWords(avgWords) },
+  ].map(item => (
+    <div class="text-center py-2 rounded-lg bg-[var(--btn-regular-bg)]">
+      <div class="font-bold text-lg text-[var(--primary)]">{item.value}</div>
+      <div class="text-xs text-white/60">{item.label}</div>
+    </div>
+  ))}
+</div>

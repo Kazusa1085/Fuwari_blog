@@ -53,7 +53,7 @@ onDestroy(() => {
 <!-- 移动端/平板端：固定顶部进度条（仅 <2xl 显示，且侧边栏卡片滚出后才显示） -->
 {#if visible && showFixed}
     <div
-        class="2xl:hidden fixed top-0 z-[60] px-4 py-2 bg-[var(--card-bg)] backdrop-blur-md border-b border-black/5 dark:border-white/10 shadow-sm transition-all duration-300 animate-slide-down"
+        class="3xl:hidden fixed top-0 z-[60] px-4 py-2 bg-[var(--card-bg)] backdrop-blur-md border-b border-black/5 dark:border-white/10 shadow-sm transition-all duration-300 animate-slide-down"
         style="left: {barLeft}; width: {barWidth}; -webkit-backdrop-filter: blur(12px);"
     >
         <div class="flex items-center justify-between">

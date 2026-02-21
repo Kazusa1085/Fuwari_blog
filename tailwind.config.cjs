@@ -8,6 +8,9 @@ module.exports = {
       fontFamily: {
         sans: ["Roboto", "sans-serif", ...defaultTheme.fontFamily.sans],
       },
+      screens: {
+        '3xl': '1800px',
+      },
     },
   },
   plugins: [require("@tailwindcss/typography")],

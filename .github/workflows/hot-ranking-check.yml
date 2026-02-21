@@ -1,0 +1,60 @@
+name: Check Hot Ranking Changes
+
+on:
+  schedule:
+    - cron: '0 16 * * *'  # UTC 16:00 = 北京时间 0:00
+  workflow_dispatch:
+
+jobs:
+  check-ranking:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check top 5 ranking changes
+        id: check
+        shell: bash
+        run: |
+          UMAMI_BASE="https://umami.micostar.cc"
+          SHARE_ID="X9ZZZ5l2xErS44Rc"
+
+          SHARE_RES=$(curl -sf "${UMAMI_BASE}/api/share/${SHARE_ID}")
+          if [ -z "$SHARE_RES" ]; then echo "Umami API 不可用"; exit 0; fi
+          WEBSITE_ID=$(echo "$SHARE_RES" | jq -r '.websiteId')
+          TOKEN=$(echo "$SHARE_RES" | jq -r '.token')
+          END_AT=$(date +%s)000
+
+          # 收集每篇文章的 pageviews
+          > /tmp/all_views.txt
+          for f in src/content/posts/*.md; do
+            slug=$(basename "$f" .md)
+            encoded_path=$(printf '/posts/%s/' "$slug" | jq -sRr @uri)
+            url="${UMAMI_BASE}/api/websites/${WEBSITE_ID}/stats?startAt=0&endAt=${END_AT}&path=${encoded_path}&compare=false"
+            pv=$(curl -sf -H "x-umami-share-token: ${TOKEN}" "$url" | jq '.pageviews // 0' 2>/dev/null || echo 0)
+            echo "${pv} ${slug}" >> /tmp/all_views.txt
+          done
+
+          # Top 5 slug 列表（按 pageviews 降序）
+          CURRENT_TOP5=$(sort -rn /tmp/all_views.txt | head -5 | awk '{print $2}' | paste -sd,)
+          echo "current=${CURRENT_TOP5}" >> "$GITHUB_OUTPUT"
+          echo "当前 Top 5: ${CURRENT_TOP5}"
+
+          # 对比缓存
+          CACHE_FILE=".hot-ranking-cache.txt"
+          if [ -f "$CACHE_FILE" ] && [ "$(cat "$CACHE_FILE")" = "$CURRENT_TOP5" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "排名未变化"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            echo "排名已变化，需要重新部署"
+          fi
+
+      - name: Update cache and push
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          echo "${{ steps.check.outputs.current }}" > .hot-ranking-cache.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .hot-ranking-cache.txt
+          git commit -m "chore: 检测到热门文章排名变化，触发重新部署"
+          git push

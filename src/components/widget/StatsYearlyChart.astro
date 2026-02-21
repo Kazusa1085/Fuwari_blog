@@ -1,0 +1,18 @@
+---
+interface Props {
+  postsByYear: { year: number; count: number }[]
+}
+const { postsByYear } = Astro.props
+const max = Math.max(...postsByYear.map(y => y.count), 1)
+---
+<div class="flex flex-col gap-1.5 text-sm">
+  {postsByYear.map(({ year, count }) => (
+    <div class="flex items-center gap-2">
+      <span class="w-10 text-xs text-neutral-100 shrink-0">{year}</span>
+      <div class="flex-1 h-4 rounded bg-[var(--btn-regular-bg)] overflow-hidden">
+        <div class="h-full rounded bg-[var(--primary)] opacity-70" style={`width:${(count / max) * 100}%`}></div>
+      </div>
+      <span class="w-6 text-xs text-right text-neutral-100">{count}</span>
+    </div>
+  ))}
+</div>

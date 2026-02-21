@@ -20,10 +20,10 @@
 | **Type Checking** | TypeScript (Strict Mode) |
 
 ### Key Features
-- **UI/UX**: Dark/Light theme toggle, Page transition animations (Swup), TOC, Sticky posts, **Post sorting** (by published/updated/views with pagination persistence), **Navbar dropdown menus**, **Reading progress indicator**.
+- **UI/UX**: Dark/Light theme toggle, Page transition animations (Swup), TOC, Sticky posts, **Post sorting** (by published/updated/views with cross-page navigation), **Flat navbar links** (all links visible on `lg+`, no dropdown groups), **Reading progress indicator**, **Hot posts page** (`/hot/`) with build-time pageviews sorting.
 - **Content**: Markdown support with math formulae (KaTeX), syntax highlighting (Expressive Code), Mermaid diagrams.
 - **Performance/Safety**: Image fallback (Dual CDN), Anti-leech protection, **Real-time CDN Detection** (Cloudflare/EdgeOne/Vercel).
-- **SEO/Analytics**: IndexNow integration, Sitemap, RSS, Umami & Google Analytics integration, Canonical URLs, Open Graph & Twitter Card meta tags, JSON-LD structured data.
+- **SEO/Analytics**: IndexNow integration, Sitemap, RSS, Umami (pageviews via `/stats` endpoint) & Google Analytics integration, Canonical URLs, Open Graph & Twitter Card meta tags, JSON-LD structured data.
 
 ---
 
@@ -197,19 +197,33 @@ Implemented in `src/pages/posts/[...slug].astro`.
 
 ## Navigation Architecture
 
-### Navbar Dropdown Menus
-The navbar supports grouping links into dropdown menus via `NavBarGroup` type in `src/types/config.ts`.
+### Navbar Layout
+The navbar displays all links flat on `lg+` screens (no dropdown groups). Title is on the left, links are centered (`flex-grow justify-center`), controls are on the right. On smaller screens, links collapse into a hamburger menu.
 
 | File | Role |
 | :--- | :--- |
 | `src/types/config.ts` | Defines `NavBarLink`, `NavBarGroup`, `NavBarConfig` types |
-| `src/config.ts` | Configures nav links; groups use `{ name, children: [] }` syntax |
-| `src/components/Navbar.astro` | Resolves config to `NavItem[]`, renders desktop dropdowns (CSS `group-hover`), binds mobile toggle JS |
-| `src/components/widget/NavMenuPanel.astro` | Mobile hamburger menu; groups render as expandable sections (`max-h-0`/`max-h-40` toggle) |
+| `src/config.ts` | Configures nav links as flat array (Stats, Status, Monitor listed individually) |
+| `src/components/Navbar.astro` | Renders links centered on `lg+`, hamburger menu on `<lg` |
+| `src/components/widget/NavMenuPanel.astro` | Mobile hamburger menu |
 
-- **Desktop**: Dropdown uses CSS `group-hover` with absolute positioning, solid `var(--card-bg)` background.
-- **Mobile**: Groups use `.nav-group-toggle` buttons with JS click handlers; arrow rotates on expand.
+- **Desktop (`lg+`)**: Links use `flex-grow justify-center` for centered layout. Hamburger button hidden via `lg:!hidden`.
+- **Mobile (`<lg`)**: Links hidden, hamburger menu shown. Spacer (`flex-grow lg:hidden`) keeps title and controls apart.
 - **Swup**: Mobile toggle JS re-binds on `swup:contentReplaced` event. Uses `data-bound` attribute to prevent duplicate event listener binding.
+
+### Post Sorting & Hot Pages
+Sorting is handled via `FloatingControls.svelte` with three modes: published, updated, views.
+
+| Mode | Behavior |
+| :--- | :--- |
+| `published` | Default on `/`. If on `/hot/`, navigates to `/` |
+| `updated` | Client-side DOM sort (current page only) |
+| `views` | Navigates to `/hot/` (build-time sorted by pageviews) |
+
+- **`/hot/` pages** (`src/pages/hot/[...page].astro`): Static pages sorted by Umami pageviews descending (pinned posts first). Uses `getWritingStats().allPostViews` for sort data.
+- **Cross-page toast**: `sessionStorage` stores toast message before navigation; `onMount` reads and displays it on the target page.
+- **Umami data**: `src/utils/writing-stats.ts` fetches per-post pageviews via `/stats?path=` endpoint (not `/metrics` which returns visitors). Exports `allPostViews: { slug, views }[]`.
+- **Auto-redeploy**: GitHub Actions workflow (`.github/workflows/hot-ranking-check.yml`) runs daily at UTC 16:00 (Beijing 0:00). Fetches Umami pageviews for all posts, compares top 5 ranking against `.hot-ranking-cache.txt`. If changed, updates cache and pushes a commit to trigger redeployment.
 
 ### Reading Progress
 Shared state in `src/stores/readingProgress.ts` drives multiple display components.
