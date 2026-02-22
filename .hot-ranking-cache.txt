@@ -1,1 +1,1 @@
-openwebuieoai,unitymr-spatial-anchor,antigravity-login,userz-e,openwebui-responses
+openwebuieoai,unitymr-spatial-anchor,antigravity-login,userz-e,imagebed-cors
