@@ -1,34 +1,37 @@
 ---
 title: ClaudeCode下载代理(Worker)
 published: 2026-02-24T23:15:08
-updated: 2026-02-25T00:50:38
-description: ''
+updated: 2026-02-25T00:53:46
+description: '通过 Cloudflare Worker 搭建 Claude Code 安装代理，解决国内无法直接下载的问题'
 image: '/images/ClaudeCode1.webp'
 tags: [Cloudflare, ClaudeCode, 中转]
 
 draft: false 
 lang: ''
 ---
-# 1.ClaudeCode是什么？
-简单来讲ClaudeCode就是**AI智能编程工具**，具有强大的Vibe Coding能力，详细请看[ClaudeCode](https://www.micostar.cc/posts/claudecode/)
+# 1. Claude Code 是什么？
 
-# 2.入门安装
-> 因为不可抗因素等等，Claude的母公司**Anthropic**对我们中国大陆拒绝提供AI服务，禁止使用Claude这一系列模型，但是我们仅仅只是想使用ClaudeCode这个工具(ClaudeCode≠AI模型)所以不要再发出类似于Cursor不如Claude这种驴唇不对马嘴的言论了
-> 
-官方的NPM安装已经是处于废弃状态，更推荐使用**原生安装**
+简单来讲，Claude Code 就是一款 **AI 智能编程工具**，具有强大的 Vibe Coding 能力，详细介绍请看 [Claude Code 使用笔记](https://www.micostar.cc/posts/claudecode/)。
 
-但是正如前文所说，如果直接使用官方命令（国内正常网络环境）
+# 2. 入门安装
+
+> 由于不可抗因素，Claude 的母公司 **Anthropic** 对中国大陆拒绝提供 AI 服务，禁止使用 Claude 系列模型。但我们仅仅只是想使用 Claude Code 这个工具（Claude Code ≠ AI 模型），所以不要再发出类似于"Cursor 不如 Claude"这种驴唇不对马嘴的言论了。
+
+官方的 NPM 安装方式已处于废弃状态，更推荐使用**原生安装**。
+
+但正如前文所说，如果直接使用官方命令（国内正常网络环境下）：
 ```powershell
 irm https://claude.ai/install.ps1 | iex
 ```
-大概率会得到以下的反馈
+大概率会得到以下报错：
 ![下载出错页面图片](/images/ClaudeCode4.webp)
-所以我们提供了基于CloudflareWorker的加速下载
+因此，我们提供了基于 Cloudflare Worker 的加速下载方案。
 
-# 3.Worker配置
+# 3. Worker 配置
 
-## 1.核心Worker代码
-请将`SELF_BASE`修改为你要使用的加速域名
+## 3.1 核心 Worker 代码
+
+请将 `SELF_BASE` 修改为你要使用的加速域名：
 ```javascript
 const CLAUDE = "https://claude.ai";
 const SELF_BASE = "https://你的加速域名";
@@ -425,33 +428,34 @@ export default {
   },
 };
 ```
-## 2.Worker路由
-这里我们利用Worker的路由来进行转发（***workers.dev的域名在大陆无法正常访问***）
-请务必填写为 `你的加速域名/*`
+## 3.2 Worker 路由
+
+我们利用 Worker 的路由来进行转发（***workers.dev 域名在大陆无法正常访问***），请务必填写为 `你的加速域名/*`：
 
 ![Worker路由图片](/images/ClaudeCode3.webp)
 
-然后记录下你的这个Worker分配的Worker子域名，例如`abc.abc.workers.dev`
+然后记录下你的 Worker 分配的子域名，例如 `abc.abc.workers.dev`：
 
 ![Worker子域图片](/images/ClaudeCode2.webp)
 
-# 4.加速域名配置
-来到你的托管在Cloudflare的域名下，选择 **DNS**——**记录**
- 将你预定的加速域名 <span style="color: red; font-weight: bold;">CNAME</span> 值为 **你的Worker分配的子域名** 如图（记得开启小黄云）
+# 4. 加速域名配置
+
+来到你托管在 Cloudflare 的域名下，选择 **DNS** — **记录**，将你预定的加速域名 <span style="color: red; font-weight: bold;">CNAME</span> 指向**你的 Worker 分配的子域名**，如图所示（记得开启小黄云）：
 
 ![DNS域名图片](/images/ClaudeCode6.webp)
 
-# 5.使用
-部署完成后访问你的加速域名 
+# 5. 使用
 
-> ps:能否成功下载也取决于你的网络能否正常连接到Cloudflare官网，以及请耐心等待，Worker速度不稳定
+部署完成后，访问你的加速域名：
+
+> 能否成功下载也取决于你的网络能否正常连接到 Cloudflare，***请耐心等待***，Worker 速度可能不太稳定。
 
 ![加速域名图片](/images/ClaudeCode1.webp)
 
-然后选择适合你终端的下载方式（PowerShell举例）
+然后选择适合你终端的下载方式（以 PowerShell 为例）：
 ```powershell
 irm https://c.ai0728.com.cn/install.ps1 | iex
 ```
-成功效果
+成功效果：
 
 ![成功代理图片](/images/ClaudeCode5.webp)
