@@ -1,7 +1,7 @@
 ---
 title: ClaudeCode下载代理(Worker)
 published: 2026-02-24T23:15:08
-updated: 2026-02-25T00:44:25
+updated: 2026-02-25T00:50:38
 description: ''
 image: '/images/ClaudeCode1.webp'
 tags: [Cloudflare, ClaudeCode, 中转]
@@ -10,7 +10,7 @@ draft: false
 lang: ''
 ---
 # 1.ClaudeCode是什么？
-简单来讲ClaudeCode就是**AI智能编程工具**，就有强大的Vibe Coding能力，详细请看[ClaudeCode](https://www.micostar.cc/posts/claudecode/)
+简单来讲ClaudeCode就是**AI智能编程工具**，具有强大的Vibe Coding能力，详细请看[ClaudeCode](https://www.micostar.cc/posts/claudecode/)
 
 # 2.入门安装
 > 因为不可抗因素等等，Claude的母公司**Anthropic**对我们中国大陆拒绝提供AI服务，禁止使用Claude这一系列模型，但是我们仅仅只是想使用ClaudeCode这个工具(ClaudeCode≠AI模型)所以不要再发出类似于Cursor不如Claude这种驴唇不对马嘴的言论了
@@ -18,7 +18,7 @@ lang: ''
 官方的NPM安装已经是处于废弃状态，更推荐使用**原生安装**
 
 但是正如前文所说，如果直接使用官方命令（国内正常网络环境）
-```Bash
+```powershell
 irm https://claude.ai/install.ps1 | iex
 ```
 大概率会得到以下的反馈
@@ -28,8 +28,8 @@ irm https://claude.ai/install.ps1 | iex
 # 3.Worker配置
 
 ## 1.核心Worker代码
-请将``SELF_BASE``修改为你要使用的加速域名
-```JavaScript
+请将`SELF_BASE`修改为你要使用的加速域名
+```javascript
 const CLAUDE = "https://claude.ai";
 const SELF_BASE = "https://你的加速域名";
 const ALLOWED_INSTALL = new Set(["/install.ps1", "/install.sh", "/install.cmd"]);
@@ -427,11 +427,11 @@ export default {
 ```
 ## 2.Worker路由
 这里我们利用Worker的路由来进行转发（***workers.dev的域名在大陆无法正常访问***）
-请务必填写为 ``你的加速域名/*``
+请务必填写为 `你的加速域名/*`
 
 ![Worker路由图片](/images/ClaudeCode3.webp)
 
-然后记录下你的这个Worker分配的Worker子域名，例如``abc.abc.workers.dev``
+然后记录下你的这个Worker分配的Worker子域名，例如`abc.abc.workers.dev`
 
 ![Worker子域图片](/images/ClaudeCode2.webp)
 
@@ -449,7 +449,7 @@ export default {
 ![加速域名图片](/images/ClaudeCode1.webp)
 
 然后选择适合你终端的下载方式（PowerShell举例）
-```Bash
+```powershell
 irm https://c.ai0728.com.cn/install.ps1 | iex
 ```
 成功效果
