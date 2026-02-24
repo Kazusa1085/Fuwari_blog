@@ -4,9 +4,9 @@
   // 排序模式
   type SortMode = "published" | "updated" | "views";
   const sortModes: { key: SortMode; label: string; icon: string }[] = [
-    { key: "published", label: "发布时间", icon: "calendar" },
-    { key: "updated", label: "更新时间", icon: "edit" },
-    { key: "views", label: "浏览次数", icon: "fire" },
+    { key: "published", label: "文章创作时间", icon: "calendar" },
+    { key: "updated", label: "文章更新时间", icon: "edit" },
+    { key: "views", label: "浏览量排序", icon: "fire" },
   ];
 
   let currentSortIndex = 0;
@@ -164,16 +164,18 @@
         localStorage.setItem("post-sort-mode", "views");
       } else {
         const savedSort = localStorage.getItem("post-sort-mode") as SortMode | null;
-        if (savedSort && savedSort !== "published") {
+        if (savedSort === "views") {
+          // 从 /hot/ 回到首页，重置为 published
+          currentSortIndex = 0;
+          localStorage.setItem("post-sort-mode", "published");
+        } else if (savedSort && savedSort !== "published") {
           const savedIndex = sortModes.findIndex((m) => m.key === savedSort);
           if (savedIndex !== -1) {
             currentSortIndex = savedIndex;
-            if (savedSort === "views") {
-              // 在首页但选了 views，跳转到 /hot/
-              return;
-            }
             waitAndSort(savedSort);
           }
+        } else {
+          currentSortIndex = 0;
         }
       }
     } else {

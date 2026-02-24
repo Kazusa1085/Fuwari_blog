@@ -20,10 +20,12 @@
 | **Type Checking** | TypeScript (Strict Mode) |
 
 ### Key Features
-- **UI/UX**: Dark/Light theme toggle, Page transition animations (Swup), TOC, Sticky posts, **Post sorting** (by published/updated/views with cross-page navigation), **Flat navbar links** (all links visible on `lg+`, no dropdown groups), **Reading progress indicator**, **Hot posts page** (`/hot/`) with build-time pageviews sorting.
+- **UI/UX**: Dark/Light theme toggle, Page transition animations (Swup), TOC, Sticky posts, **Post sorting** (by published/updated/views with cross-page navigation; labels: 文章创作时间/文章更新时间/浏览量排序), **Flat navbar links** (all links visible on `lg+`, no dropdown groups), **Reading progress indicator**, **Hot posts page** (`/hot/`) with build-time pageviews sorting.
+- **Privacy/Consent**: Cookie consent popup (bottom-right, animated scale-in/out) with bilingual (zh+en) text, dynamic GA/AdSense loading only after consent, Umami always-on (cookie-free), "always remember" checkbox, reset control on privacy page (`/about-privacy/`).
 - **Content**: Markdown support with math formulae (KaTeX), syntax highlighting (Expressive Code), Mermaid diagrams.
 - **Performance/Safety**: Image fallback (Dual CDN), Anti-leech protection, **Real-time CDN Detection** (Cloudflare/EdgeOne/Vercel).
-- **SEO/Analytics**: IndexNow integration, Sitemap, RSS, Umami (pageviews via `/stats` endpoint) & Google Analytics integration, Canonical URLs, Open Graph & Twitter Card meta tags, JSON-LD structured data.
+- **SEO/Analytics**: IndexNow integration, Sitemap, RSS, Umami (pageviews via `/stats` endpoint, always-on, cookie-free) & Google Analytics + AdSense (consent-gated, dynamically injected after user accepts), Canonical URLs, Open Graph & Twitter Card meta tags, JSON-LD structured data.
+- **Cookie Consent** (`src/layouts/Layout.astro`): Bottom-right animated popup (scale-in on load, keyframe shrink-out on dismiss). `localStorage` key `cookie-consent` stores `accepted`/`rejected`/`always-accepted`/`always-rejected`. GA (`G-68S9RLWRP0`) and AdSense (`ca-pub-2234222684256085`) scripts are dynamically injected only when accepted. Umami is unconditional. Reset UI available at `/about-privacy/`.
 
 ---
 
@@ -214,11 +216,11 @@ The navbar displays all links flat on `lg+` screens (no dropdown groups). Title 
 ### Post Sorting & Hot Pages
 Sorting is handled via `FloatingControls.svelte` with three modes: published, updated, views.
 
-| Mode | Behavior |
-| :--- | :--- |
-| `published` | Default on `/`. If on `/hot/`, navigates to `/` |
-| `updated` | Client-side DOM sort (current page only) |
-| `views` | Navigates to `/hot/` (build-time sorted by pageviews) |
+| Mode | Label | Behavior |
+| :--- | :--- | :--- |
+| `published` | 文章创作时间 | Default on `/`. If saved mode is `views` (came from `/hot/`), resets to `published`. |
+| `updated` | 文章更新时间 | Client-side DOM sort (current page only) |
+| `views` | 浏览量排序 | Navigates to `/hot/` (build-time sorted by pageviews) |
 
 - **`/hot/` pages** (`src/pages/hot/[...page].astro`): Static pages sorted by Umami pageviews descending (pinned posts first). Uses `getWritingStats().allPostViews` for sort data.
 - **Cross-page toast**: `sessionStorage` stores toast message before navigation; `onMount` reads and displays it on the target page.

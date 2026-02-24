@@ -51,13 +51,67 @@
 - 用途：网站流量统计和分析
 - 特点：注重隐私保护，不使用 Cookie，数据匿名化处理
 - 实时查看：您可以在网站导航栏中实时查看站点流量统计
+- Cookie 同意：**无需同意**，Umami 不使用 Cookie，始终运行
+
+### 广告服务
+
+**Google AdSense（谷歌广告）**
+- 可能收集的信息：Cookie、设备标识符、浏览行为、兴趣偏好
+- 用途：展示个性化广告
+- 特点：仅在用户同意 Cookie 后加载
+- 隐私政策：[Google 隐私政策](https://policies.google.com/privacy)
+
+### 评论服务
+
+**Giscus**
+- 基于 GitHub Discussions 的评论系统
+- 可能收集的信息：GitHub 账户信息（仅在您主动登录评论时）
+- 特点：不使用 Cookie，不追踪用户
+- 隐私政策：[GitHub 隐私声明](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement)
 
 ## Cookie 和本地存储
 
 我们的网站可能使用以下技术：
-- **Cookie**：用于网站功能和第三方服务
-- **本地存储**：用于保存用户偏好设置（如主题选择）
+- **Cookie**：用于网站功能和第三方服务（Google Analytics、Google AdSense）
+- **本地存储**：用于保存用户偏好设置（如主题选择、Cookie 同意状态）
 - **会话存储**：用于临时存储页面状态
+
+### Cookie 使用说明
+
+| 服务 | 类型 | 用途 | 是否需要同意 |
+|------|------|------|-------------|
+| Google Analytics | 第三方 Cookie | 匿名统计用户行为 | ✅ 是 |
+| Google AdSense | 第三方 Cookie | 展示个性化广告 | ✅ 是 |
+| Umami | 无 Cookie | 匿名流量统计 | ❌ 否（隐私友好） |
+| 主题/偏好设置 | 本地存储 | 保存您的显示偏好 | ❌ 否（功能必需） |
+
+### 管理您的 Cookie 设置
+
+您可以随时更改 Cookie 同意状态。点击下方按钮重置设置后，下次刷新页面将重新显示 Cookie 同意横幅。
+
+<button id="reset-cookie-consent" style="padding:8px 20px;border-radius:8px;border:none;background:var(--primary,#a78bfa);color:#fff;font-size:14px;cursor:pointer;font-weight:600;margin:8px 0;">重置 Cookie 设置 / Reset Cookie Preferences</button>
+<span id="reset-cookie-msg" style="margin-left:10px;font-size:13px;color:var(--primary,#a78bfa);display:none;"></span>
+
+<script>
+document.getElementById('reset-cookie-consent')?.addEventListener('click',function(){
+  localStorage.removeItem('cookie-consent');
+  var msg=document.getElementById('reset-cookie-msg');
+  msg.textContent='✅ 已重置，刷新页面后将重新显示 Cookie 横幅 / Reset done, refresh to see the banner again.';
+  msg.style.display='inline';
+});
+</script>
+
+### 如何清理浏览器 Cookie
+
+如果您希望彻底清除本站及第三方服务存储的 Cookie，可按以下步骤操作：
+
+**Chrome / Edge**：设置 → 隐私和安全 → 清除浏览数据 → 勾选"Cookie 和其他网站数据" → 清除数据
+
+**Firefox**：设置 → 隐私与安全 → Cookie 和网站数据 → 清除数据
+
+**Safari**：偏好设置 → 隐私 → 管理网站数据 → 搜索本站域名 → 移除
+
+> 💡 提示：清除 Cookie 后，您的主题偏好等本地设置也会被重置。如果只想重置 Cookie 同意状态，请使用上方的"重置 Cookie 设置"按钮。
 
 ## 您的权利
 

@@ -102,8 +102,6 @@ const bannerOffset =
 		<meta charset="UTF-8" />
 
 		<meta name="google-adsense-account" content="ca-pub-2234222684256085" />
-		<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2234222684256085"
-     crossorigin="anonymous"></script>
 		<meta name="description" content={description}>
 		<meta name="author" content={profileConfig.name}>
 		<meta name="msvalidate.01" content="D45C7B22F1891C5B0E4D62E9333D4D05" />
@@ -337,18 +335,7 @@ const bannerOffset =
 		<script defer src="https://umami.micostar.cc/script.js" data-website-id="46580811-c547-4c3a-b5d9-69ec82ae6e80"></script>
 		<!-- Umami 分享数据辅助脚本（缓存 share token / websiteId） -->
 
-		<!-- Google tag (gtag.js) -->
-		{googleAnalyticsConfig.enable && (
-			<>
-				<script async src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsConfig.measurementId}`}></script>
-				<script is:inline define:vars={{measurementId: googleAnalyticsConfig.measurementId}}>
-					window.dataLayer = window.dataLayer || [];
-					function gtag(){dataLayer.push(arguments);}
-					gtag('js', new Date());
-					gtag('config', measurementId);
-				</script>
-			</>
-		)}
+		<!-- Google Analytics & AdSense: 由 Cookie 同意组件动态加载 -->
 
 	</head>
 	<body class=" min-h-screen transition " class:list={[{"lg:is-home": isHomePage, "enable-banner": enableBanner}]}
@@ -371,6 +358,67 @@ const bannerOffset =
 		</script>
 
 
+
+		<!-- Cookie 同意弹窗 -->
+		<style>
+			#cookie-consent-banner{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;width:340px;max-width:calc(100vw - 2rem);background:var(--card-bg,rgba(35,38,48,0.95));border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:20px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 8px 32px rgba(0,0,0,0.3);transform-origin:bottom right;transform:scale(0);opacity:0;transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .25s ease;}
+			#cookie-consent-banner.cc-show{transform:scale(1);opacity:1;}
+			#cookie-consent-banner.cc-hide{animation:cc-shrink .8s cubic-bezier(.4,0,.2,1) forwards;}
+		@keyframes cc-shrink{0%{transform:scale(1);opacity:1;}30%{transform:scale(1.04);opacity:1;}100%{transform:scale(0);opacity:0;}}
+			.cc-title{font-size:15px;font-weight:700;color:var(--text-color,#eee);margin-bottom:10px;}
+			.cc-desc{font-size:12px;line-height:1.6;color:var(--text-color,#ccc);opacity:.85;margin-bottom:14px;}
+			.cc-desc a{color:var(--primary,#a78bfa);text-decoration:underline;}
+			.cc-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+			.cc-always{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-color,#ccc);cursor:pointer;user-select:none;margin-right:auto;}
+			.cc-always input{accent-color:var(--primary,#a78bfa);cursor:pointer;}
+			.cc-btn{padding:6px 16px;border-radius:8px;font-size:12px;cursor:pointer;font-weight:600;border:none;transition:opacity .2s;}
+			.cc-btn:hover{opacity:.85;}
+			.cc-btn-no{background:transparent;border:1px solid rgba(255,255,255,0.2);color:var(--text-color,#ccc);}
+			.cc-btn-yes{background:var(--primary,#a78bfa);color:#fff;}
+		</style>
+		<div id="cookie-consent-banner">
+			<div class="cc-title">🍪 Cookie</div>
+			<div class="cc-desc">本站使用 Cookie 及第三方服务（Google Analytics、AdSense）改善浏览体验。Umami 统计不使用 Cookie，始终运行。<br/>This site uses cookies and third-party services (Google Analytics, AdSense). Umami analytics is cookie-free and always active.<br/><a href="/about-privacy/">隐私政策 / Privacy Policy</a></div>
+			<div class="cc-actions">
+				<label class="cc-always"><input type="checkbox" id="cc-always" />始终记住 Always</label>
+				<button class="cc-btn cc-btn-yes" id="cookie-accept">同意 Yes</button>
+				<button class="cc-btn cc-btn-no" id="cookie-reject">拒绝 No</button>
+			</div>
+		</div>
+		<script is:inline>
+		(function(){
+			var CK='cookie-consent',cs=localStorage.getItem(CK);
+			function loadGA(){
+				var s=document.createElement('script');
+				s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=G-68S9RLWRP0';
+				document.head.appendChild(s);
+				s.onload=function(){window.dataLayer=window.dataLayer||[];function g(){dataLayer.push(arguments);}g('js',new Date());g('config','G-68S9RLWRP0');};
+			}
+			function loadAdSense(){
+				var s=document.createElement('script');
+				s.async=true;s.crossOrigin='anonymous';
+				s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2234222684256085';
+				document.head.appendChild(s);
+			}
+			function loadAll(){loadGA();loadAdSense();}
+			if(cs==='always-accepted'){loadAll();return;}
+			if(cs==='accepted')loadAll();
+			if(cs==='always-rejected')return;
+			var b=document.getElementById('cookie-consent-banner');
+			function hide(){b.classList.remove('cc-show');b.classList.add('cc-hide');}
+			setTimeout(function(){b.style.display='block';requestAnimationFrame(function(){b.classList.add('cc-show');});},600);
+			document.getElementById('cookie-accept').onclick=function(){
+				var a=document.getElementById('cc-always').checked;
+				localStorage.setItem(CK,a?'always-accepted':'accepted');
+				hide();if(cs!=='accepted')loadAll();
+			};
+			document.getElementById('cookie-reject').onclick=function(){
+				var a=document.getElementById('cc-always').checked;
+				localStorage.setItem(CK,a?'always-rejected':'rejected');
+				hide();
+			};
+		})();
+		</script>
 
 	</body>
 </html>

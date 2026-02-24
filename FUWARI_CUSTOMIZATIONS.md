@@ -22,7 +22,8 @@
 | **热门文章分页** | `src/pages/hot/[...page].astro` | 构建时按 Umami pageviews 降序生成的静态分页（`/hot/`、`/hot/2/` 等）。置顶文章仍优先。数据来源于 `getWritingStats().allPostViews`。 |
 | **写作统计/Umami** | `src/utils/writing-stats.ts` | 逐篇请求 Umami `/stats?path=` 端点获取真实 pageviews（非 visitors）。导出 `allPostViews`（全部文章浏览量）和 `popularPosts`（Top 5）。并发请求 + 5 秒超时保护。 |
 | **热门排名自动部署** | `.github/workflows/hot-ranking-check.yml` | 每日 UTC 16:00（北京 0:00）检测 Umami Top 5 文章排名是否变化。排名缓存在 `.hot-ranking-cache.txt`，变化时自动 commit 推送触发重新部署。支持 `workflow_dispatch` 手动触发。 |
-| **关于/隐私页面** | `src/pages/about-privacy.astro` | (正文区域) 修改页面内关于隐私政策的具体文本。 |
+| **Cookie 同意弹窗** | `src/layouts/Layout.astro` | 底部右下角弹窗，搜索 `cookie-consent-banner`。替换 GA ID (`G-68S9RLWRP0`) 和 AdSense ID (`ca-pub-2234222684256085`) 为您自己的。`localStorage` key `cookie-consent` 存储 `accepted/rejected/always-accepted/always-rejected`。Umami 不受同意控制，始终运行。 |
+| **关于/隐私页面** | `src/content/spec/about-privacy.md` | 修改隐私政策正文、Cookie 说明表格及第三方服务描述。页面内含重置 Cookie 同意的按钮，无需额外配置。 |
 | **SEO 提交脚本** | `scripts/submit-indexnow.mjs` / `scripts/submit-indexnow-incremental.mjs` | 现改为读取环境变量：`INDEXNOW_KEY`、`INDEXNOW_HOST`（可选 `INDEXNOW_KEY_LOCATION`）。请保留 `public/{key}.txt` 的公开校验文件，并确保它与 `INDEXNOW_KEY` 匹配。 |
 | **图片压缩工具** | `scripts/convert-images.ps1` |  PowerShell 脚本。可修改 `$TargetPath` 参数指定扫描目录，默认扫描 `public`。需安装 FFmpeg。 |
 
