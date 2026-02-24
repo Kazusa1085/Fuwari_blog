@@ -29,13 +29,19 @@ jobs:
 
           # 收集每篇文章的 pageviews
           > /tmp/all_views.txt
+          > /tmp/all_views.json
           for f in src/content/posts/*.md; do
-            slug=$(basename "$f" .md)
+            slug=$(basename "$f" .md | tr '[:upper:]' '[:lower:]')
             encoded_path=$(printf '/posts/%s/' "$slug" | jq -sRr @uri)
             url="${UMAMI_BASE}/api/websites/${WEBSITE_ID}/stats?startAt=0&endAt=${END_AT}&path=${encoded_path}&compare=false"
             pv=$(curl -sf -H "x-umami-share-token: ${TOKEN}" "$url" | jq '.pageviews // 0' 2>/dev/null || echo 0)
             echo "${pv} ${slug}" >> /tmp/all_views.txt
+            echo "{\"slug\":\"${slug}\",\"views\":${pv}}" >> /tmp/all_views.json
           done
+
+          # 生成排序后的 JSON 文件
+          mkdir -p src/data
+          jq -s 'sort_by(-.views)' /tmp/all_views.json > src/data/post-views.json
 
           # Top 5 slug 列表（按 pageviews 降序）
           CURRENT_TOP5=$(sort -rn /tmp/all_views.txt | head -5 | awk '{print $2}' | paste -sd,)
@@ -58,6 +64,5 @@ jobs:
           echo "${{ steps.check.outputs.current }}" > .hot-ranking-cache.txt
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .hot-ranking-cache.txt
-          git commit -m "chore: 检测到热门文章排名变化，触发重新部署"
-          git push
+          git add src/data/post-views.json .hot-ranking-cache.txt
+          git diff --cached --quiet || (git commit -m "chore: 更新文章浏览量数据" && git push)

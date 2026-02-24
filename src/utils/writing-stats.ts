@@ -1,5 +1,4 @@
 import { getSortedPosts } from "./content-utils";
-import { umamiConfig } from "../config";
 
 type StatsData = {
 	totalPosts: number;
@@ -40,33 +39,16 @@ export async function getWritingStats(): Promise<StatsData> {
 
 	let allPostViews: StatsData["allPostViews"] = [];
 	let popularPosts: StatsData["popularPosts"] = [];
-	if (umamiConfig.enable && umamiConfig.shareId) {
-		try {
-			const shareRes = await fetch(`${umamiConfig.baseUrl}/api/share/${umamiConfig.shareId}`, { signal: AbortSignal.timeout(5000) });
-			if (shareRes.ok) {
-				const { websiteId, token } = await shareRes.json();
-				const headers = { 'x-umami-share-token': token };
-				const endAt = Date.now();
-				allPostViews = await Promise.all(
-					allPosts.map(async (p) => {
-						try {
-							const url = `${umamiConfig.baseUrl}/api/websites/${websiteId}/stats?startAt=0&endAt=${endAt}&path=${encodeURIComponent('/posts/' + p.slug + '/')}&compare=false`;
-							const r = await fetch(url, { headers, signal: AbortSignal.timeout(5000) });
-							if (r.ok) { const d = await r.json(); return { slug: p.slug, views: d.pageviews || 0 }; }
-						} catch {}
-						return { slug: p.slug, views: 0 };
-					})
-				);
-				const slugMap = new Map(allPosts.map(p => [p.slug, p.data.title]));
-				popularPosts = [...allPostViews]
-					.sort((a, b) => b.views - a.views)
-					.slice(0, 5)
-					.map(({ slug, views }) => ({ title: slugMap.get(slug)!, slug, views }));
-			}
-		} catch (e) {
-			console.warn('[WritingStats] Umami API error:', e);
-		}
-	}
+	try {
+		const viewsData = await import("../data/post-views.json");
+		allPostViews = (viewsData.default || []).map((v: { slug: string; views: number }) => ({
+			slug: v.slug, views: v.views ?? 0
+		}));
+		const slugMap = new Map(allPosts.map(p => [p.slug, p.data.title]));
+		popularPosts = allPostViews
+			.slice(0, 5)
+			.map(({ slug, views }) => ({ title: slugMap.get(slug)!, slug, views }));
+	} catch {}
 
 	const longestPosts = [...postsWithWords].sort((a, b) => b.words - a.words).slice(0, 5);
 
