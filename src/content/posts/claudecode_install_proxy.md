@@ -1,6 +1,7 @@
 ---
 title: ClaudeCode下载代理(Worker)
 published: 2026-02-24T23:15:08
+updated: 2026-02-25T00:44:25
 description: ''
 image: '/images/ClaudeCode1.webp'
 tags: [Cloudflare, ClaudeCode, 中转]
@@ -441,7 +442,9 @@ export default {
 ![DNS域名图片](/images/ClaudeCode6.webp)
 
 # 5.使用
-部署完成后访问你的加速域名
+部署完成后访问你的加速域名 
+
+> ps:能否成功下载也取决于你的网络能否正常连接到Cloudflare官网，以及请耐心等待，Worker速度不稳定
 
 ![加速域名图片](/images/ClaudeCode1.webp)
 
