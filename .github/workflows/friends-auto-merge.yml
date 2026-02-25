@@ -23,88 +23,111 @@ jobs:
         id: verify
         run: |
           CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
-
           echo "Changed files:"
           echo "$CHANGED_FILES"
 
+          STATUS="pass"
+          DETAIL=""
+
           if [ -z "$CHANGED_FILES" ]; then
-            echo "::error::No files changed."
-            exit 1
+            STATUS="fail"
+            DETAIL="没有检测到文件变更"
+          else
+            for file in $CHANGED_FILES; do
+              if [[ "$file" == "src/content/friends/_order.json" ]]; then
+                STATUS="fail"
+                DETAIL="不允许修改 _order.json"
+                break
+              fi
+              if [[ ! "$file" =~ ^src/content/friends/[a-zA-Z0-9_-]+\.json$ ]]; then
+                STATUS="fail"
+                DETAIL="不允许的文件路径: $file（只能修改 src/content/friends/<name>.json）"
+                break
+              fi
+            done
           fi
 
-          for file in $CHANGED_FILES; do
-            if [[ "$file" == "src/content/friends/_order.json" ]]; then
-              echo "::error::Modifying _order.json is not allowed."
-              exit 1
-            fi
-            if [[ ! "$file" =~ ^src/content/friends/[a-zA-Z0-9_-]+\.json$ ]]; then
-              echo "::error::File $file is not allowed. Only src/content/friends/<name>.json is permitted."
-              exit 1
-            fi
-          done
-
-          echo "files<<EOF" >> $GITHUB_OUTPUT
-          echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-          echo "✅ File path check passed."
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+          echo "detail=$DETAIL" >> $GITHUB_OUTPUT
+          if [ "$STATUS" = "pass" ]; then
+            echo "files<<EOF" >> $GITHUB_OUTPUT
+            echo "$CHANGED_FILES" >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
 
       - name: Checkout PR Head
+        if: steps.verify.outputs.status == 'pass'
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
       - name: Validate JSON Content
+        id: validate
+        if: steps.verify.outputs.status == 'pass'
         shell: bash
         run: |
           cat > /tmp/validate_friend.py << 'PYEOF'
           import json, sys, re
-          with open(sys.argv[1]) as f:
-              data = json.load(f)
+          errors = []
+          try:
+              with open(sys.argv[1]) as f:
+                  data = json.load(f)
+          except json.JSONDecodeError as e:
+              print(f"JSON 解析失败: {e}")
+              sys.exit(1)
           required = ["name", "url", "avatar", "introduction", "friendsPage"]
           for field in required:
               if field not in data or not isinstance(data[field], str) or not data[field].strip():
-                  print(f"::error::Missing or empty required field: {field}")
-                  sys.exit(1)
+                  errors.append(f"缺少或为空的必需字段: {field}")
           for url_field in ["url", "avatar", "friendsPage"]:
-              if not re.match(r"^https?://", data[url_field]):
-                  print(f"::error::{url_field} must start with http:// or https://")
-                  sys.exit(1)
+              if url_field in data and isinstance(data[url_field], str) and not re.match(r"^https?://", data[url_field]):
+                  errors.append(f"{url_field} 必须以 http:// 或 https:// 开头")
           for key, val in data.items():
               if not isinstance(val, str):
-                  print(f"::error::Field {key} must be a string.")
-                  sys.exit(1)
-              if re.search(r"<script|javascript:|on\w+=", val, re.IGNORECASE):
-                  print(f"::error::Field {key} contains suspicious content.")
-                  sys.exit(1)
+                  errors.append(f"字段 {key} 必须是字符串")
+              elif re.search(r"<script|javascript:|on\w+=", val, re.IGNORECASE):
+                  errors.append(f"字段 {key} 包含可疑内容")
           allowed = {"name", "url", "avatar", "introduction", "friendsPage"}
           extra = set(data.keys()) - allowed
           if extra:
-              print(f"::error::Unknown fields: {extra}")
+              errors.append(f"未知字段: {extra}")
+          if errors:
+              print("; ".join(errors))
               sys.exit(1)
-          print(f"Validated: {sys.argv[1]}")
+          print("OK")
           PYEOF
 
+          STATUS="pass"
+          DETAIL=""
           FILES="${{ steps.verify.outputs.files }}"
           for file in $FILES; do
             if [ ! -f "$file" ]; then
-              echo "::error::File $file not found (deleted?)."
-              exit 1
+              STATUS="fail"
+              DETAIL="${DETAIL}文件 $file 不存在; "
+              continue
             fi
             SIZE=$(stat -c%s "$file")
             if [ "$SIZE" -gt 2048 ]; then
-              echo "::error::$file exceeds 2KB size limit."
-              exit 1
+              STATUS="fail"
+              DETAIL="${DETAIL}$file 超过 2KB 大小限制; "
+              continue
             fi
-            python3 /tmp/validate_friend.py "$file"
+            RESULT=$(python3 /tmp/validate_friend.py "$file" 2>&1) || {
+              STATUS="fail"
+              DETAIL="${DETAIL}${file}: ${RESULT}; "
+            }
           done
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
+          echo "detail=$DETAIL" >> $GITHUB_OUTPUT
 
       - name: Check Backlink
         id: backlink
+        if: steps.verify.outputs.status == 'pass'
         shell: bash
         run: |
           RESULT=""
-          ALL_PASS=true
+          STATUS="pass"
           FILES="${{ steps.verify.outputs.files }}"
           for file in $FILES; do
             FRIENDS_PAGE=$(python3 -c "import json,sys;print(json.load(open(sys.argv[1]))['friendsPage'])" "$file")
@@ -115,37 +138,63 @@ jobs:
                 RESULT="${RESULT}${NAME}: ✅ 已添加互链\n"
               else
                 RESULT="${RESULT}${NAME}: ❌ 未检测到 www.micostar.cc 的链接\n"
-                ALL_PASS=false
+                STATUS="fail"
               fi
             else
               RESULT="${RESULT}${NAME}: ⚠️ 无法访问友链页面 (HTTP ${HTTP_CODE})\n"
-              ALL_PASS=false
+              STATUS="fail"
             fi
           done
+          echo "status=$STATUS" >> $GITHUB_OUTPUT
           echo "result<<EOF" >> $GITHUB_OUTPUT
           echo -e "$RESULT" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
-          if [ "$ALL_PASS" = "false" ]; then
-            echo "::error::Backlink check failed."
-            exit 1
+          if [ "$STATUS" = "fail" ]; then
+            echo "detail=互链检测未通过" >> $GITHUB_OUTPUT
+          else
+            echo "detail=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Gate Check
+        id: gate
+        run: |
+          VERIFY="${{ steps.verify.outputs.status }}"
+          VALIDATE="${{ steps.validate.outputs.status }}"
+          BACKLINK="${{ steps.backlink.outputs.status }}"
+          if [ "$VERIFY" = "pass" ] && [ "$VALIDATE" = "pass" ] && [ "$BACKLINK" = "pass" ]; then
+            echo "status=pass" >> $GITHUB_OUTPUT
+          else
+            echo "status=fail" >> $GITHUB_OUTPUT
           fi
 
       - name: Install pnpm
+        if: steps.gate.outputs.status == 'pass'
         uses: pnpm/action-setup@v4
 
       - name: Set up Node.js
+        if: steps.gate.outputs.status == 'pass'
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: "pnpm"
 
       - name: Install dependencies
+        if: steps.gate.outputs.status == 'pass'
         run: pnpm install --frozen-lockfile
 
       - name: Build Check
-        run: pnpm build
+        id: build
+        if: steps.gate.outputs.status == 'pass'
+        run: |
+          if pnpm build; then
+            echo "status=pass" >> $GITHUB_OUTPUT
+          else
+            echo "status=fail" >> $GITHUB_OUTPUT
+            echo "detail=构建失败，请检查代码" >> $GITHUB_OUTPUT
+          fi
 
       - name: Auto Merge
+        if: steps.gate.outputs.status == 'pass' && steps.build.outputs.status == 'pass'
         run: |
           gh pr merge ${{ github.event.pull_request.number }} \
             --squash \
@@ -155,6 +204,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Update Order
+        if: steps.gate.outputs.status == 'pass' && steps.build.outputs.status == 'pass'
         shell: bash
         run: |
           git checkout main
@@ -197,26 +247,55 @@ jobs:
         if: always()
         shell: bash
         run: |
-          BACKLINK_RESULT="${{ steps.backlink.outputs.result }}"
-          if [ "${{ job.status }}" = "success" ]; then
-            BODY="🎉 友链已自动合并，欢迎加入！你的链接将在站点下次部署后生效。
+          V_STATUS="${{ steps.verify.outputs.status }}"
+          V_DETAIL="${{ steps.verify.outputs.detail }}"
+          J_STATUS="${{ steps.validate.outputs.status }}"
+          J_DETAIL="${{ steps.validate.outputs.detail }}"
+          B_STATUS="${{ steps.backlink.outputs.status }}"
+          B_DETAIL="${{ steps.backlink.outputs.result }}"
+          BUILD_STATUS="${{ steps.build.outputs.status }}"
+          BUILD_DETAIL="${{ steps.build.outputs.detail }}"
 
-          **互链检测结果：**
-          ${BACKLINK_RESULT}"
+          icon() { if [ "$1" = "pass" ]; then echo "✅"; elif [ "$1" = "fail" ]; then echo "❌"; else echo "⏭️"; fi; }
+          desc() { if [ -n "$2" ]; then echo "$2"; elif [ "$1" = "pass" ]; then echo "通过"; else echo "未执行"; fi; }
+
+          V_ICON=$(icon "$V_STATUS"); J_ICON=$(icon "$J_STATUS")
+          B_ICON=$(icon "$B_STATUS"); BUILD_ICON=$(icon "$BUILD_STATUS")
+          V_DESC=$(desc "$V_STATUS" "$V_DETAIL"); J_DESC=$(desc "$J_STATUS" "$J_DETAIL")
+          BUILD_DESC=$(desc "$BUILD_STATUS" "$BUILD_DETAIL")
+          if [ "$B_STATUS" = "pass" ]; then B_DESC="通过"
+          elif [ -n "$B_DETAIL" ]; then B_DESC=$(echo -e "$B_DETAIL" | tr '\n' ' ')
+          else B_DESC="未执行"; fi
+
+          GATE="${{ steps.gate.outputs.status }}"
+          if [ "$GATE" = "pass" ] && [ "$BUILD_STATUS" = "pass" ]; then
+            TITLE="## ✅ 友链验证通过"
+            LABEL_ADD="✅ 验证通过"
+            LABEL_REMOVE="❌ 验证未通过"
           else
-            BODY="❌ 自动验证未通过，请检查：
-          - JSON 格式是否正确
-          - 必需字段：name、url、avatar、introduction、friendsPage
-          - url、avatar、friendsPage 必须以 http(s):// 开头
-          - 只允许修改 src/content/friends/ 下的 JSON 文件
-          - 文件名只能包含字母、数字、下划线和连字符
-          - 对方友链页面必须包含指向 www.micostar.cc 的链接
+            TITLE="## ❌ 友链自动验证未通过"
+            LABEL_ADD="❌ 验证未通过"
+            LABEL_REMOVE="✅ 验证通过"
+          fi
 
-          **互链检测结果：**
-          ${BACKLINK_RESULT}
+          BODY="${TITLE}
 
+          | 检查项 | 结果 | 说明 |
+          |:---|:---:|:---|
+          | 📁 文件路径 | ${V_ICON} | ${V_DESC} |
+          | 📋 JSON 格式 | ${J_ICON} | ${J_DESC} |
+          | 🔗 互链检测 | ${B_ICON} | ${B_DESC} |
+          | 🏗️ 构建检查 | ${BUILD_ICON} | ${BUILD_DESC} |"
+
+          if [ "$GATE" != "pass" ] || [ "$BUILD_STATUS" != "pass" ]; then
+            BODY="${BODY}
+
+          请根据上述结果修正后更新 PR。
           详情请查看 [Action 日志](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})。"
           fi
+
           gh pr comment ${{ github.event.pull_request.number }} --body "$BODY"
+          gh pr edit ${{ github.event.pull_request.number }} --add-label "$LABEL_ADD" 2>/dev/null || true
+          gh pr edit ${{ github.event.pull_request.number }} --remove-label "$LABEL_REMOVE" 2>/dev/null || true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
