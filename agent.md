@@ -127,14 +127,17 @@ Each friend link is a JSON file in `src/content/friends/`:
 ### GitHub Actions Auto-Merge (`friends-auto-merge.yml`)
 | Step | Description |
 | :--- | :--- |
-| **Verify Changed Files** | Whitelist check: only `src/content/friends/<name>.json` allowed; `_order.json` modification blocked |
-| **Validate JSON Content** | Schema validation (required fields, URL format, XSS check, no extra fields, 2KB size limit) |
-| **Check Backlink** | Fetches `friendsPage` URL, checks for `href` containing `www.micostar.cc` |
-| **Build Check** | Runs `pnpm build` to verify no build errors |
-| **Auto Merge** | Squash merge with welcome message |
+| **Verify Changed Files** | Whitelist check: only `src/content/friends/<name>.json` allowed; `_order.json` modification blocked. Outputs `status`/`detail` without exiting on failure. |
+| **Validate JSON Content** | Schema validation (required fields, URL format, XSS check, no extra fields, 2KB size limit). Collects all errors before reporting. |
+| **Check Backlink** | Fetches `friendsPage` URL, checks for `href` containing `www.micostar.cc`. Outputs per-entry results. |
+| **Gate Check** | Aggregates results from above 3 steps. Only proceeds to Build/Merge if all pass. |
+| **Build Check** | Runs `pnpm build` (skipped if Gate fails). Captures pass/fail status. |
+| **Auto Merge** | Squash merge with welcome message (skipped if Gate or Build fails) |
 | **Update Order** | Appends new friend ID to `_order.json` and pushes to main |
-| **Comment on PR** | Posts backlink check results and success/failure details |
+| **Comment on PR** | Posts structured table with per-step ✅/❌/⏭️ results and specific error details |
+| **Label** | Adds `✅ 验证通过` or `❌ 验证未通过` label (auto-creates labels if missing) |
 
+- **Feedback Format**: PR comment uses a Markdown table showing each check item's status and reason. Failed checks don't block subsequent checks from running (except Build which requires Gate pass).
 - **Trigger**: `pull_request_target` with `types: [opened, synchronize]`.
 - **Security**: Checkout base first for file verification, then PR head for content validation. `pnpm install --frozen-lockfile` prevents lockfile tampering.
 
