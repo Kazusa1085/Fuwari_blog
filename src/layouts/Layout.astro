@@ -595,8 +595,8 @@ function showBanner() {
 	banner.classList.remove('opacity-0', 'scale-105');
 }
 
-function scrollToPostOnMobile() {
-	if (window.innerWidth < 1024 && document.getElementById('post-container')) {
+function scrollToContentOnMobile() {
+	if (window.innerWidth < 1024) {
 		const target = document.getElementById('swup-container')
 		if (target) {
 			const navbarHeight = 72
@@ -618,7 +618,7 @@ function init() {
 	loadHue();
 	initCustomScrollbar();
 	showBanner();
-	setTimeout(scrollToPostOnMobile, 350)
+	setTimeout(scrollToContentOnMobile, 350)
 }
 
 /* Load settings when entering the site */
@@ -664,8 +664,8 @@ const setup = () => {
 			bodyElement!.classList.remove('lg:is-home');
 		}
 
-		// 移动端文章页：阻止 Swup ScrollPlugin 自动滚回顶部，由 scrollToPostOnMobile 接管
-		if (window.innerWidth < 1024 && visit.to.url.includes('/posts/')) {
+		// 移动端：阻止 Swup ScrollPlugin 自动滚回顶部，由 scrollToContentOnMobile 接管
+		if (window.innerWidth < 1024) {
 			visit.scroll.reset = false
 		}
 
@@ -702,7 +702,7 @@ const setup = () => {
             }
 
             // 移动端文章页：自动滚动到文章内容区域，跳过 sidebar（个人信息/标签）
-            scrollToPostOnMobile()
+            scrollToContentOnMobile()
         }, 200)
 	});
 }
