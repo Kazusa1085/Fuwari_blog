@@ -655,13 +655,18 @@ const setup = () => {
 		}
 	})
 	window.swup.hooks.on('content:replace', initCustomScrollbar)
-	window.swup.hooks.on('visit:start', (visit: {to: {url: string}}) => {
+	window.swup.hooks.on('visit:start', (visit: {to: {url: string}, scroll: {reset: boolean}}) => {
 		// change banner height immediately when a link is clicked
 		const bodyElement = document.querySelector('body')
 		if (pathsEqual(visit.to.url, url('/'))) {
 			bodyElement!.classList.add('lg:is-home');
 		} else {
 			bodyElement!.classList.remove('lg:is-home');
+		}
+
+		// 移动端文章页：阻止 Swup ScrollPlugin 自动滚回顶部，由 scrollToPostOnMobile 接管
+		if (window.innerWidth < 1024 && visit.to.url.includes('/posts/')) {
+			visit.scroll.reset = false
 		}
 
 		// increase the page height during page transition to prevent the scrolling animation from jumping
