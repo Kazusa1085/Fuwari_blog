@@ -600,8 +600,14 @@ function scrollToPostOnMobile() {
 		const target = document.getElementById('swup-container')
 		if (target) {
 			const navbarHeight = 72
-			const y = target.getBoundingClientRect().top + window.scrollY - navbarHeight
-			window.scrollTo({ top: y, behavior: 'smooth' })
+			const viewport = document.querySelector('.os-viewport') as HTMLElement
+			if (viewport) {
+				const y = target.getBoundingClientRect().top + viewport.scrollTop - navbarHeight
+				viewport.scrollTo({ top: y, behavior: 'smooth' })
+			} else {
+				const y = target.getBoundingClientRect().top + window.scrollY - navbarHeight
+				window.scrollTo({ top: y, behavior: 'smooth' })
+			}
 		}
 	}
 }
