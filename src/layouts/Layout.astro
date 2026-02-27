@@ -595,12 +595,24 @@ function showBanner() {
 	banner.classList.remove('opacity-0', 'scale-105');
 }
 
+function scrollToPostOnMobile() {
+	if (window.innerWidth < 1024 && document.getElementById('post-container')) {
+		const target = document.getElementById('swup-container')
+		if (target) {
+			const navbarHeight = 72
+			const y = target.getBoundingClientRect().top + window.scrollY - navbarHeight
+			window.scrollTo({ top: y, behavior: 'smooth' })
+		}
+	}
+}
+
 function init() {
 	// disableAnimation()()		// TODO
 	loadTheme();
 	loadHue();
 	initCustomScrollbar();
 	showBanner();
+	setTimeout(scrollToPostOnMobile, 350)
 }
 
 /* Load settings when entering the site */
@@ -679,12 +691,7 @@ const setup = () => {
             }
 
             // 移动端文章页：自动滚动到文章内容区域，跳过 sidebar（个人信息/标签）
-            if (window.innerWidth < 1024 && document.getElementById('post-container')) {
-                const target = document.getElementById('swup-container')
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth' })
-                }
-            }
+            scrollToPostOnMobile()
         }, 200)
 	});
 }
