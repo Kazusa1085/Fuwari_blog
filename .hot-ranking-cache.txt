@@ -1,1 +1,1 @@
-ai-studio-zhcn,openwebuieoai,unitymr-spatial-anchor,antigravity-login,deepwiki-unityskills
+ai-studio-zhcn,openwebuieoai,unitymr-spatial-anchor,deepwiki-unityskills,antigravity-login
