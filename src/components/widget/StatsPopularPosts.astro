@@ -1,16 +1,65 @@
 ---
+import { umamiConfig } from '../../config'
 import { getPostUrlBySlug } from '../../utils/url-utils'
 interface Props {
   popularPosts: { title: string; slug: string; views: number }[]
 }
 const { popularPosts } = Astro.props
+const slugs = popularPosts.map(p => p.slug)
 ---
-<div class="flex flex-col gap-1 text-sm">
+<div class="flex flex-col gap-1 text-sm" id="stats-popular-list">
   {popularPosts.map((post, i) => (
     <a href={`${getPostUrlBySlug(post.slug)}#post-container`} class="flex items-start gap-2 px-2 py-1 rounded hover:bg-[var(--btn-regular-bg)] transition">
       <span class="text-xs text-[var(--primary)] shrink-0 mt-0.5">{i + 1}</span>
       <span class="truncate flex-1 text-neutral-100">{post.title}</span>
-      <span class="text-xs text-[var(--primary)] shrink-0">{post.views}</span>
+      <span class="text-xs text-[var(--primary)] shrink-0" data-popular-views={post.slug}>{post.views}</span>
     </a>
   ))}
 </div>
+<script define:vars={{ slugs, umamiConfig }}>
+(function() {
+  if (!umamiConfig.enable) return;
+
+  function updateViews() {
+    window.umamiCache = window.umamiCache || {};
+    const currentTimestamp = Date.now();
+
+    getUmamiShareData(umamiConfig.baseUrl, umamiConfig.shareId).then(({ websiteId, token }) => {
+      slugs.forEach(slug => {
+        // Use cache if available
+        if (window.umamiCache[slug]) {
+          const el = document.querySelector(`[data-popular-views="${slug}"]`);
+          if (el) el.textContent = window.umamiCache[slug].pageViews.toString();
+          return;
+        }
+
+        const pagePath = encodeURIComponent(`eq./posts/${slug}/`);
+        const statsUrl = `${umamiConfig.baseUrl}/api/websites/${websiteId}/stats?startAt=0&endAt=${currentTimestamp}&unit=hour&timezone=${encodeURIComponent(umamiConfig.timezone)}&path=${pagePath}&compare=false`;
+
+        fetch(statsUrl, { headers: { 'x-umami-share-token': token } })
+          .then(res => {
+            if (res.status === 401) {
+              clearUmamiShareCache();
+              return null;
+            }
+            return res.ok ? res.json() : null;
+          })
+          .then(data => {
+            if (!data) return;
+            const pageViews = data.pageviews || 0;
+            window.umamiCache[slug] = { pageViews, visitors: data.visitors || 0 };
+            const el = document.querySelector(`[data-popular-views="${slug}"]`);
+            if (el) el.textContent = pageViews.toString();
+          })
+          .catch(() => {});
+      });
+    }).catch(() => {});
+  }
+
+  if (typeof getUmamiShareData === 'function') {
+    updateViews();
+  } else {
+    window.addEventListener('load', updateViews);
+  }
+})();
+</script>
