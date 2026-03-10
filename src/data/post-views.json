@@ -1,90 +1,90 @@
 [
   {
     "slug": "ai-studio-zhcn",
-    "views": 810
-  },
-  {
-    "slug": "openwebuieoai",
-    "views": 377
-  },
-  {
-    "slug": "unitymr-spatial-anchor",
-    "views": 367
+    "views": 820
   },
   {
     "slug": "deepwiki-unityskills",
-    "views": 268
+    "views": 390
+  },
+  {
+    "slug": "openwebuieoai",
+    "views": 383
+  },
+  {
+    "slug": "unitymr-spatial-anchor",
+    "views": 375
   },
   {
     "slug": "antigravity-login",
-    "views": 265
-  },
-  {
-    "slug": "rider-visualstudio-zhcn",
-    "views": 239
+    "views": 268
   },
   {
     "slug": "userz-e",
-    "views": 238
+    "views": 249
   },
   {
-    "slug": "imagebed-cors",
-    "views": 220
-  },
-  {
-    "slug": "openwebui-responses",
-    "views": 215
+    "slug": "rider-visualstudio-zhcn",
+    "views": 244
   },
   {
     "slug": "unity-mcp",
-    "views": 208
+    "views": 240
   },
   {
-    "slug": "claudecode",
-    "views": 192
-  },
-  {
-    "slug": "github-1",
-    "views": 190
-  },
-  {
-    "slug": "unity-openweatherapi",
-    "views": 170
+    "slug": "imagebed-cors",
+    "views": 231
   },
   {
     "slug": "unityskills",
+    "views": 230
+  },
+  {
+    "slug": "openwebui-responses",
+    "views": 216
+  },
+  {
+    "slug": "claudecode",
+    "views": 193
+  },
+  {
+    "slug": "github-1",
+    "views": 192
+  },
+  {
+    "slug": "unity-openweatherapi",
+    "views": 171
+  },
+  {
+    "slug": "geminiclimanager",
     "views": 161
   },
   {
     "slug": "openwebui",
-    "views": 149
-  },
-  {
-    "slug": "geminiclimanager",
-    "views": 143
+    "views": 150
   },
   {
     "slug": "openwebuinoserver",
-    "views": 139
-  },
-  {
-    "slug": "gemini-balance-docker",
-    "views": 127
-  },
-  {
-    "slug": "openwebui-base-image",
-    "views": 108
+    "views": 140
   },
   {
     "slug": "claudecode_beautify",
-    "views": 87
+    "views": 135
   },
   {
-    "slug": "unity-module",
-    "views": 73
+    "slug": "gemini-balance-docker",
+    "views": 128
+  },
+  {
+    "slug": "openwebui-base-image",
+    "views": 109
   },
   {
     "slug": "claudecode_install_proxy",
-    "views": 63
+    "views": 100
+  },
+  {
+    "slug": "unity-module",
+    "views": 81
   }
 ]
