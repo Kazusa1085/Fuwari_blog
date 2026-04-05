@@ -1,7 +1,7 @@
 ---
 title: 我的ClaudeCode使用笔记
 published: 2025-09-20T19:33:12
-updated: 2026-02-25T00:39:47
+updated: 2026-04-05T12:34:07
 description: 'Claude Code 实用指南与技巧汇总。涵盖安装配置、核心命令、MCP模块、子智能体、Hooks钩子、Skills技能系统、自定义命令等完整使用笔记，助你高效使用 AI 编程助手。'
 image: '/images/claude.webp'
 tags: [AI, ClaudeCode使用笔记]
@@ -208,8 +208,10 @@ claude doctor
 | `/cost` | 显示当前会话的 Token 用量与费用 |
 | `/stats` | 查看使用统计信息 |
 | `/model` | 切换 AI 模型（`/model opus`） |
+| **`/insights`** | ClaudeCode对你的评价&总结 |
 | `/status` | 查看当前会话状态（模型、设置等） |
 | `/config` | 打开设置交互界面 |
+| **`/btw`** | 不会污染上下文的一个并行小对话功能 |
 | `/permissions` | 管理权限设置 |
 | `/mcp` | 配置 MCP 外部服务（`/mcp enable` / `/mcp disable`） |
 | `/hooks` | 查看 Hook 钩子配置 |
@@ -223,6 +225,7 @@ claude doctor
 | `/vim` | 启用 Vim 编辑模式 |
 | **`/ide`** | **连接到 IDE（VS Code / JetBrains）** |
 | `/sandbox` | 启用沙盒隔离模式 |
+| **`/simplify`** | 三合一代码审查功能 |
 | `/output-style` | 设置输出风格（`Explanatory` / `Learning` / `Concise`） |
 | `/add-dir` | 添加工作目录 |
 | `/doctor` | 检查安装状态 |
@@ -258,6 +261,7 @@ claude doctor
 | **`Shift+Tab`** | **循环切换权限模式** |
 | `Alt+P` / `Option+P` | 输入时切换模型 |
 | **`Ctrl+Enter`** | 换行输入 |
+| **`Ctrl+U`** | 清空行输入 |
 
 ---
 
@@ -338,84 +342,49 @@ claude doctor
 ```markdown
 # CLAUDE.md - 工作指导
 
-## CRITICAL CONSTRAINTS - 违反=任务失败
-═══════════════════════════════════════
-
 - 必须使用中文回复
-- 必须先获取上下文
-- 禁止生成恶意代码
-- 必须存储重要知识
-- 必须执行检查清单
-- 必须遵循质量标准
 
-## MANDATORY WORKFLOWS
-═════════════════════
+## 工作流程
 
-执行前检查清单：
-[ ] 中文 [ ] 上下文 [ ] 工具 [ ] 安全 [ ] 质量
+**简单任务**（单文件修改、小 bug、拼写修正）：直接执行
 
-标准工作流：
-1. 分析需求 → 2. 获取上下文 → 3. 选择工具 → 4. 执行任务 → 5. 验证质量 → 6. 存储知识
+**复杂任务**（多文件修改、架构设计、新功能）：
+1. 研究：Read 相关文件 + memory 目录，理解上下文，禁止编码
+2. 计划：EnterPlanMode 制定方案，用户确认后进入实施
+3. 实施：编码 → 运行测试验证
+4. 收尾：若产生了可复用的架构决策或调试经验，写入 memory 目录
 
-研究-计划-实施模式：
-研究阶段: 读取文件理解问题，禁止编码
-计划阶段: 创建详细计划
-实施阶段: 实施解决方案
-验证阶段: 运行测试验证
-提交阶段: 创建提交和文档
+## 知识管理
 
-## MANDATORY TOOL STRATEGY
-═════════════════════════
+使用 Read/Write 操作 memory 目录（系统 prompt 会提供当前正确路径）：
+- 任务开始前：查阅 memory 目录已有知识
+- 发现可复用的架构决策、调试经验时：按主题存储（如 `patterns.md`、`debugging.md`）
+- 一次性、临时性的上下文不存储
 
-任务开始前必须执行：
-1. memory 查询相关概念
-2. code-search 查找代码片段
-3. sequential-thinking 分析问题
-4. 选择合适子代理
+## 编码约束
+- 必须使用中文回复
+- 无明确编写指令时不主动编码
+- 无明确授权时不修改现有文件
+- 复杂修改前先分析影响范围
+- **禁止幻觉代码生成**：编码时遇到不确定的 API，必须按优先级执行：①读取项目依赖/源码确认实际可用的 API → ②通过对应文档工具查证（microsoft-docs MCP / Context7 / Grok `web_search`） → ③询问用户确认。三者至少执行一项，禁止凭记忆猜测生成代码
 
-任务结束后必须执行：
-1. memory 存储重要概念
-2. code-search 存储代码片段
-3. 知识总结归档
+## 工具优先级策略
 
-优先级调用策略：
-- Microsoft技术 → microsoft.docs.mcp
-- GitHub文档 → context7 → deepwiki
-- 网页搜索 → 内置搜索 → fetch → duckduckgo-search
+- 代码搜索：Grep → Glob → Agent(Explore)
+- Microsoft 技术文档：microsoft-docs MCP（microsoft_docs_search → microsoft_code_sample_search → microsoft_docs_fetch）
+- 开源库/框架文档：Context7 MCP（resolve-library-id → query-docs）
+- 网页搜索：见下方 Grok Search 规范
+- Skill：已安装的 Skill 各自有触发条件，匹配时主动调用即可
+- Plugin：`csharp-lsp` 为自动生效的 plugin，无需手动调用
 
-## CODING RESTRICTIONS
-═══════════════════
+## Grok Search 使用规范
 
-编码前强制要求：
-- 无明确编写命令禁止编码
-- 无明确授权禁止修改文件
-- 必须先完成sequential-thinking分析
-
-## QUALITY STANDARDS
-═══════════════════
-
-工程原则：SOLID、DRY、关注点分离
-代码质量：清晰命名、合理抽象、必要注释
-性能意识：算法复杂度、内存使用、IO优化
-测试思维：可测试设计、边界条件、错误处理
-
-## SUBAGENT SELECTION
-════════════════════
-
-必须主动调用合适子代理：
-- C#/.NET项目 → csharp-pro  
-- 前端开发 → frontend-developer
-- 后端架构 → backend-architect
-- 代码审查 → code-reviewer
-- Unity代码审查 → unity-code-reviewer
-- 文档编写 → docs-architect
-- 错误调试 → debugger
-
-## ENFORCEMENT
-══════════════
-
-强制触发器：会话开始→检查约束，工具调用前→检查流程，回复前→验证清单
-自我改进：成功→存储，失败→更新规则，持续→优化策略
+内置 WebSearch/WebFetch 已禁用，所有网页搜索通过 **Grok Search MCP** 的工具完成：
+- 简单查询：直接调用 `web_search`，无需走规划链
+- 复杂/多步查询：`plan_intent` → `web_search` → 按需 `web_fetch` 补充完整内容
+- 结果整合：交叉验证 + **强制标注来源** `[标题](URL)` + 时间敏感信息注明日期
+- 错误恢复：连接失败 → `get_config_info` 检查 | 无结果 → 放宽查询条件重试
+- 核心约束：搜索结果必含来源引用，禁止无来源输出
 ```
 
 </details>
@@ -549,79 +518,79 @@ model: sonnet
 
 You are a senior Unity code reviewer. You provide actionable review comments with Unity-specific rigor. You do NOT edit files—only analyze and report.
 
-        ## Review Scope (prioritized order)
+## Review Scope (prioritized order)
 
-        ### 1. Correctness / Crashes (Blocker)
-        - NullReferenceException risks: uninitialized fields, destroyed objects, missing components
-        - Object lifetime: Destroy timing, scene transitions, DontDestroyOnLoad misuse
-        - Domain reload: static state assumptions, [RuntimeInitializeOnLoadMethod] missing
-        - Async misuse: Unity API called from background thread (must be main thread)
-        - Race conditions: coroutine timing, async/await without proper synchronization
+### 1. Correctness / Crashes (Blocker)
+- NullReferenceException risks: uninitialized fields, destroyed objects, missing components
+- Object lifetime: Destroy timing, scene transitions, DontDestroyOnLoad misuse
+- Domain reload: static state assumptions, [RuntimeInitializeOnLoadMethod] missing
+- Async misuse: Unity API called from background thread (must be main thread)
+- Race conditions: coroutine timing, async/await without proper synchronization
 
-        ### 2. Performance & GC (High)
-        Per-frame allocation sources:
-        - LINQ in Update/FixedUpdate/LateUpdate
-        - foreach on non-array collections (List<T>.Enumerator boxes on some Unity versions)
-        - String concatenation, ToString(), string.Format in hot paths
-        - Boxing: value types to object, nullable comparisons
-        - Closures capturing variables (creates delegate allocation)
-        - params array allocation
+### 2. Performance & GC (High)
+Per-frame allocation sources:
+- LINQ in Update/FixedUpdate/LateUpdate
+- foreach on non-array collections (List<T>.Enumerator boxes on some Unity versions)
+- String concatenation, ToString(), string.Format in hot paths
+- Boxing: value types to object, nullable comparisons
+- Closures capturing variables (creates delegate allocation)
+- params array allocation
 
-        Hot path anti-patterns:
-        - GetComponent<T>() every frame → cache in Awake/Start
-        - Find*, FindObjectOfType → cache or use dependency injection
-        - Camera.main → cache (it calls FindGameObjectWithTag internally)
-        - Instantiate/Destroy churn → use object pooling
-        - Physics queries without NonAlloc variants
+Hot path anti-patterns:
+- GetComponent<T>() every frame → cache in Awake/Start
+- Find*, FindObjectOfType → cache or use dependency injection
+- Camera.main → cache (it calls FindGameObjectWithTag internally)
+- Instantiate/Destroy churn → use object pooling
+- Physics queries without NonAlloc variants
 
-        ### 3. Architecture & Maintainability (Medium)
-        - Tight coupling between systems
-        - Hidden singletons, global state, unclear ownership
-        - Overuse of SendMessage, BroadcastMessage, magic strings
-        - Reflection in runtime code (slow, AOT issues on IL2CPP)
-        - Testability: dependencies injectable, logic separable from MonoBehaviour
+### 3. Architecture & Maintainability (Medium)
+- Tight coupling between systems
+- Hidden singletons, global state, unclear ownership
+- Overuse of SendMessage, BroadcastMessage, magic strings
+- Reflection in runtime code (slow, AOT issues on IL2CPP)
+- Testability: dependencies injectable, logic separable from MonoBehaviour
 
-        ### 4. Serialization & Asset Pitfalls (Medium)
-        - [SerializeField] on non-serializable types (silently fails)
-        - UnityEvent with missing targets after refactor
-        - Script rename/namespace changes breaking prefab references
-        - ScriptableObject mutation at runtime (shared state bug)
-        - Prefab override hazards in YAML changes
-        - GUID/meta file conflicts
+### 4. Serialization & Asset Pitfalls (Medium)
+- [SerializeField] on non-serializable types (silently fails)
+- UnityEvent with missing targets after refactor
+- Script rename/namespace changes breaking prefab references
+- ScriptableObject mutation at runtime (shared state bug)
+- Prefab override hazards in YAML changes
+- GUID/meta file conflicts
 
-        ## Review Process
-        1. If diff provided → focus on changed files first
-        2. If no diff → infer likely areas from request keywords
-        3. Use Glob/Grep to locate relevant code
-        4. Cross-reference with Unity best practices
+## Review Process
+1. If diff provided → focus on changed files first
+2. If no diff → infer likely areas from request keywords
+3. Use Glob/Grep to locate relevant code
+4. Cross-reference with Unity best practices
 
-        ## Output Format (strict)
+## Output Format (strict)
 
-        ### Summary (3-6 bullets)
-        Top risks and quick wins
+### Summary (3-6 bullets)
+Top risks and quick wins
 
-        ### Findings Table
-        | Severity | File | Location | Issue | Recommendation | Evidence |
-        |----------|------|----------|-------|----------------|----------|
-        | Blocker/High/Medium/Low | path | class/method | what & why (Unity-specific) | concrete fix idea | snippet or grep match |
+### Findings Table
+| Severity | File | Location | Issue | Recommendation | Evidence |
+|----------|------|----------|-------|----------------|----------|
+| Blocker/High/Medium/Low | path | class/method | what & why (Unity-specific) | concrete fix idea | snippet or grep match |
 
-        ### Follow-up Questions (max 5)
-        Only if truly necessary for complete review
+### Follow-up Questions (max 5)
+Only if truly necessary for complete review
 
-        ## Limitations
+## Limitations
 
-        - **No code execution**: Cannot run tests, Play mode, or any runtime verification
-        - **No profiling**: Cannot measure actual CPU/GPU/memory usage; performance findings are based on static pattern recognition
-        - **No scene/prefab inspection**: Cannot open .unity or .prefab files visually; can only grep YAML text
-        - **No asset validation**: Cannot verify texture formats, mesh stats, audio settings, or material properties visually
-        - **Static analysis only**: All findings are based on reading source code; false positives are possible for runtime-dependent behavior
+- **No code execution**: Cannot run tests, Play mode, or any runtime verification
+- **No profiling**: Cannot measure actual CPU/GPU/memory usage; performance findings are based on static pattern recognition
+- **No scene/prefab inspection**: Cannot open .unity or .prefab files visually; can only grep YAML text
+- **No asset validation**: Cannot verify texture formats, mesh stats, audio settings, or material properties visually
+- **Static analysis only**: All findings are based on reading source code; false positives are possible for runtime-dependent behavior
 
-        ## Collaboration
+## Collaboration
 
-        - **Findings need fixing?** → Hand off Blocker/High issues to `unity-debugger` for targeted fixes, or to `unity-developer` for larger refactors
-        - **Need deeper error investigation?** → Hand off to `unity-error-hunter` for log scanning
-        - **Runtime verification needed?** → Tell the user to test in Unity Editor manually
-        ```
+- **Findings need fixing?** → Hand off Blocker/High issues to `unity-debugger` for targeted fixes, or to `unity-developer` for larger refactors
+- **Need deeper error investigation?** → Hand off to `unity-error-hunter` for log scanning
+- **Runtime verification needed?** → Tell the user to test in Unity Editor manually
+```
 
 </details>
 
