@@ -1,23 +1,23 @@
 [
   {
     "slug": "ai-studio-zhcn",
-    "views": 1018
+    "views": 1027
   },
   {
     "slug": "deepwiki-unityskills",
-    "views": 911
+    "views": 963
   },
   {
     "slug": "unityskills",
-    "views": 700
-  },
-  {
-    "slug": "unitymr-spatial-anchor",
-    "views": 425
+    "views": 715
   },
   {
     "slug": "claudecode_beautify",
-    "views": 411
+    "views": 440
+  },
+  {
+    "slug": "unitymr-spatial-anchor",
+    "views": 426
   },
   {
     "slug": "openwebuieoai",
@@ -25,7 +25,7 @@
   },
   {
     "slug": "unity-mcp",
-    "views": 348
+    "views": 349
   },
   {
     "slug": "antigravity-login",
@@ -33,7 +33,7 @@
   },
   {
     "slug": "rider-visualstudio-zhcn",
-    "views": 262
+    "views": 263
   },
   {
     "slug": "userz-e",
@@ -41,7 +41,7 @@
   },
   {
     "slug": "imagebed-cors",
-    "views": 245
+    "views": 250
   },
   {
     "slug": "claudecode",
@@ -53,7 +53,7 @@
   },
   {
     "slug": "geminiclimanager",
-    "views": 206
+    "views": 207
   },
   {
     "slug": "github-1",
@@ -61,7 +61,7 @@
   },
   {
     "slug": "unity-openweatherapi",
-    "views": 173
+    "views": 178
   },
   {
     "slug": "claudecode_install_proxy",
@@ -77,7 +77,7 @@
   },
   {
     "slug": "openwebuinoserver",
-    "views": 141
+    "views": 142
   },
   {
     "slug": "openwebui-base-image",
@@ -85,6 +85,6 @@
   },
   {
     "slug": "unity-module",
-    "views": 108
+    "views": 110
   }
 ]
