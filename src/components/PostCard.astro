@@ -201,7 +201,7 @@ const { remarkPluginFrontmatter } = await entry.render();
             // 第二步：获取统计数据（使用 path 参数过滤特定页面）
             const currentTimestamp = Date.now();
             const pagePath = encodeURIComponent(`eq./posts/${slug}/`);
-            const statsUrl = `${umamiConfig.baseUrl}/api/websites/${websiteId}/stats?startAt=0&endAt=${currentTimestamp}&unit=hour&timezone=${encodeURIComponent(umamiConfig.timezone)}&path=${pagePath}&compare=false`;
+            const statsUrl = `${umamiConfig.baseUrl}/api/websites/${websiteId}/stats?startAt=0&endAt=${currentTimestamp}&unit=hour&timezone=${encodeURIComponent(umamiConfig.timezone)}&path=${pagePath}`;
             
             const statsResponse = await fetch(statsUrl, {
                 headers: {

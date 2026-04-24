@@ -33,7 +33,7 @@ jobs:
           for f in src/content/posts/*.md; do
             slug=$(basename "$f" .md | tr '[:upper:]' '[:lower:]')
             encoded_path=$(printf '/posts/%s/' "$slug" | jq -sRr @uri)
-            url="${UMAMI_BASE}/api/websites/${WEBSITE_ID}/stats?startAt=0&endAt=${END_AT}&path=${encoded_path}&compare=false"
+            url="${UMAMI_BASE}/api/websites/${WEBSITE_ID}/stats?startAt=0&endAt=${END_AT}&path=${encoded_path}"
             pv=$(curl -sf -H "x-umami-share-token: ${TOKEN}" "$url" | jq '.pageviews // 0' 2>/dev/null || echo 0)
             echo "${pv} ${slug}" >> /tmp/all_views.txt
             echo "{\"slug\":\"${slug}\",\"views\":${pv}}" >> /tmp/all_views.json
