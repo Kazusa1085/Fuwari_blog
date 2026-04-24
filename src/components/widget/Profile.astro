@@ -191,9 +191,8 @@ const config = profileConfig;
             
             const statsResponse = await fetch(statsUrl, {
                  headers: {
-                     'x-umami-share-token': token
-                 }
-             });
+                    'x-umami-share-token': token,
+                    'x-umami-share-context': 'true'
             
             if (statsResponse.status === 401) {
                 // token 失效，清理缓存后重新获取一次

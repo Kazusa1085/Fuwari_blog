@@ -36,7 +36,7 @@ const slugs = popularPosts.map(p => p.slug)
         const pagePath = encodeURIComponent(`eq./posts/${slug}/`);
         const statsUrl = `${umamiConfig.baseUrl}/api/websites/${websiteId}/stats?startAt=0&endAt=${currentTimestamp}&unit=hour&timezone=${encodeURIComponent(umamiConfig.timezone)}&path=${pagePath}`;
 
-        fetch(statsUrl, { headers: { 'x-umami-share-token': token } })
+        fetch(statsUrl, { headers: { 'x-umami-share-token': token, 'x-umami-share-context': 'true' } })
           .then(res => {
             if (res.status === 401) {
               clearUmamiShareCache();

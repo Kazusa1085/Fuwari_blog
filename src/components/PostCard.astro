@@ -205,7 +205,8 @@ const { remarkPluginFrontmatter } = await entry.render();
             
             const statsResponse = await fetch(statsUrl, {
                 headers: {
-                    'x-umami-share-token': token
+                    'x-umami-share-token': token,
+                    'x-umami-share-context': 'true'
                 }
             });
             
