@@ -5,6 +5,10 @@ on:
     - cron: '0 16 * * *' # UTC 16:00 = Beijing 00:00
   workflow_dispatch:
 
+concurrency:
+  group: hot-ranking-check-main
+  cancel-in-progress: false
+
 permissions:
   contents: write
 
@@ -13,6 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Check top 5 ranking changes
         id: check
@@ -87,4 +93,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add src/data/post-views.json .hot-ranking-cache.txt
-          git diff --cached --quiet || (git commit -m "chore: update post views data" && git push)
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          git commit -m "chore: update post views data"
+          git pull --rebase origin main
+          git push origin HEAD:main
