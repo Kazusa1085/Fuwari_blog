@@ -2,7 +2,7 @@ name: Check Hot Ranking Changes
 
 on:
   schedule:
-    - cron: '0 16 * * *'  # UTC 16:00 = 北京时间 0:00
+    - cron: '0 16 * * *' # UTC 16:00 = Beijing 00:00
   workflow_dispatch:
 
 permissions:
@@ -20,42 +20,64 @@ jobs:
         run: |
           UMAMI_BASE="https://umami.micostar.cc"
           SHARE_ID="X9ZZZ5l2xErS44Rc"
+          TIMEZONE="Asia/Shanghai"
 
-          SHARE_RES=$(curl -sf "${UMAMI_BASE}/api/share/${SHARE_ID}")
-          if [ -z "$SHARE_RES" ]; then echo "Umami API 不可用"; exit 0; fi
+          if ! SHARE_RES=$(curl -fsS "${UMAMI_BASE}/api/share/${SHARE_ID}"); then
+            echo "Umami share API is unavailable, skipping this run."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [ -z "$SHARE_RES" ]; then
+            echo "Umami share API returned an empty response, skipping this run."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
           WEBSITE_ID=$(echo "$SHARE_RES" | jq -r '.websiteId')
           TOKEN=$(echo "$SHARE_RES" | jq -r '.token')
           END_AT=$(date +%s)000
 
-          # 收集每篇文章的 pageviews
+          if [ -z "$WEBSITE_ID" ] || [ "$WEBSITE_ID" = "null" ] || [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
+            echo "Umami share payload is incomplete, skipping this run."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
           > /tmp/all_views.txt
           > /tmp/all_views.json
+
           for f in src/content/posts/*.md; do
             slug=$(basename "$f" .md | tr '[:upper:]' '[:lower:]')
-            encoded_path=$(printf '/posts/%s/' "$slug" | jq -sRr @uri)
-            url="${UMAMI_BASE}/api/websites/${WEBSITE_ID}/stats?startAt=0&endAt=${END_AT}&path=${encoded_path}"
-            pv=$(curl -sf -H "x-umami-share-token: ${TOKEN}" "$url" | jq '.pageviews // 0' 2>/dev/null || echo 0)
+            encoded_path=$(printf 'eq./posts/%s/' "$slug" | jq -sRr @uri)
+            encoded_timezone=$(printf '%s' "$TIMEZONE" | jq -sRr @uri)
+            url="${UMAMI_BASE}/api/websites/${WEBSITE_ID}/stats?startAt=0&endAt=${END_AT}&unit=hour&timezone=${encoded_timezone}&path=${encoded_path}"
+
+            pv=$(
+              curl -fsS \
+                -H "x-umami-share-token: ${TOKEN}" \
+                -H "x-umami-share-context: true" \
+                "$url" | jq '.pageviews // 0' 2>/dev/null || echo 0
+            )
+
             echo "${pv} ${slug}" >> /tmp/all_views.txt
             echo "{\"slug\":\"${slug}\",\"views\":${pv}}" >> /tmp/all_views.json
           done
 
-          # 生成排序后的 JSON 文件
           mkdir -p src/data
           jq -s 'sort_by(-.views)' /tmp/all_views.json > src/data/post-views.json
 
-          # Top 5 slug 列表（按 pageviews 降序）
           CURRENT_TOP5=$(sort -rn /tmp/all_views.txt | head -5 | awk '{print $2}' | paste -sd,)
           echo "current=${CURRENT_TOP5}" >> "$GITHUB_OUTPUT"
-          echo "当前 Top 5: ${CURRENT_TOP5}"
+          echo "Current Top 5: ${CURRENT_TOP5}"
 
-          # 对比缓存
           CACHE_FILE=".hot-ranking-cache.txt"
           if [ -f "$CACHE_FILE" ] && [ "$(cat "$CACHE_FILE")" = "$CURRENT_TOP5" ]; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "排名未变化"
+            echo "Ranking unchanged"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
-            echo "排名已变化，需要重新部署"
+            echo "Ranking changed, redeploy needed"
           fi
 
       - name: Update cache and push
@@ -65,4 +87,4 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add src/data/post-views.json .hot-ranking-cache.txt
-          git diff --cached --quiet || (git commit -m "chore: 更新文章浏览量数据" && git push)
+          git diff --cached --quiet || (git commit -m "chore: update post views data" && git push)
