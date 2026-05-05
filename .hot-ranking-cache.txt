@@ -1,1 +1,1 @@
-unityskills,deepwiki-unityskills,claudecode_beautify,ai-studio-zhcn,unitymr-spatial-anchor
+unityskills,claudecode_beautify,deepwiki-unityskills,ai-studio-zhcn,unitymr-spatial-anchor
