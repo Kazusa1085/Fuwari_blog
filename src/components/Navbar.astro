@@ -54,12 +54,12 @@ const navItems: NavItem[] = navBarConfig.links.map(item => {
                 {navItems.map((item) => {
                     if (isResolvedGroup(item)) {
                         return (
-                            <div class="relative group">
-                                <button class="btn-plain scale-animation rounded-lg h-11 font-bold px-4 active:scale-95 hover:text-[var(--primary)] transition-all duration-300 flex items-center gap-1">
+                            <div class="relative nav-dropdown">
+                                <button class="btn-plain scale-animation rounded-lg h-11 font-bold px-4 active:scale-95 hover:text-[var(--primary)] transition-all duration-300 flex items-center gap-1 nav-dropdown-toggle" type="button" aria-haspopup="true" aria-expanded="false">
                                     {item.name}
-                                    <Icon name="material-symbols:keyboard-arrow-down-rounded" class="text-[1.25rem]" />
+                                    <Icon name="material-symbols:keyboard-arrow-down-rounded" class="text-[1.25rem] nav-dropdown-arrow transition-transform duration-200" />
                                 </button>
-                                <div class="absolute left-1/2 -translate-x-1/2 top-full pt-1 hidden group-hover:block z-50">
+                                <div class="nav-dropdown-content absolute left-1/2 -translate-x-1/2 top-full pt-1 z-50">
                                     <div class="rounded-lg py-1 min-w-[8rem] shadow-xl border border-[var(--line-divider)]"
                                          style="background-color: var(--card-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);">
                                         {item.children.map((child) => (
@@ -106,8 +106,9 @@ const navItems: NavItem[] = navBarConfig.links.map(item => {
                         </button>
                 )}
 
-                <button aria-label="Menu" name="Nav Menu" class="btn-plain scale-animation rounded-lg w-11 h-11 active:scale-90 lg:!hidden" id="nav-menu-switch">
-                    <Icon name="material-symbols:menu-rounded" class="text-[1.25rem]"></Icon>
+                <button aria-label="Menu" name="Nav Menu" class="btn-plain scale-animation rounded-lg w-11 h-11 active:scale-90 lg:!hidden relative menu-toggle-btn" id="nav-menu-switch" aria-expanded="false">
+                    <Icon name="material-symbols:menu-rounded" class="text-[1.25rem] menu-icon-hamburger"></Icon>
+                    <Icon name="material-symbols:close-rounded" class="text-[1.25rem] menu-icon-close"></Icon>
                 </button>
             </div>
             
@@ -135,6 +136,9 @@ function loadButtonScript() {
             let menuPanel = document.getElementById("nav-menu-panel");
             if (menuPanel) {
                 menuPanel.classList.toggle("float-panel-closed");
+                const isOpen = !menuPanel.classList.contains("float-panel-closed");
+                menuBtn.classList.toggle("is-open", isOpen);
+                menuBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
             }
         };
     }
@@ -151,10 +155,96 @@ function loadButtonScript() {
             arrow?.classList.toggle('rotate-180');
         });
     });
+
+    document.querySelectorAll('.nav-dropdown-toggle').forEach(btn => {
+        if (btn.dataset.boundDropdown) return;
+        btn.dataset.boundDropdown = 'true';
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const dropdown = btn.closest('.nav-dropdown');
+            if (!dropdown) return;
+            const willOpen = !dropdown.classList.contains('is-open');
+            document.querySelectorAll('.nav-dropdown.is-open').forEach(d => {
+                if (d !== dropdown) {
+                    d.classList.remove('is-open');
+                    d.querySelector('.nav-dropdown-toggle')?.setAttribute('aria-expanded', 'false');
+                }
+            });
+            dropdown.classList.toggle('is-open', willOpen);
+            btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+        });
+    });
 }
 
 loadButtonScript();
 
+// 监听面板 class 变化，同步汉堡按钮的展开状态（覆盖 Layout.astro 的 setClickOutsideToClose 等外部关闭来源）
+if (!window.__navMenuObserverBound) {
+    const navMenuPanel = document.getElementById("nav-menu-panel");
+    const navMenuBtn = document.getElementById("nav-menu-switch");
+    if (navMenuPanel && navMenuBtn) {
+        window.__navMenuObserverBound = true;
+        const syncMenuBtn = () => {
+            const isOpen = !navMenuPanel.classList.contains("float-panel-closed");
+            navMenuBtn.classList.toggle("is-open", isOpen);
+            navMenuBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        };
+        new MutationObserver(syncMenuBtn).observe(navMenuPanel, { attributes: true, attributeFilter: ["class"] });
+        syncMenuBtn();
+    }
+}
+
+if (!window.__navDropdownOutsideBound) {
+    window.__navDropdownOutsideBound = true;
+    document.addEventListener('click', (e) => {
+        const target = e.target;
+        if (!(target instanceof Element) || !target.closest('.nav-dropdown')) {
+            document.querySelectorAll('.nav-dropdown.is-open').forEach(d => {
+                d.classList.remove('is-open');
+                d.querySelector('.nav-dropdown-toggle')?.setAttribute('aria-expanded', 'false');
+            });
+        }
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.nav-dropdown.is-open').forEach(d => {
+                d.classList.remove('is-open');
+                d.querySelector('.nav-dropdown-toggle')?.setAttribute('aria-expanded', 'false');
+            });
+        }
+    });
+}
+
 // 监听 Swup 页面跳转事件，重新绑定事件
 document.addEventListener("swup:contentReplaced", loadButtonScript);
 </script>
+
+<style>
+.nav-dropdown-content { display: none; }
+.nav-dropdown.is-open .nav-dropdown-content { display: block; }
+.nav-dropdown.is-open .nav-dropdown-arrow { transform: rotate(180deg); }
+
+.menu-toggle-btn .menu-icon-hamburger,
+.menu-toggle-btn .menu-icon-close {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transition: opacity 200ms ease, transform 200ms ease;
+}
+.menu-toggle-btn .menu-icon-hamburger {
+    transform: translate(-50%, -50%) rotate(0);
+    opacity: 1;
+}
+.menu-toggle-btn .menu-icon-close {
+    transform: translate(-50%, -50%) rotate(-90deg);
+    opacity: 0;
+}
+.menu-toggle-btn.is-open .menu-icon-hamburger {
+    transform: translate(-50%, -50%) rotate(90deg);
+    opacity: 0;
+}
+.menu-toggle-btn.is-open .menu-icon-close {
+    transform: translate(-50%, -50%) rotate(0);
+    opacity: 1;
+}
+</style>
