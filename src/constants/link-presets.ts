@@ -36,4 +36,8 @@ export const LinkPresets: { [key in LinkPreset]: NavBarLink } = {
 		url: "https://eo.micostar.cc",
 		external: true,
 	},
+	[LinkPreset.Works]: {
+		name: "作品集",
+		url: "/works/",
+	},
 };

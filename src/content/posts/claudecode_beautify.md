@@ -1,6 +1,7 @@
 ---
 title: Claude Code 终端美化指南
 published: 2026-02-26T23:02:54
+updated: 2026-05-28T17:07:34
 description: '习惯了 IDE 的你，面对 Claude Code 原始的终端界面是否感到不适？本篇手把手教你从状态栏到字体全面美化 Claude Code，让命令行也能赏心悦目。'
 image: '/images/ClaudeCodeBE4.webp'
 tags: [ClaudeCode, 美化, 终端]
@@ -28,6 +29,8 @@ lang: ''
 添加状态栏后，立刻变得信息丰富且美观：
 
 ![Claude Code 状态栏美化效果](/images/ClaudeCodeBE2.webp)
+以及
+![Claude Code 状态栏美化效果2](/images/ClaudeCodeBE9.webp)
 
 ## 安装与配置
 
@@ -70,7 +73,14 @@ npx ccstatusline@latest
 
 ::github{repo="subframe7536/maple-font"}
 
-## 方式一：让 Claude Code 帮你改（懒人推荐）
+## 方式一：可视化配置各个终端
+在任何窗口点击设置，进入后选择对应终端修改即可
+
+![终端字体配置1](/images/ClaudeCodeBE5.webp)
+![终端字体配置2](/images/ClaudeCodeBE6.webp)
+![终端字体配置3](/images/ClaudeCodeBE7.webp)
+
+## 方式二：让 Claude Code 帮你改（懒人推荐）
 
 如果你的电脑已安装该字体，直接把下面这段话发给 Claude Code，让它帮你完成配置：
 
@@ -78,7 +88,7 @@ npx ccstatusline@latest
 现在帮我将终端字体显示改为 Maple Mono NF CN ，字体路径.....
 ```
 
-## 方式二：手动修改 Windows Terminal 配置
+## 方式三：手动修改 Windows Terminal 配置
 
 找到 Windows Terminal 的配置文件：
 
@@ -100,7 +110,12 @@ C:\Users\<你的用户名>\AppData\Local\Packages\Microsoft.WindowsTerminal_8wek
 
 如果你主要在 VS Code 等 IDE 中使用 Claude Code，直接在 IDE 的设置中修改IDE整体字体为 `Maple Mono NF CN` 即可。
 
-# 3. 最终效果对比
+# 3. 背景美化
+
+上文字体可视化配置同理，下滑到对应位置修改即可
+![终端背景配置](/images/ClaudeCodeBE8.webp)
+
+# 4. 最终效果对比
 
 经过状态栏 + 字体的双重美化，来看看前后对比：
 
@@ -110,6 +125,9 @@ C:\Users\<你的用户名>\AppData\Local\Packages\Microsoft.WindowsTerminal_8wek
 
 **美化后：**
 
-![Claude Code 美化后](/images/ClaudeCodeBE4.webp)
+![Claude Code 美化后1代](/images/ClaudeCodeBE4.webp)
+
+添加背景美化后
+![Claude Code 美化后2代](/images/ClaudeCodeBE9.webp)
 
 是不是瞬间从"原始人终端"变成了"赛博朋克工作站"？赶紧动手试试吧！
