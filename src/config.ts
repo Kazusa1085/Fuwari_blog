@@ -106,8 +106,8 @@ export const imageFallbackConfig: ImageFallbackConfig = {
 
 export const umamiConfig: UmamiConfig = {
 	enable: true,
-	baseUrl: "https://cloud.umami.is/script.js",
-	shareId: "h98ED32FhG9tqX0O",
+	baseUrl: "https://umami.raana.icu/script.js",
+	shareId: "aX4gXRBc1JEdp6wW",
 	timezone: "Asia/Shanghai",
 };
 
