@@ -3,7 +3,7 @@ title: 记一次红米AX6的解锁刷机扩容过程。
 published: 2022-09-17
 description: 红米AX6的刷OpenWRT的教程
 image: https://picx.raana.icu/20250702/IMG_20250702_065651.5xaws54qkr.webp
-tags: [OpenWRT , Router]
+tags: [OpenWRT, Router]
 category: Technique
 draft: false
 ---
