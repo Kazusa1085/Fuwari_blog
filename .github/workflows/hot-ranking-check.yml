@@ -24,8 +24,8 @@ jobs:
         id: check
         shell: bash
         run: |
-          UMAMI_BASE="https://umami.micostar.cc"
-          SHARE_ID="X9ZZZ5l2xErS44Rc"
+          UMAMI_BASE="https://umami.raana.icu"
+          SHARE_ID="aX4gXRBc1JEdp6wW/utm"
           TIMEZONE="Asia/Shanghai"
 
           if ! SHARE_RES=$(curl -fsS "${UMAMI_BASE}/api/share/${SHARE_ID}"); then
