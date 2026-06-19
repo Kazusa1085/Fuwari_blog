@@ -73,16 +73,8 @@ export const navBarConfig: NavBarConfig = {
 		LinkPreset.Archive,
 		LinkPreset.Friends,
 		LinkPreset.Apps,
-		LinkPreset.Donate,
 		LinkPreset.Works,
-		{
-			name: "数据",
-			children: [
-				LinkPreset.Stats,
-				LinkPreset.Status,
-				LinkPreset.Monitor,
-			],
-		},
+		LinkPreset.Stats,
 	],
 };
 
