@@ -37,7 +37,7 @@ export const siteConfig: SiteConfig = {
 	},
 	background: {
 		enable: true, // Enable background image
-		src: "https://img.micostar.cc/random", // 优先使用新 API
+		src: "https://www.loliapi.com/acg", // 优先使用新 API
 		position: "center", // Background position: 'top', 'center', 'bottom'
 		size: "cover", // Background size: 'cover', 'contain', 'auto'
 		repeat: "no-repeat", // Background repeat: 'no-repeat', 'repeat', 'repeat-x', 'repeat-y'
@@ -58,17 +58,10 @@ export const siteConfig: SiteConfig = {
 	],
 	apps: [
 		{
-			name: "私人AI网站",
-			url: "https://ai0728.com.cn/",
-			image: "/favicon/openwebui.webp",
-			description: "智能对话与创作助手",
-			external: true,
-		},
-		{
-			name: "私人云盘",
-			url: "https://cloudrunmax.top/",
-			image: "/favicon/cloudreve.webp",
-			description: "内容管理入口",
+			name: "SM232X FFW加解密工具",
+			url: "https://ffw.raana.icu/",
+			image: "/favicon/ffw.webp",
+			description: "SM2320&2322XT.FFW加解密工具",
 			external: true,
 		},
 	],
