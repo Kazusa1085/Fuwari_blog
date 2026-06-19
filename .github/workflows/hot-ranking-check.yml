@@ -25,7 +25,7 @@ jobs:
         shell: bash
         run: |
           UMAMI_BASE="https://umami.raana.icu"
-          SHARE_ID="aX4gXRBc1JEdp6wW/utm"
+          SHARE_ID="aX4gXRBc1JEdp6wW"
           TIMEZONE="Asia/Shanghai"
 
           if ! SHARE_RES=$(curl -fsS "${UMAMI_BASE}/api/share/${SHARE_ID}"); then
