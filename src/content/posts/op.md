@@ -32,6 +32,10 @@ draft: false
 
 [固件下载（Github Release）](https://github.com/Kazusa1085/ZyXEL_AXE7800-OpenWRT/releases/tag/2025.07.28-0348) [Uboot下载](https://github.com/Kazusa1085/ZyXEL_AXE7800-OpenWRT/raw/refs/heads/main/Files/Uboot/mt7986_zyxel_ex5700-fip-fixed-parts.bin) [无线校准文件下载](https://github.com/Kazusa1085/ZyXEL_AXE7800-OpenWRT/raw/refs/heads/main/Files/EEPROM/8015eeprom.bin)
 
+您也可以使用这个仓库的Uboot，实测非常好用。
+
+::github{repo="Yuzhii0718/bl-mt798x-dhcpd"}
+
 :::warning[例行警告]
 路由器刷机存在一定的风险，虽然讲真，自带固件真没什么好备份的，但是还是推荐有条件的话尽可能进行一下分区备份，免得翻车之后完全没有后路。
 :::
@@ -120,14 +124,6 @@ reset
 ![2GDDR4](https://picx.raana.icu/IMG_20250801_055149.4n80sn3taw.webp)
 
 /*2025.8.1 06:10 GMT+8 Update*/
-
-LED的定义和天线对应频段，暂时没体力写下去了，先这样吧。
-
-## Q/A
-
-**Q：什么时候继续更新？**
-
-A：会在几天内把这篇教程写完的。笔者在写下这篇文章的时候刚刚修改完论文，精神状态非常良好。大脑暂时无法组织起具有逻辑性发文本了。~~肥猫又不是鸽子~~
 
 
 
