@@ -42,10 +42,12 @@ export async function getWritingStats(): Promise<StatsData> {
 	let popularPosts: StatsData["popularPosts"] = [];
 	try {
 		const viewsData = await import("../data/post-views.json");
-		allPostViews = (viewsData.default || []).map((v: { slug: string; views: number }) => ({
-			slug: v.slug, views: v.views ?? 0
-		}));
 		const slugMap = new Map(allPosts.map(p => [p.id, p.data.title]));
+		allPostViews = (viewsData.default || [])
+			.map((v: { slug: string; views: number }) => ({ slug: v.slug, views: v.views ?? 0 }))
+			// post-views.json 是独立的浏览量统计文件，不知道文章是否为草稿，
+			// 这里过滤掉当前不在（非草稿）文章列表里的记录，避免草稿文章混进"热门文章"
+			.filter((v: { slug: string; views: number }) => slugMap.has(v.slug));
 		popularPosts = allPostViews
 			.slice(0, 5)
 			.map(({ slug, views }) => ({ title: slugMap.get(slug)!, slug, views }));
