@@ -1,6 +1,7 @@
 ---
 import path from "node:path";
 import type { CollectionEntry } from "astro:content";
+import { render } from "astro:content";
 import { Icon } from "astro-icon/components";
 
 import { umamiConfig } from "../config";
@@ -42,9 +43,9 @@ const hasCover = image !== undefined && image !== null && image !== "";
 
 const coverWidth = "28%";
 
-const { remarkPluginFrontmatter } = await entry.render();
+const { remarkPluginFrontmatter } = await render(entry);
 ---
-<div id={`post-card-${entry.slug}`} data-slug={entry.slug} data-published={published.getTime()} data-updated={updated?.getTime() || published.getTime()} data-pinned={isPinned} class:list={["card-base flex flex-col-reverse md:flex-col w-full rounded-[var(--radius-large)] overflow-hidden relative group", className]} style={style}>
+<div id={`post-card-${entry.id}`} data-slug={entry.id} data-published={published.getTime()} data-updated={updated?.getTime() || published.getTime()} data-pinned={isPinned} class:list={["card-base flex flex-col-reverse md:flex-col w-full rounded-[var(--radius-large)] overflow-hidden relative group", className]} style={style}>
     <div class:list={["pl-6 md:pl-9 pr-6 md:pr-2 pt-6 md:pt-7 pb-6 relative z-10", {"w-full md:w-[calc(100%_-_52px_-_12px)]": !hasCover, "w-full md:w-[calc(100%_-_var(--coverWidth)_-_12px)]": hasCover}]}>
         <a href={url}
            class="transition-colors duration-300 group-hover:text-[var(--primary)] w-full block font-bold mb-3 text-3xl text-90
@@ -87,11 +88,11 @@ const { remarkPluginFrontmatter } = await entry.render();
             <div class="flex items-center gap-3">
                 <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--btn-regular-bg)]/50 backdrop-blur-sm border border-[var(--line-divider)]">
                     <Icon name="material-symbols:visibility-outline-rounded" class="text-base text-[var(--primary)] opacity-90"></Icon>
-                    <span id={`page-views-${entry.slug}`} class="font-medium">--</span>
+                    <span id={`page-views-${entry.id}`} class="font-medium">--</span>
                 </span>
                 <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--btn-regular-bg)]/50 backdrop-blur-sm border border-[var(--line-divider)]">
                     <Icon name="material-symbols:person-outline" class="text-base text-[var(--primary)] opacity-90"></Icon>
-                    <span id={`page-visits-${entry.slug}`} class="font-medium">--</span>
+                    <span id={`page-visits-${entry.id}`} class="font-medium">--</span>
                 </span>
             </div>
         </div>
@@ -133,7 +134,7 @@ const { remarkPluginFrontmatter } = await entry.render();
 <script define:vars={{ entry, umamiConfig }}>
     // 3D 悬浮视差效果
     function initTiltEffect() {
-        const card = document.getElementById(`post-card-${entry.slug}`);
+        const card = document.getElementById(`post-card-${entry.id}`);
         if (!card) return;
 
         const tiltElement = card.querySelector('.tilt-card');
@@ -254,7 +255,7 @@ const { remarkPluginFrontmatter } = await entry.render();
         });
 
         // 观察当前组件的根元素
-        const card = document.getElementById(`post-card-${entry.slug}`);
+        const card = document.getElementById(`post-card-${entry.id}`);
         if (card) {
             observer.observe(card);
         }

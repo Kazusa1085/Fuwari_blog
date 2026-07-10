@@ -1,6 +1,9 @@
-import { defineCollection, z } from "astro:content";
+import { defineCollection } from "astro:content";
+import { glob } from "astro/loaders";
+import { z } from "astro/zod";
 
 const postsCollection = defineCollection({
+	loader: glob({ pattern: "**/[^_]*.md", base: "./src/content/posts" }),
 	schema: z.object({
 		title: z.string(),
 		published: z.date(),
@@ -24,6 +27,7 @@ const postsCollection = defineCollection({
 });
 
 const specCollection = defineCollection({
+	loader: glob({ pattern: "**/[^_]*.md", base: "./src/content/spec" }),
 	schema: z.object({
 		title: z.string().optional(),
 		published: z.date().optional(),
@@ -32,16 +36,9 @@ const specCollection = defineCollection({
 	}),
 });
 
-const assetsCollection = defineCollection({
-	type: "data",
-	schema: z.object({
-		title: z.string().optional(),
-		description: z.string().optional(),
-	}),
-});
-
 const friendsCollection = defineCollection({
-	type: "data",
+	// _order.json 仅用于存储排序信息，不是一条 friend 数据，通过 [^_]* 排除
+	loader: glob({ pattern: "**/[^_]*.json", base: "./src/content/friends" }),
 	schema: z.object({
 		name: z.string(),
 		url: z.string(),
@@ -54,6 +51,5 @@ const friendsCollection = defineCollection({
 export const collections = {
 	posts: postsCollection,
 	spec: specCollection,
-	assets: assetsCollection,
 	friends: friendsCollection,
 };

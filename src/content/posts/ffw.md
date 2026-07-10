@@ -2,7 +2,6 @@
 title: 记一次2320工具的FFW解密
 published: 2026-03-04
 description: 232X工具FFW配置文件的算法逆向
-image: ./cover.jpg
 tags: [Knowledge, Math]
 category: 开发笔记
 draft: true

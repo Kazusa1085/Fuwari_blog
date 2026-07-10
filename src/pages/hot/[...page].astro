@@ -15,7 +15,7 @@ export const getStaticPaths = (async ({ paginate }) => {
 	const pinned = allPosts.filter(p => p.data.pinned);
 	const normal = allPosts.filter(p => !p.data.pinned);
 	normal.sort((a, b) => {
-		const diff = (viewMap.get(b.slug) ?? 0) - (viewMap.get(a.slug) ?? 0);
+		const diff = (viewMap.get(b.id) ?? 0) - (viewMap.get(a.id) ?? 0);
 		if (diff !== 0) return diff;
 		return new Date(b.data.published).getTime() - new Date(a.data.published).getTime();
 	});

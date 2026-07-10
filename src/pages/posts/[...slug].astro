@@ -7,6 +7,7 @@ import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { getSortedPosts } from "@utils/content-utils";
 import { getDir, getPostUrlBySlug } from "@utils/url-utils";
 import { Icon } from "astro-icon/components";
+import { render } from "astro:content";
 import { licenseConfig } from "src/config";
 import PostMetadata from "../../components/PostMeta.astro";
 import ImageWrapper from "../../components/misc/ImageWrapper.astro";
@@ -16,13 +17,13 @@ import { formatDateToYYYYMMDD } from "../../utils/date-utils";
 export async function getStaticPaths() {
 	const blogEntries = await getSortedPosts();
 	return blogEntries.map((entry) => ({
-		params: { slug: entry.slug },
+		params: { slug: entry.id },
 		props: { entry },
 	}));
 }
 
 const { entry } = Astro.props;
-const { Content, headings, remarkPluginFrontmatter } = await entry.render();
+const { Content, headings, remarkPluginFrontmatter } = await render(entry);
 
 const jsonLd = {
 	"@context": "https://schema.org",
@@ -98,7 +99,7 @@ const jsonLd = {
                         published={entry.data.published}
                         updated={entry.data.updated}
                         tags={entry.data.tags}
-                        slug={entry.slug}
+                        slug={entry.id}
                 ></PostMetadata>
                 {!entry.data.image && <div class="border-[var(--line-divider)] border-dashed border-b-[1px] mb-5"></div>}
             </div>
@@ -116,7 +117,7 @@ const jsonLd = {
 
 
 
-            {licenseConfig.enable && <License title={entry.data.title} slug={entry.slug} pubDate={entry.data.published} class="mb-6 rounded-xl license-container onload-animation"></License>}
+            {licenseConfig.enable && <License title={entry.data.title} slug={entry.id} pubDate={entry.data.published} class="mb-6 rounded-xl license-container onload-animation"></License>}
             
             <!-- 文章帮助反馈区域 -->
             <div class="mb-4 p-3 rounded-lg bg-[var(--license-block-bg)] border border-[var(--line-divider)] onload-animation">
@@ -479,6 +480,11 @@ const jsonLd = {
                     }
                 })();
             </script>
+
+            <!-- 闭合 post-container 卡片及其外层包裹 div（原主题遗留的未闭合标签，
+                 旧版 Go 编译器未做校验，Astro 7 的 Rust 编译器要求严格闭合） -->
+            </div>
+        </div>
     <br>
 
     <div class="flex flex-col md:flex-row justify-between mb-4 gap-4 overflow-hidden w-full">

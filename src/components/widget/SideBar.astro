@@ -26,7 +26,7 @@ function toLocalISOString(date: Date | undefined): string | undefined {
 
 const simplifiedPosts = allPosts.map((p) => ({
 	title: p.data.title,
-	slug: p.slug,
+	slug: p.id,
 	published: toLocalISOString(p.data.published),
 	updated: toLocalISOString(p.data.updated),
 }));
