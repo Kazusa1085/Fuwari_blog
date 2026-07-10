@@ -1,3 +1,4 @@
+import { render } from "astro:content";
 import { getSortedPosts } from "./content-utils";
 
 type StatsData = {
@@ -17,10 +18,10 @@ export async function getWritingStats(): Promise<StatsData> {
 	if (cached) return cached;
 
 	const allPosts = await getSortedPosts();
-	const rendered = await Promise.all(allPosts.map(p => p.render()));
+	const rendered = await Promise.all(allPosts.map(p => render(p)));
 	const postsWithWords = allPosts.map((p, i) => ({
 		title: p.data.title,
-		slug: p.slug,
+		slug: p.id,
 		words: rendered[i].remarkPluginFrontmatter?.words || rendered[i].remarkPluginFrontmatter?.totalCharCount || 0,
 		minutes: rendered[i].remarkPluginFrontmatter?.minutes || 0,
 		year: new Date(p.data.published).getUTCFullYear(),
@@ -44,7 +45,7 @@ export async function getWritingStats(): Promise<StatsData> {
 		allPostViews = (viewsData.default || []).map((v: { slug: string; views: number }) => ({
 			slug: v.slug, views: v.views ?? 0
 		}));
-		const slugMap = new Map(allPosts.map(p => [p.slug, p.data.title]));
+		const slugMap = new Map(allPosts.map(p => [p.id, p.data.title]));
 		popularPosts = allPostViews
 			.slice(0, 5)
 			.map(({ slug, views }) => ({ title: slugMap.get(slug)!, slug, views }));

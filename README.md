@@ -2,9 +2,9 @@
 
 # 🌸 Fuwari Enhanced
 
-**基于 [saicaca/fuwari](https://github.com/saicaca/fuwari) 深度定制的个人博客系统**
+**基于 [saicaca/fuwari](https://github.com/saicaca/fuwari) 深度定制的个人博客系统，已升级Astro7，正在缓慢调试中，下面文档可能会存在和项目不一致的情况，请做好自己排除问题的准备**
 
-[![Astro](https://img.shields.io/badge/Astro-5.x-FF5D01?logo=astro&logoColor=white)](https://astro.build)
+[![Astro](https://img.shields.io/badge/Astro-7.x-FF5D01?logo=astro&logoColor=white)](https://astro.build)
 [![Svelte](https://img.shields.io/badge/Svelte-5.x-FF3E00?logo=svelte&logoColor=white)](https://svelte.dev)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.x-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
@@ -63,14 +63,14 @@
 ## 🚀 快速开始
 
 ### 环境要求
-- **Node.js** 18+
+- **Node.js** 22+
 - **pnpm** 9+
 
 ### 安装与运行
 
 ```bash
 # 克隆仓库
-git clone https://github.com/Besty0728/fuwari.git
+git clone https://github.com/Kazusa1085/fuwari.git
 
 # 安装依赖
 pnpm install

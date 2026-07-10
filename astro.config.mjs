@@ -5,6 +5,7 @@ import tailwind from "@astrojs/tailwind";
 import swup from "@swup/astro";
 import icon from "astro-icon";
 import { defineConfig } from "astro/config";
+import { unified } from "@astrojs/markdown-remark";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeComponents from "rehype-components";/* Render the custom directive content */
 import rehypeKatex from "rehype-katex";
@@ -117,69 +118,82 @@ export default defineConfig({
         }
     }),
     ],
+    // Astro 7 默认使用新的 Rust Markdown 处理器 Sätteri，不再内置 remark/rehype 管线。
+    // 本项目大量依赖自定义 remark/rehype 插件，因此显式切回 unified() 处理器以保持原有行为不变。
+    // 需要安装 @astrojs/markdown-remark（已加入 package.json）。
+    // 参见: https://docs.astro.build/en/guides/upgrade-to/v7/#new-default-markdown-processor-sätteri
+    compressHTML: true, // 保留 Astro 6.x 的空白压缩行为（v7 默认改为 'jsx' 规则，可能吞掉行内元素间的空格）
     markdown: {
-        remarkPlugins: [
-            remarkMath,
-            remarkReadingTime,
-            remarkExcerpt,
-            remarkGithubAdmonitionsToDirectives,
-            remarkDirective,
-            remarkSectionize,
-            parseDirectiveNode,
-        ],
-        rehypePlugins: [
-            rehypeHeadingShift, // 必须放在最前面，将 h1 降级为 h2，避免多个 h1 的 SEO 问题
-            rehypeKatex,
-            rehypeSlug,
-            [rehypeImageFallback, imageFallbackConfig],
-            rehypeImageAttrs,
-            [
-                rehypeComponents,
-                {
-                    components: {
-                        github: GithubCardComponent,
-                        link: LinkCardComponent,
-                        note: (x, y) => AdmonitionComponent(x, y, "note"),
-                        tip: (x, y) => AdmonitionComponent(x, y, "tip"),
-                        important: (x, y) => AdmonitionComponent(x, y, "important"),
-                        caution: (x, y) => AdmonitionComponent(x, y, "caution"),
-                        warning: (x, y) => AdmonitionComponent(x, y, "warning"),
-                    },
-                },
+        processor: unified({
+            remarkPlugins: [
+                remarkMath,
+                remarkReadingTime,
+                remarkExcerpt,
+                remarkGithubAdmonitionsToDirectives,
+                remarkDirective,
+                remarkSectionize,
+                parseDirectiveNode,
             ],
-            [
-                rehypeExternalLinks,
-                {
-                    target: '_blank',
-                },
-            ],
-            [
-                rehypeAutolinkHeadings,
-                {
-                    behavior: "append",
-                    properties: {
-                        className: ["anchor"],
-                    },
-                    content: {
-                        type: "element",
-                        tagName: "span",
-                        properties: {
-                            className: ["anchor-icon"],
-                            "data-pagefind-ignore": true,
+            rehypePlugins: [
+                rehypeHeadingShift, // 必须放在最前面，将 h1 降级为 h2，避免多个 h1 的 SEO 问题
+                rehypeKatex,
+                rehypeSlug,
+                [rehypeImageFallback, imageFallbackConfig],
+                rehypeImageAttrs,
+                [
+                    rehypeComponents,
+                    {
+                        components: {
+                            github: GithubCardComponent,
+                            link: LinkCardComponent,
+                            note: (x, y) => AdmonitionComponent(x, y, "note"),
+                            tip: (x, y) => AdmonitionComponent(x, y, "tip"),
+                            important: (x, y) => AdmonitionComponent(x, y, "important"),
+                            caution: (x, y) => AdmonitionComponent(x, y, "caution"),
+                            warning: (x, y) => AdmonitionComponent(x, y, "warning"),
                         },
-                        children: [
-                            {
-                                type: "text",
-                                value: "#",
-                            },
-                        ],
                     },
-                },
+                ],
+                [
+                    rehypeExternalLinks,
+                    {
+                        target: '_blank',
+                    },
+                ],
+                [
+                    rehypeAutolinkHeadings,
+                    {
+                        behavior: "append",
+                        properties: {
+                            className: ["anchor"],
+                        },
+                        content: {
+                            type: "element",
+                            tagName: "span",
+                            properties: {
+                                className: ["anchor-icon"],
+                                "data-pagefind-ignore": true,
+                            },
+                            children: [
+                                {
+                                    type: "text",
+                                    value: "#",
+                                },
+                            ],
+                        },
+                    },
+                ],
             ],
-        ],
+        }),
     },
     vite: {
         build: {
+            // Vite 8 将默认 CSS 压缩器从 esbuild 换成了 lightningcss，
+            // 其解析器对本项目大量使用的 `&` 嵌套选择器（main.css/markdown.css/
+            // scrollbar.css 及各组件 <style> 块）报 "Unexpected token Delim('&')"。
+            // 显式指回 esbuild 以保持原有 CSS 写法不变。
+            // 参见: https://github.com/vitejs/vite/issues/21911
+            cssMinify: "esbuild",
             rollupOptions: {
                 onwarn(warning, warn) {
                     // temporarily suppress this warning

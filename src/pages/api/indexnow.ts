@@ -63,7 +63,7 @@ export const POST: APIRoute = async ({ request }) => {
 			baseUrl, // 首页
 			`${baseUrl}/archive`, // 归档页
 			`${baseUrl}/about`, // 关于页
-			...posts.map((post) => `${baseUrl}/posts/${post.slug}`), // 所有文章页面
+			...posts.map((post) => `${baseUrl}/posts/${post.id}`), // 所有文章页面
 		];
 
 		console.log(`Current site has ${currentUrls.length} URLs`);
