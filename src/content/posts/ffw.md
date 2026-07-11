@@ -5,7 +5,6 @@ description: 232X工具FFW配置文件的算法逆向
 tags: [Knowledge, Math]
 category: 开发笔记
 draft: true
-pinned: true          # 置顶文章
 lang: zh_CN           # 指定语言 (可选)
 ---
 ### 前情提要
@@ -16,6 +15,16 @@ lang: zh_CN           # 指定语言 (可选)
 
 看来这个FFW文件解密是可能的，于是就有了这篇文章。
 
+先上结论：
+
+加密流程图：
+
+![加密流程](https://picx.raana.icu/encode_math_flow.3uviyk8t1h.webp)
+
+解密流程图：
+
+![解密流程](https://picx.raana.icu/decode_math_flow.2a5rz3bll0.webp)
 
 
-/*晚点继续写，困死了*/
+
+/*正在组织语言写自己的蒙对算法过程*/
