@@ -19,11 +19,11 @@ lang: zh_CN           # 指定语言 (可选)
 
 加密流程图：
 
-![加密流程](https://picx.raana.icu/encode_math_flow.3uviyk8t1h.webp)
+![加密流程](https://picx.raana.icu/20260711/encode_math_flow.9gx9cfj421.webp)
 
 解密流程图：
 
-![解密流程](https://picx.raana.icu/decode_math_flow.2a5rz3bll0.webp)
+![解密流程](https://picx.raana.icu/20260711/decode_math_flow.1apolxhumd.webp)
 
 
 
