@@ -1,20 +1,95 @@
 ---
+import FilterTabs from "@components/misc/FilterTabs.astro";
+import ProjectCard from "@components/ProjectCard.astro";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
+import { Icon } from "astro-icon/components";
+import { getCollection } from "astro:content";
+import fs from "node:fs";
+
+const projects = await getCollection("projects");
+
+const orderFile = "src/content/projects/_order.json";
+const order: string[] = JSON.parse(fs.readFileSync(orderFile, "utf-8"));
+
+projects.sort((a, b) => {
+	const idA = a.id.replace(/\.json$/, "");
+	const idB = b.id.replace(/\.json$/, "");
+	const indexA = order.indexOf(idA);
+	const indexB = order.indexOf(idB);
+	// 不在 order 中的排最后，按文件名排序
+	const posA = indexA === -1 ? order.length : indexA;
+	const posB = indexB === -1 ? order.length : indexB;
+	if (posA === posB) return idA.localeCompare(idB);
+	return posA - posB;
+});
+
+const categoryTextMap: Record<string, string> = {
+	web: "网页应用",
+	mobile: "移动应用",
+	desktop: "桌面应用",
+	other: "其他",
+};
+const categoryIconMap: Record<string, string> = {
+	web: "material-symbols:language",
+	mobile: "material-symbols:smartphone",
+	desktop: "material-symbols:desktop-windows",
+	other: "material-symbols:widgets",
+};
+
+const categories = [...new Set(projects.map((p) => p.data.category))];
+
+const filterTabs = [
+	{
+		value: "all",
+		label: "全部",
+		icon: "material-symbols:apps",
+		count: projects.length,
+	},
+	...categories.map((category) => ({
+		value: category,
+		label: categoryTextMap[category] ?? category,
+		icon: categoryIconMap[category] ?? "material-symbols:folder",
+		count: projects.filter((p) => p.data.category === category).length,
+	})),
+];
 ---
 
 <MainGridLayout
   title="作品集 - Kazusa1085"
   description="Kazusa1085的作品集合。"
 >
+  {projects.length > 0 && <script defer src="/js/filter-tabs-handler.js"></script>}
+
   <h1 class="text-3xl font-bold mb-6 text-black/90 dark:text-white/90">作品集</h1>
 
-  <div class="card-base rounded-[var(--radius-large)] p-8 md:p-12 text-center">
-    <div class="text-5xl md:text-6xl mb-6">🚧</div>
-    <h2 class="text-xl md:text-2xl font-bold mb-3 text-[var(--primary)]">作品集筹备中</h2>
-    <p class="text-sm md:text-base text-black/60 dark:text-white/60 max-w-md mx-auto leading-relaxed">
-      这里将展示我的项目作品。
-      <br />
-      内容正在整理中，敬请期待。
-    </p>
-  </div>
+  {projects.length > 0 ? (
+    <div class="card-base rounded-[var(--radius-large)] p-6 md:p-9 relative w-full">
+      {categories.length > 1 && (
+        <div class="mb-6">
+          <FilterTabs tabs={filterTabs} dataAttr="category" />
+        </div>
+      )}
+
+      <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+        {projects.map((project) => (
+          <ProjectCard project={project} maxTechStack={4} />
+        ))}
+      </div>
+
+      <div id="no-results" class="hidden text-center py-16">
+        <Icon name="material-symbols:search-off-rounded" class="text-6xl text-black/15 dark:text-white/15 mb-4" />
+        <p class="text-black/40 dark:text-white/40 text-lg">没有符合条件的项目</p>
+      </div>
+    </div>
+  ) : (
+    <div class="card-base rounded-[var(--radius-large)] p-8 md:p-12 text-center">
+      <div class="text-5xl md:text-6xl mb-6">🚧</div>
+      <h2 class="text-xl md:text-2xl font-bold mb-3 text-[var(--primary)]">作品集筹备中</h2>
+      <p class="text-sm md:text-base text-black/60 dark:text-white/60 max-w-md mx-auto leading-relaxed">
+        这里将展示我的项目作品。
+        <br />
+        内容正在整理中，敬请期待。
+      </p>
+    </div>
+  )}
 </MainGridLayout>
