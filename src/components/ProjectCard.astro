@@ -1,0 +1,163 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { Icon } from "astro-icon/components";
+
+interface Props {
+	project: CollectionEntry<"projects">;
+	maxTechStack?: number;
+}
+
+const { project, maxTechStack = 4 } = Astro.props;
+const { data } = project;
+
+const hasImage = !!data.image;
+const showImageArea = data.showImage !== false && hasImage;
+const hasVisitUrl = !!data.visitUrl;
+const hasSourceCode = !!data.sourceCode;
+
+const statusTextMap: Record<string, string> = {
+	completed: "已完成",
+	"in-progress": "进行中",
+	planned: "计划中",
+};
+const statusText = statusTextMap[data.status] ?? data.status;
+---
+
+<div
+	class="project-card group relative rounded-xl border border-black/10 dark:border-white/10 overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-[var(--card-bg)]"
+	data-category={data.category}
+>
+	{
+		showImageArea && (
+			<div class="aspect-video overflow-hidden relative bg-gradient-to-br from-[var(--primary)]/5 to-[var(--primary)]/10">
+				{hasImage ? (
+					<img
+						src={data.image}
+						alt={data.title}
+						class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+						loading="lazy"
+					/>
+				) : (
+					<div class="w-full h-full flex items-center justify-center">
+						<span class="text-4xl font-bold text-[var(--primary)]/15 select-none tracking-wide">
+							{data.title}
+						</span>
+					</div>
+				)}
+				<div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+				{data.featured && (
+					<div class="absolute top-3 right-3">
+						<Icon
+							name="material-symbols:star-rounded"
+							class="text-[var(--primary)] text-xl drop-shadow-sm"
+							style="filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));"
+						/>
+					</div>
+				)}
+			</div>
+		)
+	}
+
+	<div class="p-5">
+		<div class="flex items-center justify-between mb-3">
+			<h3 class="text-lg font-bold text-black/90 dark:text-white/90 truncate group-hover:text-[var(--primary)] transition-colors duration-200">
+				{data.title}
+			</h3>
+			<span class="shrink-0 ml-3 px-2 py-0.5 text-xs rounded-md bg-[var(--primary)]/10 text-[var(--primary)] font-medium">
+				{statusText}
+			</span>
+		</div>
+
+		<p class="text-sm text-black/60 dark:text-white/60 mb-4 line-clamp-2 min-h-10">
+			{data.description}
+		</p>
+
+		{
+			data.techStack && data.techStack.length > 0 && (
+				<div class="flex flex-wrap gap-2 mb-4">
+					{data.techStack.slice(0, maxTechStack).map((tech) => (
+						<span class="px-2 py-1 text-xs rounded-md bg-[var(--primary)]/10 text-[var(--primary)] font-medium">
+							{tech}
+						</span>
+					))}
+					{data.techStack.length > maxTechStack && (
+						<span class="px-2 py-1 text-xs rounded-md bg-[var(--btn-regular-bg)] text-black/50 dark:text-white/50 font-medium">
+							+{data.techStack.length - maxTechStack}
+						</span>
+					)}
+				</div>
+			)
+		}
+
+		{
+			(hasVisitUrl || hasSourceCode) && (
+				<div class="flex gap-2">
+					{hasVisitUrl && (
+						<a
+							href={data.visitUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="btn-regular flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium"
+						>
+							<Icon name="material-symbols:open-in-new" class="text-base w-4 h-4" />
+							前往
+						</a>
+					)}
+					{hasSourceCode && (
+						<a
+							href={data.sourceCode}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="btn-regular flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium"
+							style={hasVisitUrl ? "" : "flex: 1;"}
+						>
+							<Icon name="fa6-brands:github-alt" class="text-base w-4 h-4" />
+							{!hasVisitUrl && "GitHub"}
+						</a>
+					)}
+				</div>
+			)
+		}
+	</div>
+
+	<div class="absolute inset-0 bg-gradient-to-br from-[var(--primary)]/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+	</div>
+</div>
+
+<style>
+	.project-card {
+		animation: fadeInUp 0.5s ease-out forwards;
+		opacity: 0;
+	}
+
+	.project-card.filtered-out {
+		display: none;
+	}
+
+	@keyframes fadeInUp {
+		from {
+			opacity: 0;
+			transform: translateY(20px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	.project-card:nth-child(1) { animation-delay: 0.05s; }
+	.project-card:nth-child(2) { animation-delay: 0.1s; }
+	.project-card:nth-child(3) { animation-delay: 0.15s; }
+	.project-card:nth-child(4) { animation-delay: 0.2s; }
+	.project-card:nth-child(5) { animation-delay: 0.25s; }
+	.project-card:nth-child(6) { animation-delay: 0.3s; }
+	.project-card:nth-child(7) { animation-delay: 0.35s; }
+	.project-card:nth-child(8) { animation-delay: 0.4s; }
+
+	.line-clamp-2 {
+		display: -webkit-box;
+		-webkit-line-clamp: 2;
+		-webkit-box-orient: vertical;
+		overflow: hidden;
+	}
+</style>
