@@ -1,45 +1,77 @@
-name: Deploy to GitHub Pages
+name: Build, Deploy & IndexNow
+
+# 把原来 deploy.yml 和 indexnow.yml 两条各自独立 build 的流水线合并成一个：
+# build 这个 job 只构建一次，deploy（发布到 GitHub Pages）和 indexnow（提交
+# 到 IndexNow）两个 job 都复用它的产物，不再各自重复 `pnpm build` 一次。
 
 on:
-  # 每次推送到 `main` 分支时触发这个“工作流程”
+  # 每次推送到 `main` 分支时触发这个"工作流程"
   # 如果你使用了别的分支名，请按需将 `main` 替换成你的分支名
   push:
     branches: [ main ]
-  # 允许你在 GitHub 上的 Actions 标签中手动触发此“工作流程”
+  # 允许你在 GitHub 上的 Actions 标签中手动触发此"工作流程"
   workflow_dispatch:
+    inputs:
+      reason:
+        description: 'IndexNow 提交原因（可选，仅手动触发时使用）'
+        required: false
+        default: 'Manual submission'
   # 内容分离：Blog_Archive 有更新时会发一个 repository_dispatch 事件过来
   # （见 Blog_Archive 里的 .github/workflows/notify-build.yml），
-  # 触发这里重新构建部署，从而带上最新的文章/友链/项目内容
+  # 触发这里重新构建部署 + 提交 IndexNow
   repository_dispatch:
     types: [content-updated]
 
-# 允许 job 克隆 repo 并创建一个 page deployment
 permissions:
   contents: read
   pages: write
   id-token: write
 
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   build:
+    name: Build site (一次构建，供下面两个 job 复用)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout your repository using git
         uses: actions/checkout@v7
-      - name: Install, build, and upload your site
-        uses: withastro/action@v6
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
         with:
-          node-version: 24 # 用于构建站点的特定 Node.js 版本，v6 默认值即为 24（可选）
-          # path: . # 存储库中 Astro 项目的根位置。（可选）
-          # package-manager: pnpm@latest # 应使用哪个 Node.js 包管理器来安装依赖项和构建站点。会根据存储库中的 lockfile 自动检测。（可选）
-          # build-cmd: pnpm run build # 用于构建你的网站的命令。默认运行软件包的构建脚本或任务。（可选）
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build site
         env:
-          # 内容分离：.env 不会被提交到仓库，CI 构建时靠这里注入
-          # ENABLE_CONTENT_SYNC / CONTENT_REPO_URL，让 prebuild 钩子能正确
-          # 从 Blog_Archive 同步 content/ 目录后再构建
+          # 内容分离：从 Blog_Archive 同步文章/友链/项目内容后再构建
           ENABLE_CONTENT_SYNC: "true"
           CONTENT_REPO_URL: "https://github.com/Kazusa1085/Blog_Archive.git"
+        run: pnpm build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: Upload dist for IndexNow job
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-for-indexnow
+          path: dist
+          retention-days: 1
 
   deploy:
+    name: Deploy to GitHub Pages
     needs: build
     runs-on: ubuntu-latest
     environment:
@@ -49,3 +81,76 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+  indexnow:
+    name: Submit URLs to IndexNow
+    needs: build
+    runs-on: ubuntu-latest
+    environment: Production
+    steps:
+      # 提交脚本（scripts/submit-indexnow-incremental.mjs）只用了 Node 内置的
+      # fs/path，不依赖 node_modules，这里不需要 pnpm install，只 checkout
+      # 脚本本身 + 下载 build job 产出的 dist 就够了
+      - name: Checkout repository (只需要脚本文件)
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - name: Download built site from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-for-indexnow
+          path: dist
+
+      # 恢复上次的提交记录缓存
+      - name: Restore IndexNow submission cache
+        uses: actions/cache/restore@v5
+        id: cache-restore
+        with:
+          path: .indexnow-submitted.json
+          key: indexnow-submitted-${{ github.ref_name }}
+          restore-keys: |
+            indexnow-submitted-
+
+      - name: Show cache status
+        run: |
+          if [ "${{ steps.cache-restore.outputs.cache-hit }}" == "true" ]; then
+            echo "✅ 缓存命中，已恢复上次提交记录"
+            cat .indexnow-submitted.json | head -20
+          else
+            echo "ℹ️ 未找到缓存，将作为首次提交"
+          fi
+
+      - name: Submit to IndexNow (Incremental)
+        env:
+          INDEXNOW_KEY: ${{ vars.INDEXNOW_KEY }}
+          INDEXNOW_HOST: ${{ vars.INDEXNOW_HOST }}
+        run: |
+          echo "Starting IndexNow incremental submission..."
+          if node scripts/submit-indexnow-incremental.mjs; then
+            echo "✅ IndexNow incremental submission successful"
+          else
+            echo "❌ IndexNow submission failed, but continuing..."
+            exit 0
+          fi
+        continue-on-error: true
+
+      # 保存更新后的提交记录到缓存
+      - name: Save IndexNow submission cache
+        uses: actions/cache/save@v5
+        if: always()
+        with:
+          path: .indexnow-submitted.json
+          key: indexnow-submitted-${{ github.ref_name }}-${{ github.run_id }}
+
+      - name: Report status
+        if: always()
+        run: |
+          echo "IndexNow submission workflow completed"
+          if [ -f .indexnow-submitted.json ]; then
+            echo "📊 当前提交记录:"
+            cat .indexnow-submitted.json | head -20
+          fi
