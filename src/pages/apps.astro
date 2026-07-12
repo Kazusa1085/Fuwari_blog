@@ -1,28 +1,49 @@
 ---
-import { siteConfig } from "@/config";
 import ImageWrapper from "@components/misc/ImageWrapper.astro";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
+import { getCollection } from "astro:content";
+import fs from "node:fs";
 
-const apps = siteConfig.apps || [];
+const apps = await getCollection("apps");
+
+const orderFile = "content/apps/_order.json";
+let order: string[] = [];
+try {
+	order = JSON.parse(fs.readFileSync(orderFile, "utf-8"));
+} catch {
+	// content/ 可能还没同步完成，这种情况下不让整个页面崩溃，退化成按文件名排序
+	console.warn(`[apps] 未找到或无法解析 ${orderFile}，将按文件名排序`);
+}
+
+apps.sort((a, b) => {
+	const idA = a.id.replace(/\.json$/, "");
+	const idB = b.id.replace(/\.json$/, "");
+	const indexA = order.indexOf(idA);
+	const indexB = order.indexOf(idB);
+	const posA = indexA === -1 ? order.length : indexA;
+	const posB = indexB === -1 ? order.length : indexB;
+	if (posA === posB) return idA.localeCompare(idB);
+	return posA - posB;
+});
 ---
 
 <MainGridLayout title="应用合集" description="一些小工具">
   <h1 class="text-3xl font-bold mb-6 text-black/90 dark:text-white/90">应用</h1>
   <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
     {apps.map((app) => (
-      <a href={app.url}
-         target={app.external ? "_blank" : undefined}
-         rel={app.external ? "noopener noreferrer" : undefined}
+      <a href={app.data.url}
+         target={app.data.external ? "_blank" : undefined}
+         rel={app.data.external ? "noopener noreferrer" : undefined}
          class="card-base rounded-[var(--radius-large)] overflow-hidden group block hover:scale-[1.02] transition-transform duration-300">
         <div class="relative aspect-square bg-gradient-to-br from-black/5 to-black/10 dark:from-white/5 dark:to-white/10 flex items-center justify-center p-6">
           <div class="w-full h-full max-w-[120px] max-h-[120px] md:max-w-[140px] md:max-h-[140px] relative">
-            <ImageWrapper src={app.image} alt={app.name} class="w-full h-full rounded-2xl shadow-lg group-hover:shadow-xl transition-shadow duration-300" fit="contain" dim={false} position="center" />
+            <ImageWrapper src={app.data.image} alt={app.data.name} class="w-full h-full rounded-2xl shadow-lg group-hover:shadow-xl transition-shadow duration-300" fit="contain" dim={false} position="center" />
           </div>
           <div class="absolute inset-0 bg-[var(--primary)]/0 group-hover:bg-[var(--primary)]/5 transition-colors duration-300"></div>
         </div>
         <div class="p-4 text-center">
-          <div class="text-base md:text-lg font-bold mb-1 text-[var(--primary)] transition truncate">{app.name}</div>
-          {app.description && <div class="text-xs md:text-sm text-black/60 dark:text-white/60 line-clamp-2">{app.description}</div>}
+          <div class="text-base md:text-lg font-bold mb-1 text-[var(--primary)] transition truncate">{app.data.name}</div>
+          {app.data.description && <div class="text-xs md:text-sm text-black/60 dark:text-white/60 line-clamp-2">{app.data.description}</div>}
         </div>
       </a>
     ))}

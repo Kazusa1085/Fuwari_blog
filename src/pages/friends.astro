@@ -18,7 +18,14 @@ const { Content } = await render(friendsPost);
 const friends = await getCollection("friends");
 
 const orderFile = "content/friends/_order.json";
-const order: string[] = JSON.parse(fs.readFileSync(orderFile, "utf-8"));
+let order: string[] = [];
+try {
+	order = JSON.parse(fs.readFileSync(orderFile, "utf-8"));
+} catch {
+	// content/ 可能还没同步完成（比如同步失败、或本地还没跑过 sync-content），
+	// 这种情况下不让整个页面崩溃，退化成按文件名排序
+	console.warn(`[friends] 未找到或无法解析 ${orderFile}，将按文件名排序`);
+}
 
 friends.sort((a, b) => {
 	const idA = a.id.replace(/\.json$/, "");
