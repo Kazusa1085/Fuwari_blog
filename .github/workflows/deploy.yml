@@ -33,7 +33,7 @@ concurrency:
 
 jobs:
   build:
-    name: Build site (一次构建，供下面两个 job 复用)
+    name: Build site
     runs-on: ubuntu-latest
     steps:
       - name: Checkout your repository using git
@@ -98,6 +98,12 @@ jobs:
         uses: actions/setup-node@v5
         with:
           node-version: 24
+          # actions/setup-node@v5 新增了行为：只要 package.json 里有
+          # packageManager 字段（我们是 pnpm@9.15.9），就会自动尝试跑 pnpm
+          # 相关缓存逻辑，即使没有显式写 cache: pnpm 也一样。这个 job 故意不装
+          # pnpm（脚本只用 Node 内置模块，不需要），所以要显式关掉这个自动检测，
+          # 不然会报 "Unable to locate executable file: pnpm"
+          package-manager-cache: false
 
       - name: Download built site from build job
         uses: actions/download-artifact@v4
