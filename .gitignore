@@ -37,3 +37,8 @@ ori
 
 # Claude 配置文件夹
 .claude
+
+# 内容分离：content/ 由独立仓库 Kazusa1085/Blog_Archive 同步而来
+# （见 scripts/sync-content.js），不在这个仓库里重复跟踪
+content/
+content.backup-*/

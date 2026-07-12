@@ -3,7 +3,7 @@ import { glob } from "astro/loaders";
 import { z } from "astro/zod";
 
 const postsCollection = defineCollection({
-	loader: glob({ pattern: "**/[^_]*.md", base: "./src/content/posts" }),
+	loader: glob({ pattern: "**/[^_]*.md", base: "./content/posts" }),
 	schema: z.object({
 		title: z.string(),
 		published: z.date(),
@@ -38,7 +38,7 @@ const specCollection = defineCollection({
 
 const friendsCollection = defineCollection({
 	// _order.json 仅用于存储排序信息，不是一条 friend 数据，通过 [^_]* 排除
-	loader: glob({ pattern: "**/[^_]*.json", base: "./src/content/friends" }),
+	loader: glob({ pattern: "**/[^_]*.json", base: "./content/friends" }),
 	schema: z.object({
 		name: z.string(),
 		url: z.string(),
@@ -50,12 +50,12 @@ const friendsCollection = defineCollection({
 
 const projectsCollection = defineCollection({
 	// 与 friends 相同的独立 JSON 管理方式，_order.json 仅用于排序，通过 [^_]* 排除
-	loader: glob({ pattern: "**/[^_]*.json", base: "./src/content/projects" }),
+	loader: glob({ pattern: "**/[^_]*.json", base: "./content/projects" }),
 	schema: z.object({
 		title: z.string(),
 		description: z.string(),
 		image: z.string().optional().default(""),
-		category: z.enum(["web", "mobile", "desktop", "other"]),
+		category: z.enum(["web", "mobile", "desktop", "embedded", "other"]),
 		techStack: z.array(z.string()).optional().default([]),
 		status: z.enum(["completed", "in-progress", "planned"]),
 		sourceCode: z.string().optional(),

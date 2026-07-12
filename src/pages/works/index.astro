@@ -8,7 +8,7 @@ import fs from "node:fs";
 
 const projects = await getCollection("projects");
 
-const orderFile = "src/content/projects/_order.json";
+const orderFile = "content/projects/_order.json";
 const order: string[] = JSON.parse(fs.readFileSync(orderFile, "utf-8"));
 
 projects.sort((a, b) => {
@@ -27,12 +27,14 @@ const categoryTextMap: Record<string, string> = {
 	web: "网页应用",
 	mobile: "移动应用",
 	desktop: "桌面应用",
+	embedded: "嵌入式应用",
 	other: "其他",
 };
 const categoryIconMap: Record<string, string> = {
 	web: "material-symbols:language",
 	mobile: "material-symbols:smartphone",
 	desktop: "material-symbols:desktop-windows",
+	embedded: "material-symbols:developer-board",
 	other: "material-symbols:widgets",
 };
 

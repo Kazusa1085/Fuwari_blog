@@ -6,7 +6,7 @@
 #   2. 给予执行权限: chmod +x .git/hooks/pre-commit
 
 # 获取已暂存的 Markdown 文件（只在 posts 目录下）
-STAGED_POSTS=$(git diff --cached --name-only --diff-filter=M | grep "^src/content/posts/.*\.md$")
+STAGED_POSTS=$(git diff --cached --name-only --diff-filter=M | grep "^content/posts/.*\.md$")
 
 if [ -z "$STAGED_POSTS" ]; then
     exit 0

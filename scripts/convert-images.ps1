@@ -17,7 +17,7 @@
     The directory to search for images. Defaults to 'public/images'.
 
 .EXAMPLE
-    .\scripts\convert-images.ps1 -TargetPath "src/content/posts"
+    .\scripts\convert-images.ps1 -TargetPath "content/posts"
 #>
 
 param (
