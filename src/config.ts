@@ -56,15 +56,6 @@ export const siteConfig: SiteConfig = {
 			//   sizes: '32x32',              // (Optional) Size of the favicon, set only if you have favicons of different sizes
 		},
 	],
-	apps: [
-		{
-			name: "SM232X FFW加解密工具",
-			url: "https://ffw.raana.icu/",
-			image: "/favicon/ffw.webp",
-			description: "SM2320&2322XT.FFW加解密工具",
-			external: true,
-		},
-	],
 };
 
 export const navBarConfig: NavBarConfig = {

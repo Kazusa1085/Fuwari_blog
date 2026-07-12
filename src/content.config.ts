@@ -69,9 +69,22 @@ const projectsCollection = defineCollection({
 	}),
 });
 
+const appsCollection = defineCollection({
+	// 同 friends/projects 的独立 JSON 管理方式
+	loader: glob({ pattern: "**/[^_]*.json", base: "./content/apps" }),
+	schema: z.object({
+		name: z.string(),
+		url: z.string(),
+		image: z.string(), // public/ 路径或完整 URL
+		description: z.string().optional(),
+		external: z.boolean().optional().default(false),
+	}),
+});
+
 export const collections = {
 	posts: postsCollection,
 	spec: specCollection,
 	friends: friendsCollection,
 	projects: projectsCollection,
+	apps: appsCollection,
 };
