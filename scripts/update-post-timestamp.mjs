@@ -6,7 +6,7 @@
  *   node scripts/update-post-timestamp.mjs [文件路径]
  * 
  * 示例:
- *   node scripts/update-post-timestamp.mjs src/content/posts/my-post.md
+ *   node scripts/update-post-timestamp.mjs content/posts/my-post.md
  * 
  * 如果不带参数，则检查所有已修改的文章文件（基于 git status）
  */
@@ -18,7 +18,7 @@ import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, '..');
-const POSTS_DIR = path.join(ROOT_DIR, 'src/content/posts');
+const POSTS_DIR = path.join(ROOT_DIR, 'content/posts');
 
 // 获取当前本地时间的 ISO 格式（不带时区标识，方便阅读）
 function getLocalISOTime() {
@@ -79,7 +79,7 @@ function getModifiedPosts() {
         const lines = output.split('\n').filter(Boolean);
         
         return lines
-            .filter(line => line.includes('src/content/posts/') && line.endsWith('.md'))
+            .filter(line => line.includes('content/posts/') && line.endsWith('.md'))
             .map(line => {
                 const filePath = line.slice(3).trim();
                 return path.join(ROOT_DIR, filePath);

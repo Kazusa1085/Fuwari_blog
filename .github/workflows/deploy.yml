@@ -7,6 +7,11 @@ on:
     branches: [ main ]
   # 允许你在 GitHub 上的 Actions 标签中手动触发此“工作流程”
   workflow_dispatch:
+  # 内容分离：Blog_Archive 有更新时会发一个 repository_dispatch 事件过来
+  # （见 Blog_Archive 里的 .github/workflows/notify-build.yml），
+  # 触发这里重新构建部署，从而带上最新的文章/友链/项目内容
+  repository_dispatch:
+    types: [content-updated]
 
 # 允许 job 克隆 repo 并创建一个 page deployment
 permissions:
@@ -27,8 +32,12 @@ jobs:
           # path: . # 存储库中 Astro 项目的根位置。（可选）
           # package-manager: pnpm@latest # 应使用哪个 Node.js 包管理器来安装依赖项和构建站点。会根据存储库中的 lockfile 自动检测。（可选）
           # build-cmd: pnpm run build # 用于构建你的网站的命令。默认运行软件包的构建脚本或任务。（可选）
-        # env:
-          # PUBLIC_POKEAPI: 'https://pokeapi.co/api/v2' # 对变量值使用单引号。（可选）
+        env:
+          # 内容分离：.env 不会被提交到仓库，CI 构建时靠这里注入
+          # ENABLE_CONTENT_SYNC / CONTENT_REPO_URL，让 prebuild 钩子能正确
+          # 从 Blog_Archive 同步 content/ 目录后再构建
+          ENABLE_CONTENT_SYNC: "true"
+          CONTENT_REPO_URL: "https://github.com/Kazusa1085/Blog_Archive.git"
 
   deploy:
     needs: build

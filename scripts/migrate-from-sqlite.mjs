@@ -3,7 +3,7 @@
   Phase 1: schema introspection and dry-run preview.
   Usage (PowerShell):
     pnpm node scripts/migrate-from-sqlite.mjs --db "D:\\Betsy\\test\\database.db" --dry-run
-    pnpm node scripts/migrate-from-sqlite.mjs --db "D:\\Betsy\\test\\database.db" --out ./src/content/posts
+    pnpm node scripts/migrate-from-sqlite.mjs --db "D:\\Betsy\\test\\database.db" --out ./content/posts
 */
 
 import fs from 'node:fs';
@@ -33,7 +33,7 @@ for (let i = 0; i < argv.length; i++) {
 }
 
 const dbPath = params.db || params.database;
-const outDir = params.out || './src/content/posts';
+const outDir = params.out || './content/posts';
 const dryRun = params['dry-run'] === 'true' || params['dry'] === 'true' || !!params['dry-run'] || !!params['dry'];
 
 if (!dbPath) {

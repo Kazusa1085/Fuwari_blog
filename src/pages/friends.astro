@@ -17,7 +17,7 @@ const { Content } = await render(friendsPost);
 
 const friends = await getCollection("friends");
 
-const orderFile = "src/content/friends/_order.json";
+const orderFile = "content/friends/_order.json";
 const order: string[] = JSON.parse(fs.readFileSync(orderFile, "utf-8"));
 
 friends.sort((a, b) => {

@@ -12,9 +12,12 @@ import sanitizeHtml from "sanitize-html";
 const markdownParser = new MarkdownIt();
 
 // get dynamic import of images as a map collection
-const imagesGlob = import.meta.glob<{ default: ImageMetadata }>(
-	"/src/content/**/*.{jpeg,jpg,png,gif,webp}", // include posts and assets
-);
+// 内容分离：posts 已经搬到顶层 content/ 目录，这里同时保留 /src/content/**
+// （给 spec 用，虽然目前没有图片）和 /content/**（posts 的新位置）两个 glob
+const imagesGlob = import.meta.glob<{ default: ImageMetadata }>([
+	"/src/content/**/*.{jpeg,jpg,png,gif,webp}",
+	"/content/**/*.{jpeg,jpg,png,gif,webp}",
+]);
 
 export async function GET(context: APIContext) {
 	if (!context.site) {
@@ -44,11 +47,11 @@ export async function GET(context: APIContext) {
 				if (src.startsWith("./")) {
 					// Path relative to the post file directory
 					const prefixRemoved = src.slice(2);
-					importPath = `/src/content/posts/${prefixRemoved}`;
+					importPath = `/content/posts/${prefixRemoved}`;
 				} else {
-					// Path like ../assets/images/xxx -> relative to /src/content/
+					// Path like ../assets/images/xxx -> relative to /content/
 					const cleaned = src.replace(/^\.\.\//, "");
-					importPath = `/src/content/${cleaned}`;
+					importPath = `/content/${cleaned}`;
 				}
 
 				const imageMod = await imagesGlob[importPath]?.()?.then(

@@ -11,7 +11,7 @@
 ### Technology Stack
 | Category | Technology |
 | :--- | :--- |
-| **Framework** | Astro 5.x |
+| **Framework** | Astro 7.x |
 | **Styling** | Tailwind CSS 3.x + Stylus |
 | **Interactivity** | Svelte 5.x + Astro |
 | **Content** | Astro Content Collections (Markdown) |
@@ -35,10 +35,10 @@
 | Directory | Description |
 | :--- | :--- |
 | `src/config.ts` | **Main Configuration** (Site, Nav, Profile, Feature toggles) |
-| `src/content/posts/` | Blog Posts (Markdown) |
-| `src/content/spec/` | Special Pages (e.g., About) |
-| `src/content/friends/` | Friend Links (JSON + `_order.json` for sorting) |
-| `src/content/config.ts` | Content Collections Schema |
+| `content/posts/` | Blog Posts (Markdown, 独立仓库 Kazusa1085/Blog_Archive 同步而来) |
+| `src/content/spec/` | Special Pages (e.g., About)——不属于内容分离范围，仍在本仓库 |
+| `content/friends/` | Friend Links (JSON + `_order.json` for sorting, 独立仓库 Kazusa1085/Blog_Archive 同步而来) |
+| `src/content.config.ts` | Content Collections Schema |
 | `src/components/` | UI Components (Astro + Svelte) |
 | `src/layouts/` | Page Layouts |
 | `src/pages/` | Routing Pages & API Endpoints |
@@ -53,7 +53,7 @@
 | :--- | :--- |
 | `astro.config.mjs` | Astro Project Config |
 | `src/config.ts` | User Configuration Entry Point |
-| `src/content/config.ts` | Content Collections Schema |
+| `src/content.config.ts` | Content Collections Schema |
 | `tailwind.config.cjs` | Tailwind CSS Config |
 
 ### Content Collections Schema
@@ -85,7 +85,7 @@
 | `pnpm type-check` | TypeScript type check |
 
 ### Creating Content
-Posts are located in `src/content/posts/`.
+Posts are located in `content/posts/`（内容分离：由独立仓库 Kazusa1085/Blog_Archive 通过 `scripts/sync-content.js` 同步而来，本地/CI 构建前会自动跑一次，见该脚本注释）。
 **Frontmatter Example:**
 ```yaml
 ---
@@ -108,7 +108,7 @@ lang: zh_CN                   # Optional
 ## Friend Links Automation
 
 ### Data Structure
-Each friend link is a JSON file in `src/content/friends/`:
+Each friend link is a JSON file in `content/friends/`（同上，来自 Blog_Archive）:
 ```json
 {
   "name": "Site Name",
@@ -120,20 +120,21 @@ Each friend link is a JSON file in `src/content/friends/`:
 ```
 
 ### Sorting
-- `src/content/friends/_order.json`: Array of friend IDs controlling display order (earliest added first).
+- `content/friends/_order.json`: Array of friend IDs controlling display order (earliest added first).
 - `src/pages/friends.astro`: Reads `_order.json` for sorting; entries not in the array appear last.
 - The `_` prefix ensures Astro ignores it as a collection entry.
 
 ### GitHub Actions Auto-Merge (`friends-auto-merge.yml`)
+**内容分离后这个 workflow 已经搬到 `Kazusa1085/Blog_Archive` 仓库**（友链数据现在在那边，机器人也应该跟着过去），不再是这个仓库的一部分。逻辑基本不变，路径改成相对于 Blog_Archive 仓库根目录（`friends/<name>.json` 而不是 `src/content/friends/<name>.json`），"Build Check" 步骤额外 checkout 这个仓库到子目录、把 PR 改动的内容注入 `content/` 后再跑 `pnpm build` 验证。
 | Step | Description |
 | :--- | :--- |
-| **Verify Changed Files** | Whitelist check: only `src/content/friends/<name>.json` allowed; `_order.json` modification blocked. Outputs `status`/`detail` without exiting on failure. |
+| **Verify Changed Files** | Whitelist check: only `friends/<name>.json` allowed; `_order.json` modification blocked. Outputs `status`/`detail` without exiting on failure. |
 | **Validate JSON Content** | Schema validation (required fields, URL format, XSS check, no extra fields, 2KB size limit). Collects all errors before reporting. |
 | **Check Backlink** | Fetches `friendsPage` URL, checks for `href` containing `www.micostar.cc`. Outputs per-entry results. |
 | **Gate Check** | Aggregates results from above 3 steps. Only proceeds to Build/Merge if all pass. |
-| **Build Check** | Runs `pnpm build` (skipped if Gate fails). Captures pass/fail status. |
+| **Build Check** | Checks out this repo (Fuwari_blog) into a subdirectory, injects the PR's posts/friends/projects into its `content/`, then runs `pnpm build` there (skipped if Gate fails). |
 | **Auto Merge** | Squash merge with welcome message (skipped if Gate or Build fails) |
-| **Update Order** | Appends new friend ID to `_order.json` and pushes to main |
+| **Update Order** | Appends new friend ID to `_order.json` and pushes to Blog_Archive's main |
 | **Comment on PR** | Posts structured table with per-step ✅/❌/⏭️ results and specific error details |
 | **Label** | Adds `✅ 验证通过` or `❌ 验证未通过` label (auto-creates labels if missing) |
 

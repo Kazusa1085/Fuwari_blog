@@ -133,7 +133,7 @@ function hello() {
 ```
 
 2. **本地图片**
-将图片放在 `src/content/posts/` 相对路径下：
+将图片放在 `content/posts/` 相对路径下：
 ```markdown
 ![本地图片](./images/example.jpg)
 ```
@@ -148,7 +148,7 @@ image: 'https://image.ai0728.com.cn/cover.jpg'
 
 ### 目录结构
 ```
-src/content/posts/
+content/posts/
 ├── 我的第一篇博客.md
 ├── Vercel部署指南.md
 ├── images/                 # 图片目录
