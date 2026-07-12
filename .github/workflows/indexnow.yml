@@ -4,7 +4,11 @@ on:
   # 当有新的推送到 main 分支时触发
   push:
     branches: [ main ]
-  
+
+  # 内容分离：Blog_Archive 更新时也会通知到这里（同 deploy.yml）
+  repository_dispatch:
+    types: [content-updated]
+
   # 手动触发
   workflow_dispatch:
     inputs:
@@ -57,6 +61,11 @@ jobs:
         fi
       
     - name: Build site
+      env:
+        # 内容分离：这一步自己也要 build，同样需要这两个变量才能同步到
+        # 文章/友链/项目内容，否则 content/ 是空的，build 会直接报错崩溃
+        ENABLE_CONTENT_SYNC: "true"
+        CONTENT_REPO_URL: "https://github.com/Kazusa1085/Blog_Archive.git"
       run: pnpm build
       
     - name: Submit to IndexNow (Incremental)
