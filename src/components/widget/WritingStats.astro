@@ -4,6 +4,7 @@ import StatsOverview from './StatsOverview.astro'
 import StatsYearlyChart from './StatsYearlyChart.astro'
 import StatsPopularPosts from './StatsPopularPosts.astro'
 import StatsTopPosts from './StatsTopPosts.astro'
+import UpdatedPosts from './UpdatedPosts.svelte'
 
 interface Props {
   totalPosts: number
@@ -13,10 +14,11 @@ interface Props {
   postsByYear: { year: number; count: number }[]
   popularPosts: { title: string; slug: string; views: number }[]
   longestPosts: { title: string; slug: string; words: number }[]
+  updatedPosts: { title: string; slug: string; published?: string; updated?: string }[]
   class?: string
 }
 
-const { totalPosts, totalWords, totalMinutes, avgWords, postsByYear, popularPosts, longestPosts } = Astro.props
+const { totalPosts, totalWords, totalMinutes, avgWords, postsByYear, popularPosts, longestPosts, updatedPosts } = Astro.props
 const className = Astro.props.class
 ---
 <div class:list={[className, "w-full flex flex-col gap-4"]}>
@@ -31,5 +33,8 @@ const className = Astro.props.class
   </WidgetLayout>}
   <WidgetLayout name="最长文章" id="stats-posts" class="bg-[var(--card-bg)]">
     <StatsTopPosts longestPosts={longestPosts} />
+  </WidgetLayout>
+  <WidgetLayout name="二次更新文章" id="updated-posts" isCollapsed={false} class="block bg-[var(--card-bg)] dark:bg-[#1e1e1e]/80">
+    <UpdatedPosts client:load posts={updatedPosts} />
   </WidgetLayout>
 </div>

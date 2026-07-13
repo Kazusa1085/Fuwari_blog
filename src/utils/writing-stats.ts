@@ -10,7 +10,22 @@ type StatsData = {
 	popularPosts: { title: string; slug: string; views: number }[];
 	longestPosts: { title: string; slug: string; words: number }[];
 	allPostViews: { slug: string; views: number }[];
+	updatedPosts: { title: string; slug: string; published?: string; updated?: string }[];
 };
+
+// Astro/Zod 把无时区的日期字符串解析为 UTC Date 对象，
+// 用 UTC 方法提取原始值，还原 frontmatter 中的日期字符串
+// （从 SideBar.astro 移过来，原来"二次更新文章"在左侧栏，现在挪到右侧栏）
+function toLocalISOString(date: Date | undefined): string | undefined {
+	if (!date) return undefined;
+	const year = date.getUTCFullYear();
+	const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+	const day = String(date.getUTCDate()).padStart(2, "0");
+	const hours = String(date.getUTCHours()).padStart(2, "0");
+	const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+	const seconds = String(date.getUTCSeconds()).padStart(2, "0");
+	return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
+}
 
 let cached: StatsData | null = null;
 
@@ -55,6 +70,13 @@ export async function getWritingStats(): Promise<StatsData> {
 
 	const longestPosts = [...postsWithWords].sort((a, b) => b.words - a.words).slice(0, 5);
 
-	cached = { totalPosts, totalWords, totalMinutes, avgWords, postsByYear, popularPosts, longestPosts, allPostViews };
+	const updatedPosts = allPosts.map((p) => ({
+		title: p.data.title,
+		slug: p.id,
+		published: toLocalISOString(p.data.published),
+		updated: toLocalISOString(p.data.updated),
+	}));
+
+	cached = { totalPosts, totalWords, totalMinutes, avgWords, postsByYear, popularPosts, longestPosts, allPostViews, updatedPosts };
 	return cached;
 }

@@ -43,7 +43,7 @@ jobs:
         uses: pnpm/action-setup@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: pnpm
@@ -59,7 +59,7 @@ jobs:
         run: pnpm build
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v5
+        uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
@@ -91,14 +91,14 @@ jobs:
       # 提交脚本（scripts/submit-indexnow-incremental.mjs）只用了 Node 内置的
       # fs/path，不依赖 node_modules，这里不需要 pnpm install，只 checkout
       # 脚本本身 + 下载 build job 产出的 dist 就够了
-      - name: Checkout repository
+      - name: Checkout repository (只需要脚本文件)
         uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v5
         with:
           node-version: 24
-          # actions/setup-node@v5+ 新增了行为：只要 package.json 里有
+          # actions/setup-node@v5 新增了行为：只要 package.json 里有
           # packageManager 字段（我们是 pnpm@9.15.9），就会自动尝试跑 pnpm
           # 相关缓存逻辑，即使没有显式写 cache: pnpm 也一样。这个 job 故意不装
           # pnpm（脚本只用 Node 内置模块，不需要），所以要显式关掉这个自动检测，
