@@ -1,0 +1,32 @@
+---
+import WidgetLayout from "@components/widget/WidgetLayout.astro";
+import fs from "node:fs";
+import SidebarMusicClient from "./SidebarMusicClient.svelte";
+import type { MusicPlayerConfig, SidebarMusicWidgetProps } from "./types";
+
+const { class: className, style } = Astro.props as SidebarMusicWidgetProps;
+
+// 配置来自独立仓库（Blog_Archive）同步下来的 content/music/config.json，
+// 走跟 friends/projects/apps 的 _order.json 完全一样的“直接读文件”方式，
+// 不经过 astro:content collection（这是单个配置对象，不是一组条目）。
+// 分离仓库里如果没有这个文件，默认视为禁用整个播放器（不渲染任何东西）。
+const configFile = "content/music/config.json";
+let musicConfig: MusicPlayerConfig | null = null;
+try {
+	musicConfig = JSON.parse(fs.readFileSync(configFile, "utf-8"));
+} catch {
+	// 文件不存在或解析失败 -> 视为未配置，播放器保持禁用，不打印警告
+	// （跟 friends/_order.json 那种"应该总是存在"的必需文件不同，这里没有
+	// 就是合法的默认状态，属于预期行为）
+}
+
+if (musicConfig && musicConfig.enable === false) {
+	musicConfig = null;
+}
+---
+
+{musicConfig && (
+	<WidgetLayout id="music-sidebar" name="音乐播放器" class={className} style={style}>
+		<SidebarMusicClient client:only="svelte" config={musicConfig} />
+	</WidgetLayout>
+)}

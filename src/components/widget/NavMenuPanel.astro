@@ -2,7 +2,6 @@
 import { Icon } from "astro-icon/components";
 import { type NavBarLink } from "../../types/config";
 import { url } from "../../utils/url-utils";
-import MusicPlayer from "../MusicPlayer.svelte";
 
 type ResolvedNavBarGroup = { name: string; children: NavBarLink[] };
 type NavItem = NavBarLink | ResolvedNavBarGroup;
@@ -18,14 +17,6 @@ interface Props {
 const { navItems } = Astro.props;
 ---
 <div id="nav-menu-panel" class:list={["float-panel float-panel-closed absolute transition-all fixed right-4 px-2 py-2"]}>
-    <!-- 移动端音乐播放器 -->
-    <div class="md:hidden flex items-center py-2 pl-3 pr-0 rounded-lg">
-        <div class="transition text-black/75 dark:text-white/75 font-bold">背景音乐</div>
-        <div class="flex-grow"></div>
-        <div class="scale-[0.85] -mr-4">
-            <MusicPlayer client:only="svelte" />
-        </div>
-    </div>
     {navItems.map((item) => {
         if (isGroup(item)) {
             return (
