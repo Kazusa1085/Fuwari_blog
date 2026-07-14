@@ -5,6 +5,7 @@ import StatsYearlyChart from './StatsYearlyChart.astro'
 import StatsPopularPosts from './StatsPopularPosts.astro'
 import StatsTopPosts from './StatsTopPosts.astro'
 import UpdatedPosts from './UpdatedPosts.svelte'
+import Tag from './Tags.astro'
 
 interface Props {
   totalPosts: number
@@ -25,6 +26,7 @@ const className = Astro.props.class
   <WidgetLayout name="写作概览" id="stats-overview" class="bg-[var(--card-bg)]">
     <StatsOverview totalPosts={totalPosts} totalWords={totalWords} totalMinutes={totalMinutes} avgWords={avgWords} />
   </WidgetLayout>
+  <Tag class="bg-[var(--card-bg)]" />
   <WidgetLayout name="年度发文" id="stats-yearly" class="bg-[var(--card-bg)]">
     <StatsYearlyChart postsByYear={postsByYear} />
   </WidgetLayout>
