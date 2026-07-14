@@ -164,6 +164,10 @@ class MusicPlayerStore {
 		this.broadcastState();
 	}
 
+	// 播放列表加载完成后只是就绪（歌曲信息、封面、时长都会更新，音频也会
+	// 预加载缓冲），不会自动播放出声音——是否播放交给用户自己点播放按钮。
+	// autoplayFailed 这套机制目前用不上（因为不再主动尝试自动播放），保留着
+	// 是为了以后如果又想加回自动播放，不用重新设计这部分逻辑。
 	private handleAudioLoaded(): void {
 		this.state.isLoading = false;
 		if (this.audio?.duration && this.audio.duration > 1) {
