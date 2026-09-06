@@ -93,7 +93,6 @@
 		"@types/mdast": "^4.0.4",
 		"@types/sanitize-html": "^2.15.0",
 		"postcss-import": "^16.1.0",
-		"postcss-nesting": "^13.0.1",
 		"rehype": "^13.0.2"
 	},
 	"packageManager": "pnpm@9.15.9"
