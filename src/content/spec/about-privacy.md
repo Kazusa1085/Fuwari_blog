@@ -39,6 +39,7 @@
 - 实时查看：您可以在网站导航栏中实时查看站点流量统计
 - Cookie 同意：**无需同意**，Umami 不使用 Cookie，始终运行
 
+<!-- Google AdSense 已移除（原项目带入），保留以下注释供后续删除参考。
 ### 广告服务
 
 **Google AdSense（谷歌广告）**
@@ -46,6 +47,7 @@
 - 用途：展示个性化广告
 - 特点：仅在用户同意 Cookie 后加载
 - 隐私政策：[Google 隐私政策](https://policies.google.com/privacy)
+-->
 
 ### 评论服务
 
@@ -58,7 +60,7 @@
 ## Cookie 和本地存储
 
 我们的网站可能使用以下技术：
-- **Cookie**：用于网站功能和第三方服务（Google Analytics、Google AdSense）
+- **Cookie**：用于网站功能和第三方服务（Google Analytics）<!-- 、Google AdSense（已移除） -->
 - **本地存储**：用于保存用户偏好设置（如主题选择、Cookie 同意状态）
 - **会话存储**：用于临时存储页面状态
 
@@ -67,8 +69,8 @@
 | 服务 | 类型 | 用途 | 是否需要同意 |
 |------|------|------|-------------|
 | Google Analytics | 第三方 Cookie | 匿名统计用户行为 | ✅ 是 |
-| Google AdSense | 第三方 Cookie | 展示个性化广告 | ✅ 是 |
 | Umami | 无 Cookie | 匿名流量统计 | ❌ 否（隐私友好） |
+<!-- Google AdSense 已移除；原表行：| Google AdSense | 第三方 Cookie | 展示个性化广告 | ✅ 是 | -->
 | 主题/偏好设置 | 本地存储 | 保存您的显示偏好 | ❌ 否（功能必需） |
 
 ### 管理您的 Cookie 设置
