@@ -6,7 +6,7 @@
     hover:before:scale-100 hover:before:opacity-100 before:bg-[var(--btn-plain-bg-hover)] active:before:bg-[var(--btn-plain-bg-active)] before:-z-10;
 }
 
-@layer components {
+
     .card-base {
         @apply rounded-[var(--radius-large)] overflow-hidden transition-all duration-300 ease-out;
         /* 使用半透明背景色配合 backdrop-filter */
@@ -144,7 +144,7 @@
     .btn-regular-dark.success {
         @apply bg-[oklch(0.75_0.14_var(--hue))] dark:bg-[oklch(0.75_0.14_var(--hue))];
     }
-}
+
 
 .custom-md img, #post-cover img {
     @apply cursor-zoom-in transition-transform duration-500 hover:scale-[1.01];
