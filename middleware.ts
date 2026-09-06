@@ -35,6 +35,8 @@ const SECRET_KEY = env.ALBIREO_SECRET ?? '';
 const DIFFICULTY = Number(env.ALBIREO_DIFFICULTY || DEFAULT_DIFFICULTY);
 const CHALLENGE_TTL = Number(env.ALBIREO_CHALLENGE_TTL || DEFAULT_CHALLENGE_TTL);
 const SOLVED_TTL = Number(env.ALBIREO_SOLVED_TTL || DEFAULT_SOLVED_TTL);
+// Kill switch: set ALBIREO_ENABLED=false to turn off the PoW challenge entirely.
+const ENABLED = (env.ALBIREO_ENABLED ?? 'true').toLowerCase() === 'true';
 
 const CHALLENGE_COOKIE = 'albireo_challenge';
 const SOLVED_COOKIE = 'albireo_solved';
@@ -426,6 +428,10 @@ function isChallengeAsset(pathname: string): boolean {
 }
 
 export default async function middleware(request: Request): Promise<Response> {
+  if (!ENABLED) {
+    return next();
+  }
+
   if (!SECRET_KEY) {
     return withSecurityHeaders(
       new Response('ALBIREO_SECRET environment variable is not configured', { status: 503 }),
