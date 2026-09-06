@@ -2,9 +2,23 @@
 import type { GetStaticPaths } from "astro";
 import PostPage from "../components/PostPage.astro";
 import Pagination from "../components/control/Pagination.astro";
+import { profileConfig, siteConfig } from "../config";
 import { PAGE_SIZE } from "../constants/constants";
 import MainGridLayout from "../layouts/MainGridLayout.astro";
 import { getSortedPosts } from "../utils/content-utils";
+
+const homeJsonLd = {
+	"@context": "https://schema.org",
+	"@type": "WebSite",
+	name: siteConfig.title,
+	url: new URL("/", Astro.site).href,
+	description: siteConfig.description,
+	author: {
+		"@type": "Person",
+		name: profileConfig.name,
+		url: new URL("/", Astro.site).href,
+	},
+};
 
 export const getStaticPaths = (async ({ paginate }) => {
 	const allBlogPosts = await getSortedPosts();
@@ -21,6 +35,9 @@ const len = page.data.length;
 ---
 
 <MainGridLayout title={page.currentPage === 1 ? undefined : `技术文章列表 - 第 ${page.currentPage} 页`} description={pageDescription}>
+    {page.currentPage === 1 && (
+        <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(homeJsonLd)} />
+    )}
     <!-- SEO: 首页需要 h1 标签 -->
     <h1 class="sr-only">文章列表{page.currentPage > 1 ? ` - 第 ${page.currentPage} 页` : ''}</h1>
     <PostPage page={page}></PostPage>
