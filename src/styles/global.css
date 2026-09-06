@@ -10,3 +10,35 @@
 
 /* Load the existing Tailwind config for legacy theme extensions (3xl, fonts). */
 @config "../../tailwind.config.cjs";
+
+/*
+ * Tailwind v4 migration fallback.
+ * These component classes are defined in main.css with dark: variants via @apply.
+ * Keep an unlayered fallback so dark mode text stays readable even if the
+ * generated dark variant is overridden by layer ordering. Can be removed after
+ * the migration is fully verified.
+ */
+.dark .btn-plain,
+.dark .btn-regular,
+.dark .link,
+.dark .link-lg,
+.dark .text-90,
+.dark .text-75,
+.dark .text-50,
+.dark .text-30,
+.dark .text-25,
+.dark .meta-icon {
+  color: rgba(255, 255, 255, 0.85);
+}
+.dark .text-50,
+.dark .text-30,
+.dark .text-25 {
+  color: rgba(255, 255, 255, 0.45);
+}
+.dark .btn-plain:hover,
+.dark .btn-regular:hover,
+.dark .link:hover,
+.dark .link-lg:hover,
+.dark .meta-icon:hover {
+  color: var(--primary);
+}
