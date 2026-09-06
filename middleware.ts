@@ -334,6 +334,9 @@ function isPublicMetadataPath(pathname: string): boolean {
 		pathname === "/robots.txt" ||
 		/^\/sitemap(?:\..*)?$/i.test(pathname) ||
 		/^\/sitemap-\d+\.xml$/i.test(pathname) ||
+		pathname === "/rss.xml" ||
+		pathname === "/atom.xml" ||
+		pathname === "/feed.xml" ||
 		// Google Search Console / site verification HTML files must bypass PoW.
 		/^\/google[a-zA-Z0-9_-]+\.html$/i.test(pathname)
 	);
