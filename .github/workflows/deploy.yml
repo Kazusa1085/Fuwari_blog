@@ -1,8 +1,12 @@
-name: Build, Deploy & IndexNow
+name: Build & IndexNow
 
-# 把原来 deploy.yml 和 indexnow.yml 两条各自独立 build 的流水线合并成一个：
-# build 这个 job 只构建一次，deploy（发布到 GitHub Pages）和 indexnow（提交
-# 到 IndexNow）两个 job 都复用它的产物，不再各自重复 `pnpm build` 一次。
+# 本 workflow 已从「GitHub Pages 部署」切换为「IndexNow 提交」用途。
+# 博客现在由 Vercel 部署，构建/发布交给 Vercel Deploy Hook 触发，
+# 这里只保留 build + IndexNow，避免继续往 GitHub Pages 发布。
+#
+# 如果有人 Fork 后仍希望用 GitHub Pages 部署，可以取消下方
+# deploy job / Upload Pages artifact / pages 权限 的注释，并恢复
+# concurrency group 为 "pages"。
 
 on:
   # 每次推送到 `main` 分支时触发这个"工作流程"
@@ -24,11 +28,13 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
+  # GitHub Pages 部署已停用；如需恢复 Pages 部署，取消下面两行注释
+  # pages: write
+  # id-token: write
 
 concurrency:
-  group: "pages"
+  # 如需恢复 GitHub Pages 部署，把 group 改成 "pages"
+  group: "indexnow"
   cancel-in-progress: false
 
 jobs:
@@ -58,10 +64,11 @@ jobs:
           CONTENT_REPO_URL: "https://github.com/Kazusa1085/Blog_Archive.git"
         run: pnpm build
 
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: dist
+      # GitHub Pages 已停用。需要 Pages 部署时取消下面注释并保留产物上传。
+      # - name: Upload Pages artifact
+      #   uses: actions/upload-pages-artifact@v3
+      #   with:
+      #     path: dist
 
       - name: Upload dist for IndexNow job
         uses: actions/upload-artifact@v7
@@ -70,17 +77,18 @@ jobs:
           path: dist
           retention-days: 1
 
-  deploy:
-    name: Deploy to GitHub Pages
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
+  # GitHub Pages 部署已停用。Fork 后如果要恢复 Pages 部署，取消下面整段注释。
+  # deploy:
+  #   name: Deploy to GitHub Pages
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   environment:
+  #     name: github-pages
+  #     url: ${{ steps.deployment.outputs.page_url }}
+  #   steps:
+  #     - name: Deploy to GitHub Pages
+  #       id: deployment
+  #       uses: actions/deploy-pages@v5
 
   indexnow:
     name: Submit URLs to IndexNow
