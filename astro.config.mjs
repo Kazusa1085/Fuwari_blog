@@ -1,7 +1,7 @@
 import sitemap from "@astrojs/sitemap";
 import svelte from "@astrojs/svelte";
 import react from "@astrojs/react";
-import tailwind from "@astrojs/tailwind";
+import tailwindcss from "@tailwindcss/vite";
 import swup from "@swup/astro";
 import icon from "astro-icon";
 import { defineConfig } from "astro/config";
@@ -37,9 +37,7 @@ export default defineConfig({
     site: "https://blog.raana.icu",
     base: "/",
     trailingSlash: "always",
-    integrations: [tailwind({
-        nesting: true,
-    }), swup({
+    integrations: [swup({
         theme: false,
         animationClass: "transition-swup-", // see https://swup.js.org/options/#animationselector
         // the default value `transition-` cause transition delay
@@ -187,6 +185,7 @@ export default defineConfig({
         }),
     },
     vite: {
+        plugins: [tailwindcss()],
         build: {
             // Vite 8 将默认 CSS 压缩器从 esbuild 换成了 lightningcss，
             // 其解析器对本项目大量使用的 `&` 嵌套选择器（main.css/markdown.css/

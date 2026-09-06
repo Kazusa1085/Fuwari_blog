@@ -1,0 +1,12 @@
+/*
+ * Tailwind CSS v4 global entry.
+ * Previously @astrojs/tailwind injected its own base.css automatically;
+ * with the Vite plugin we need to explicitly import Tailwind here.
+ */
+@import "tailwindcss";
+
+/* Keep class-based dark mode behavior from Tailwind v3. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Load the existing Tailwind config for legacy theme extensions (3xl, fonts). */
+@config "../../tailwind.config.cjs";
