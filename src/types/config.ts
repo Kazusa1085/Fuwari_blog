@@ -41,6 +41,9 @@ export type SiteConfig = {
 
 	// Optional URL for the Apps page redirect target
 	appRedirectUrl?: string;
+
+	// Google Search Console / Google site verification token
+	googleSiteVerification?: string;
 };
 
 export type Favicon = {

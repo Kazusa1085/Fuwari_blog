@@ -105,7 +105,9 @@ const bannerOffset =
 
 		<meta charset="UTF-8" />
 
-		<meta name="google-site-verification" content="q_fmSAez_8tA1jMDVs0oW2nO-rE2xzMPo9wxHt4DDkg" />
+		{siteConfig.googleSiteVerification && (
+			<meta name="google-site-verification" content={siteConfig.googleSiteVerification} />
+		)}
 		<meta name="msvalidate.01" content="C5E85CB566F21B038B5CF48F91310F09" />
 		<meta name="description" content={description}>
 		<meta name="author" content={profileConfig.name}>
