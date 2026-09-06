@@ -17,7 +17,16 @@
  * Keep an unlayered fallback so dark mode text stays readable even if the
  * generated dark variant is overridden by layer ordering. Can be removed after
  * the migration is fully verified.
+ *
+ * Tailwind v3 had .prose loaded after utility classes, so it won over
+ * text-xl on Markdown wrappers. Tailwind v4 places both in the utilities
+ * layer and text-xl wins. Restore the v3 typography sizing by keeping .prose
+ * unlayered here.
  */
+.prose {
+  font-size: 1rem;
+  line-height: 1.75;
+}
 .dark .btn-plain,
 .dark .btn-regular,
 .dark .link,
