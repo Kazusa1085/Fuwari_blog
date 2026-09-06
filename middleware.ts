@@ -311,10 +311,9 @@ function withSecurityHeaders(response: Response, noStore = true): Response {
   return response;
 }
 
-function challengePageHtml(challenge: string, originalPath: string, preview = false): string {
+function challengePageHtml(challenge: string, originalPath: string): string {
   const jsChallenge = escapeJsString(challenge);
   const jsOriginalPath = escapeJsString(originalPath);
-  const previewFlag = preview ? 'true' : 'false';
   return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -416,7 +415,6 @@ h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: 0.02em; }
 const CHALLENGE = ${jsChallenge};
 const ORIGINAL_PATH = ${jsOriginalPath};
 const DIFFICULTY = ${DIFFICULTY};
-const PREVIEW = ${previewFlag};
 const statusEl = document.getElementById('status');
 const setStatus = (text) => { statusEl.textContent = text; };
 
@@ -478,11 +476,7 @@ function startVerification() {
   }
 }
 
-if (PREVIEW) {
-  setStatus('预览模式');
-} else {
-  startVerification();
-}
+startVerification();
 </script>
 </body>
 </html>`;
@@ -500,16 +494,6 @@ function isChallengeAsset(pathname: string): boolean {
   return pathname.startsWith('/albireo-dist/');
 }
 
-function stripPreviewParam(value: string): string {
-  try {
-    const u = new URL(value, 'https://local');
-    u.searchParams.delete('__albireo_preview');
-    return `${u.pathname}${u.search}${u.hash}`;
-  } catch {
-    return '/';
-  }
-}
-
 export default async function middleware(request: Request): Promise<Response> {
   if (!ENABLED) {
     return next();
@@ -524,7 +508,6 @@ export default async function middleware(request: Request): Promise<Response> {
   const url = new URL(request.url);
   const pathname = url.pathname;
   const ua = request.headers.get('user-agent') || '';
-  const isPreview = url.searchParams.has('__albireo_preview');
 
   // Never intercept the challenge's own static assets or Vercel internals.
   if (isChallengeAsset(pathname) || pathname.startsWith('/_vercel/')) {
@@ -545,7 +528,7 @@ export default async function middleware(request: Request): Promise<Response> {
   // Pass through requests that already carry a valid signed solved cookie.
   const cookieHeader = request.headers.get('cookie') || '';
   const solvedCookie = cookieHeader.split(';').map((part) => part.trim()).find((part) => part.startsWith(`${SOLVED_COOKIE}=`));
-  if (solvedCookie && !isPreview) {
+  if (solvedCookie) {
     const value = safeDecodeURIComponent(solvedCookie.slice(`${SOLVED_COOKIE}=`.length));
     if (await verifySolvedToken(value, request)) {
       return next();
@@ -555,9 +538,7 @@ export default async function middleware(request: Request): Promise<Response> {
   // SEO bots are allowlisted by UA. This is a pragmatic trade-off for
   // search-engine visibility; if you want stricter control you can remove it
   // and rely on search engine verification/registration instead.
-  // The preview query bypasses this so the challenge page can be inspected
-  // even with a solved cookie or an SEO bot UA.
-  if (isSeoBot(ua) && !isPreview) {
+  if (isSeoBot(ua)) {
     return next();
   }
 
@@ -574,7 +555,7 @@ export default async function middleware(request: Request): Promise<Response> {
 
       const nonce = String(fd.get('nonce') || '');
       const response = String(fd.get('response') || '');
-      const originalPath = safeRedirect(stripPreviewParam(String(fd.get('original_path') || '/')));
+      const originalPath = safeRedirect(String(fd.get('original_path') || '/'));
 
       const challengeCookie = cookieHeader.split(';').map((part) => part.trim()).find((part) => part.startsWith(`${CHALLENGE_COOKIE}=`));
       if (!challengeCookie) return withSecurityHeaders(new Response('Challenge expired', { status: 403 }));
@@ -614,9 +595,9 @@ export default async function middleware(request: Request): Promise<Response> {
   }
 
   const challenge = crypto.randomUUID().replace(/-/g, '');
-  const originalPath = safeRedirect(stripPreviewParam(`${url.pathname}${url.search}${url.hash}`));
+  const originalPath = safeRedirect(`${url.pathname}${url.search}${url.hash}`);
   const challengeToken = await createChallengeToken(request, challenge);
-  const html = challengePageHtml(challenge, originalPath, isPreview);
+  const html = challengePageHtml(challenge, originalPath);
 
   const res = new Response(html, {
     status: 200,
