@@ -151,13 +151,14 @@ lang: zh_CN           # 指定语言 (可选)
 
 ## 🌐 部署
 
-本项目支持以下平台一键部署：
-- [EdegOne](https://edgeone.ai)(推荐)
-- [Vercel](https://vercel.com)
+本项目支持以下平台部署：
+- [Vercel](https://vercel.com)（当前主力推荐）
+- [EdgeOne](https://edgeone.ai)
 - [Netlify](https://netlify.com)
 - [Cloudflare Pages](https://pages.cloudflare.com)
 
 部署前请确保已配置 `astro.config.mjs` 中的 `site` 字段。
+如果你希望人工智能引导你完成部署和 Fork 定制，请查看 [`docs/AI_DEPLOYMENT_GUIDE.md`](./docs/AI_DEPLOYMENT_GUIDE.md)。
 
 ---
 
