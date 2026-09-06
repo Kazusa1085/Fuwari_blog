@@ -2,7 +2,7 @@
 
 # 🌸 Fuwari Enhanced
 
-**基于 [saicaca/fuwari](https://github.com/saicaca/fuwari) 深度定制的个人博客系统，已升级Astro7，正在缓慢调试中，下面文档可能会存在和项目不一致的情况，请做好自己排除问题的准备**
+**基于 [saicaca/fuwari](https://github.com/saicaca/fuwari) 深度定制的个人博客系统，已升级至 Astro 7 + Tailwind CSS 4。**
 
 [![Astro](https://img.shields.io/badge/Astro-7.x-FF5D01?logo=astro&logoColor=white)](https://astro.build)
 [![Svelte](https://img.shields.io/badge/Svelte-5.x-FF3E00?logo=svelte&logoColor=white)](https://svelte.dev)
