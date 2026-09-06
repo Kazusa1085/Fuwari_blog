@@ -1,11 +1,11 @@
 ---
-import { umamiConfig } from '../../config'
-import { getPostUrlBySlug } from '../../utils/url-utils'
+import { umamiConfig } from "../../config";
+import { getPostUrlBySlug } from "../../utils/url-utils";
 interface Props {
-  popularPosts: { title: string; slug: string; views: number }[]
+	popularPosts: { title: string; slug: string; views: number }[];
 }
-const { popularPosts } = Astro.props
-const slugs = popularPosts.map(p => p.slug)
+const { popularPosts } = Astro.props;
+const slugs = popularPosts.map((p) => p.slug);
 ---
 <div class="flex flex-col gap-1 text-sm" id="stats-popular-list">
   {popularPosts.map((post, i) => (

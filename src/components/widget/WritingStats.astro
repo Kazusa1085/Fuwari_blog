@@ -1,26 +1,41 @@
 ---
-import WidgetLayout from './WidgetLayout.astro'
-import StatsOverview from './StatsOverview.astro'
-import StatsYearlyChart from './StatsYearlyChart.astro'
-import StatsPopularPosts from './StatsPopularPosts.astro'
-import StatsTopPosts from './StatsTopPosts.astro'
-import UpdatedPosts from './UpdatedPosts.svelte'
-import Tag from './Tags.astro'
+import StatsOverview from "./StatsOverview.astro";
+import StatsPopularPosts from "./StatsPopularPosts.astro";
+import StatsTopPosts from "./StatsTopPosts.astro";
+import StatsYearlyChart from "./StatsYearlyChart.astro";
+import Tag from "./Tags.astro";
+import UpdatedPosts from "./UpdatedPosts.svelte";
+import WidgetLayout from "./WidgetLayout.astro";
 
 interface Props {
-  totalPosts: number
-  totalWords: number
-  totalMinutes: number
-  avgWords: number
-  postsByYear: { year: number; count: number }[]
-  popularPosts: { title: string; slug: string; views: number }[]
-  longestPosts: { title: string; slug: string; words: number }[]
-  updatedPosts: { title: string; slug: string; published?: string; updated?: string }[]
-  class?: string
+	totalPosts: number;
+	totalWords: number;
+	totalMinutes: number;
+	avgWords: number;
+	postsByYear: { year: number; count: number }[];
+	popularPosts: { title: string; slug: string; views: number }[];
+	longestPosts: { title: string; slug: string; words: number }[];
+	updatedPosts: {
+		title: string;
+		slug: string;
+		published?: string;
+		updated?: string;
+	}[];
+	allPostViews?: { slug: string; views: number }[];
+	class?: string;
 }
 
-const { totalPosts, totalWords, totalMinutes, avgWords, postsByYear, popularPosts, longestPosts, updatedPosts } = Astro.props
-const className = Astro.props.class
+const {
+	totalPosts,
+	totalWords,
+	totalMinutes,
+	avgWords,
+	postsByYear,
+	popularPosts,
+	longestPosts,
+	updatedPosts,
+} = Astro.props;
+const className = Astro.props.class;
 ---
 <div class:list={[className, "w-full flex flex-col gap-4"]}>
   <WidgetLayout name="写作概览" id="stats-overview" class="bg-[var(--card-bg)]">

@@ -1,10 +1,10 @@
 ---
-import FilterTabs from "@components/misc/FilterTabs.astro";
+import fs from "node:fs";
+import { getCollection } from "astro:content";
 import ProjectCard from "@components/ProjectCard.astro";
+import FilterTabs from "@components/misc/FilterTabs.astro";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { Icon } from "astro-icon/components";
-import { getCollection } from "astro:content";
-import fs from "node:fs";
 
 const projects = await getCollection("projects");
 

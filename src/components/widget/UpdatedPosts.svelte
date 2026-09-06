@@ -5,7 +5,7 @@ interface Post {
 	title: string;
 	slug: string;
 	updated?: string | Date;
-	published: string | Date;
+	published?: string | Date;
 }
 
 let { posts = [] } = $props<{ posts: Post[] }>();
@@ -44,7 +44,7 @@ function parseLocalDate(dateInput: string | Date | undefined): Date | null {
 // 格式化日期显示
 function formatDate(dateInput: string | Date | undefined): string {
 	const date = parseLocalDate(dateInput);
-	if (!date || isNaN(date.getTime())) return "N/A";
+	if (!date || Number.isNaN(date.getTime())) return "N/A";
 	return date.toLocaleDateString();
 }
 
@@ -59,7 +59,7 @@ function getFilteredAndSortedPosts(allPosts: Post[], days: number): Post[] {
 		.filter((post) => {
 			if (!post.updated) return false;
 			const updatedDate = parseLocalDate(post.updated);
-			if (!updatedDate || isNaN(updatedDate.getTime())) return false;
+			if (!updatedDate || Number.isNaN(updatedDate.getTime())) return false;
 			return updatedDate >= cutoff;
 		})
 		.sort((a, b) => {

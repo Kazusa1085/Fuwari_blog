@@ -46,10 +46,11 @@ if (r < page.lastPage) pages.push(page.lastPage);
 
 const getPageUrl = (p: number) => {
 	const current = page.url.current;
-	const base = page.currentPage === 1
-		? current.replace(/\/$/, '')
-		: current.replace(/\/\d+\/$/, '');
-	if (p === 1) return base ? `${base}/` : '/';
+	const base =
+		page.currentPage === 1
+			? current.replace(/\/$/, "")
+			: current.replace(/\/\d+\/$/, "");
+	if (p === 1) return base ? `${base}/` : "/";
 	return `${base}/${p}/`;
 };
 ---

@@ -26,8 +26,8 @@ function updateBarPosition() {
 	const main = document.getElementById("swup-container");
 	if (main && window.innerWidth >= 1024) {
 		const rect = main.getBoundingClientRect();
-		barLeft = rect.left + "px";
-		barWidth = rect.width + "px";
+		barLeft = `${rect.left}px`;
+		barWidth = `${rect.width}px`;
 	} else {
 		barLeft = "0px";
 		barWidth = "100%";
