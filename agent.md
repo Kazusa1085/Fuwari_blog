@@ -40,6 +40,8 @@
 | `content/posts/` | Blog Posts (Markdown, 独立仓库 Kazusa1085/Blog_Archive 同步而来) |
 | `src/content/spec/` | Special Pages (e.g., About)——不属于内容分离范围，仍在本仓库 |
 | `content/friends/` | Friend Links (JSON + `_order.json` for sorting, 独立仓库 Kazusa1085/Blog_Archive 同步而来) |
+| `content/projects/` | Projects (JSON + `_order.json`, 同步自 Blog_Archive) |
+| `content/apps/` | Apps (JSON + `_order.json`, 同步自 Blog_Archive) |
 | `src/content.config.ts` | Content Collections Schema |
 | `src/components/` | UI Components (Astro + Svelte) |
 | `src/layouts/` | Page Layouts |
@@ -64,8 +66,9 @@
 | :--- | :--- | :--- |
 | `posts` | Blog Posts | `title`, `published`, `updated`, `draft`, `description`, `image`, `tags`, `lang`, `pinned` |
 | `spec` | Special Pages | `title`, `published`, `updated`, `draft` |
-| `assets` | Asset Data | `title`, `description` |
 | `friends` | Friend Links | `name`, `url`, `avatar`, `introduction`, `friendsPage` |
+| `projects` | Projects | `title`, `description`, `image`, `category`, `techStack`, `status`, `sourceCode`, `visitUrl`, `featured`, `tags` |
+| `apps` | Apps | `name`, `url`, `image`, `description`, `external` |
 
 ---
 
