@@ -12,7 +12,7 @@
 | Category | Technology |
 | :--- | :--- |
 | **Framework** | Astro 7.x |
-| **Styling** | Tailwind CSS 3.x + Stylus |
+| **Styling** | Tailwind CSS 4.x + Stylus |
 | **Interactivity** | Svelte 5.x + Astro |
 | **Content** | Astro Content Collections (Markdown) |
 | **Package Manager** | pnpm 9.x |
@@ -54,7 +54,8 @@
 | `astro.config.mjs` | Astro Project Config |
 | `src/config.ts` | User Configuration Entry Point |
 | `src/content.config.ts` | Content Collections Schema |
-| `tailwind.config.cjs` | Tailwind CSS Config |
+| `tailwind.config.cjs` | Tailwind CSS Config (legacy v3 theme extensions) |
+| `src/styles/global.css` | Tailwind v4 global entry (`@import "tailwindcss"`, dark variant, custom utilities) |
 
 ### Content Collections Schema
 | Collection | Description | Key Fields |
@@ -69,7 +70,7 @@
 ## Development Workflow
 
 ### Prerequisites
-- Node.js 18+ (LTS)
+- Node.js 22+ (LTS)
 - pnpm 9+
 
 ### Common Commands
