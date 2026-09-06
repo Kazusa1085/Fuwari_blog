@@ -101,7 +101,9 @@ const bannerOffset =
 
 		<meta charset="UTF-8" />
 
+		<!-- Google AdSense 已移除（原项目带入），如需恢复再取消下面这行注释。
 		<meta name="google-adsense-account" content="ca-pub-8657949276215493" />
+		-->
 		<meta name="google-site-verification" content="q_fmSAez_8tA1jMDVs0oW2nO-rE2xzMPo9wxHt4DDkg" />
 		<meta name="msvalidate.01" content="C5E85CB566F21B038B5CF48F91310F09" />
 		<meta name="description" content={description}>
@@ -135,7 +137,8 @@ const bannerOffset =
 		<!-- Preload removed: 对于随机图 API 预加载没有意义，且会导致 credentials mode 警告 -->
 		
 		{/* <!-- Content Security Policy -->
-		<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://giscus.app https://hpic.072103.xyz https://umami.2x.nz https://hm.baidu.com https://www.googletagmanager.com https://www.google-analytics.com https://pagead2.googlesyndication.com https://googleads.g.doubleclick.net https://static.cloudflareinsights.com https://*.adtrafficquality.google; style-src 'self' 'unsafe-inline' https://giscus.app https://fonts.googleapis.com https://api.iconify.design; font-src 'self' https://fonts.gstatic.com https://api.iconify.design; img-src 'self' data: https: http:; connect-src 'self' https://umami.2x.nz https://hm.baidu.com https://www.google-analytics.com https://analytics.google.com https://api.iconify.design https://static.cloudflareinsights.com https://pic.2x.nz https://q2.qlogo.cn https://ep1.adtrafficquality.google https://googleads.g.doubleclick.net; frame-src 'self' https://giscus.app *.bilibili.com https://www.google.com https://googleads.g.doubleclick.net https://support.nodeget.com https://*.adtrafficquality.google; object-src 'none'; base-uri 'self'; form-action 'self';"> */}
+		<!-- 已移除 Google AdSense 域名：pagead2.googlesyndication.com 等
+		<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://giscus.app https://hpic.072103.xyz https://umami.2x.nz https://hm.baidu.com https://www.googletagmanager.com https://www.google-analytics.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://giscus.app https://fonts.googleapis.com https://api.iconify.design; font-src 'self' https://fonts.gstatic.com https://api.iconify.design; img-src 'self' data: https: http:; connect-src 'self' https://umami.2x.nz https://hm.baidu.com https://www.google-analytics.com https://analytics.google.com https://api.iconify.design https://static.cloudflareinsights.com https://pic.2x.nz https://q2.qlogo.cn; frame-src 'self' https://giscus.app *.bilibili.com https://www.google.com https://support.nodeget.com; object-src 'none'; base-uri 'self'; form-action 'self';"> */}
 		{favicons.map(favicon => (
 			<link rel="icon"
 				  href={favicon.src.startsWith('/') ? url(favicon.src) : favicon.src}
@@ -336,7 +339,7 @@ const bannerOffset =
 		<script defer src="https://umami.raana.icu/script.js" data-website-id="28af012a-b635-4011-bcd5-b08ee8b1a2f8"></script>
 		<!-- Umami 分享数据辅助脚本（缓存 share token / websiteId） -->
 
-		<!-- Google Analytics & AdSense: 由 Cookie 同意组件动态加载 -->
+		<!-- Google Analytics: 由 Cookie 同意组件动态加载（AdSense 已移除） -->
 
 	</head>
 	<body class=" min-h-screen transition " class:list={[{"lg:is-home": isHomePage, "enable-banner": enableBanner}]}
@@ -379,7 +382,7 @@ const bannerOffset =
 		</style>
 		<div id="cookie-consent-banner">
 			<div class="cc-title">🍪 Cookie</div>
-			<div class="cc-desc">本站使用 Cookie 及第三方服务（Google Analytics、AdSense）改善浏览体验。Umami 统计不使用 Cookie，始终运行。<br/>This site uses cookies and third-party services (Google Analytics, AdSense). Umami analytics is cookie-free and always active.<br/><a href="/about-privacy/">隐私政策 / Privacy Policy</a></div>
+			<div class="cc-desc">本站使用 Cookie 及第三方服务（Google Analytics）改善浏览体验。Umami 统计不使用 Cookie，始终运行。<br/>This site uses cookies and third-party services (Google Analytics). Umami analytics is cookie-free and always active.<br/><a href="/about-privacy/">隐私政策 / Privacy Policy</a></div>
 			<div class="cc-actions">
 				<label class="cc-always"><input type="checkbox" id="cc-always" />始终记住 Always</label>
 				<button class="cc-btn cc-btn-yes" id="cookie-accept">同意 Yes</button>
@@ -395,13 +398,14 @@ const bannerOffset =
 				document.head.appendChild(s);
 				s.onload=function(){window.dataLayer=window.dataLayer||[];function g(){dataLayer.push(arguments);}g('js',new Date());g('config','G-14FX7R2VJ4');};
 			}
-			function loadAdSense(){
-				var s=document.createElement('script');
-				s.async=true;s.crossOrigin='anonymous';
-				s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8657949276215493';
-				document.head.appendChild(s);
-			}
-			function loadAll(){loadGA();loadAdSense();}
+			// Google AdSense 已移除（原项目带入），保留函数定义仅作注释参考，不再加载。
+			// function loadAdSense(){
+			// 	var s=document.createElement('script');
+			// 	s.async=true;s.crossOrigin='anonymous';
+			// 	s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8657949276215493';
+			// 	document.head.appendChild(s);
+			// }
+			function loadAll(){loadGA(); /* loadAdSense(); */}
 			if(cs==='always-accepted'){loadAll();return;}
 			if(cs==='accepted')loadAll();
 			if(cs==='always-rejected')return;
