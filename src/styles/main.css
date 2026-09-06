@@ -1,4 +1,10 @@
-@tailwind components;
+@reference "./global.css";
+
+@utility expand-animation {
+    @apply relative before:ease-out before:transition-all before:duration-300 active:bg-none
+    z-0 before:absolute before:rounded-[inherit] before:inset-0 before:scale-[0.85] before:opacity-0
+    hover:before:scale-100 hover:before:opacity-100 before:bg-[var(--btn-plain-bg-hover)] active:before:bg-[var(--btn-plain-bg-active)] before:-z-10;
+}
 
 @layer components {
     .card-base {
@@ -37,12 +43,6 @@
 
     .card-shadow {
         @apply drop-shadow-[0_4px_6px_rgba(0,0,0,0.02)] dark:drop-shadow-none;
-    }
-
-    .expand-animation {
-        @apply relative before:ease-out before:transition-all before:duration-300 active:bg-none 
-        z-0 before:absolute before:rounded-[inherit] before:inset-0 before:scale-[0.85] before:opacity-0
-        hover:before:scale-100 hover:before:opacity-100 before:bg-[var(--btn-plain-bg-hover)] active:before:bg-[var(--btn-plain-bg-active)] before:-z-10;
     }
 
     .link {

@@ -1,11 +1,9 @@
 import postcssImport from 'postcss-import';
-import postcssNesting from 'tailwindcss/nesting/index.js';
-import tailwindcss from 'tailwindcss';
 
+// Tailwind CSS v4 is handled by @tailwindcss/vite, so this PostCSS config
+// no longer needs to load tailwindcss or its legacy nesting plugin.
 export default {
     plugins: {
         'postcss-import': postcssImport,          // to combine multiple css files
-        'tailwindcss/nesting': postcssNesting,
-        tailwindcss: tailwindcss,
     }
 };
