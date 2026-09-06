@@ -77,20 +77,20 @@ const { remarkPluginFrontmatter } = await render(entry);
 
         <!-- word count, read time and page views -->
         <div class="text-base text-black/40 dark:text-white/40 flex gap-4 transition items-center flex-wrap mt-2">
-            <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/50 border border-[var(--line-divider)]">
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/40 border border-[var(--line-divider)]">
                 <Icon name="material-symbols:notes-rounded" class="text-base text-[var(--primary)] opacity-90"></Icon>
                 <span>{remarkPluginFrontmatter.words} 字</span>
             </div>
-            <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/50 border border-[var(--line-divider)]">
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/40 border border-[var(--line-divider)]">
                 <Icon name="material-symbols:schedule-outline-rounded" class="text-base text-[var(--primary)] opacity-90"></Icon>
                 <span>{remarkPluginFrontmatter.minutes} 分钟</span>
             </div>
             <div class="flex items-center gap-3">
-                <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/50 border border-[var(--line-divider)]">
+                <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/40 border border-[var(--line-divider)]">
                     <Icon name="material-symbols:visibility-outline-rounded" class="text-base text-[var(--primary)] opacity-90"></Icon>
                     <span id={`page-views-${entry.id}`} class="font-medium">--</span>
                 </span>
-                <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/50 border border-[var(--line-divider)]">
+                <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/40 border border-[var(--line-divider)]">
                     <Icon name="material-symbols:person-outline" class="text-base text-[var(--primary)] opacity-90"></Icon>
                     <span id={`page-visits-${entry.id}`} class="font-medium">--</span>
                 </span>
@@ -105,7 +105,7 @@ const { remarkPluginFrontmatter } = await render(entry);
                         "md:w-[var(--coverWidth)] relative md:absolute md:top-3 md:bottom-3 md:right-3 rounded-xl overflow-hidden active:scale-95 transition-transform duration-300",
                         "tilt-card" // Added for 3D tilt effect
                     ]} >
-        <div class="absolute pointer-events-none z-10 w-full h-full group-hover/cover:bg-black/30 group-active/cover:bg-black/50 transition-colors duration-300"></div>
+        <div class="absolute pointer-events-none z-10 w-full h-full group-hover/cover:bg-black/30 group-active/cover:bg-black/40 transition-colors duration-300"></div>
         <!-- 封面图上的箭头 -->
         <div class="absolute pointer-events-none z-20 w-full h-full flex items-center justify-center ">
             <Icon name="material-symbols:chevron-right-rounded"
