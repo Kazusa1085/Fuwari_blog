@@ -365,23 +365,13 @@ body {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.mascot {
-  width: 76px;
-  height: 76px;
-  margin: 0 auto 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 38px;
-  border-radius: 999px;
-  background: var(--primary-soft);
-  border: 1px solid var(--card-border);
-  box-shadow: 0 0 0 8px oklch(0.75 0.14 var(--hue) / 0.05);
-  animation: float 3s ease-in-out infinite;
-}
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
+.brand {
+  margin-bottom: 18px;
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--primary);
+  opacity: 0.85;
 }
 h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: 0.02em; }
 .subtitle {
@@ -423,7 +413,7 @@ h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: 0.02em; }
 </head>
 <body>
 <div class="card">
-  <div class="mascot" aria-hidden="true">🐱</div>
+  <div class="brand">Kazusa的貓窩</div>
   <h1>正在確認您是真人</h1>
   <p class="subtitle">這需要幾秒鐘，完成後會自動跳轉回剛才的頁面。</p>
   <div class="progress"><div class="progress-bar"></div></div>
@@ -513,6 +503,16 @@ function isChallengeAsset(pathname: string): boolean {
   return pathname.startsWith('/albireo-dist/');
 }
 
+function stripPreviewParam(value: string): string {
+  try {
+    const u = new URL(value, 'https://local');
+    u.searchParams.delete('__albireo_preview');
+    return `${u.pathname}${u.search}${u.hash}`;
+  } catch {
+    return '/';
+  }
+}
+
 export default async function middleware(request: Request): Promise<Response> {
   if (!ENABLED) {
     return next();
@@ -527,6 +527,7 @@ export default async function middleware(request: Request): Promise<Response> {
   const url = new URL(request.url);
   const pathname = url.pathname;
   const ua = request.headers.get('user-agent') || '';
+  const isPreview = url.searchParams.has('__albireo_preview');
 
   // Never intercept the challenge's own static assets or Vercel internals.
   if (isChallengeAsset(pathname) || pathname.startsWith('/_vercel/')) {
@@ -547,7 +548,7 @@ export default async function middleware(request: Request): Promise<Response> {
   // Pass through requests that already carry a valid signed solved cookie.
   const cookieHeader = request.headers.get('cookie') || '';
   const solvedCookie = cookieHeader.split(';').map((part) => part.trim()).find((part) => part.startsWith(`${SOLVED_COOKIE}=`));
-  if (solvedCookie) {
+  if (solvedCookie && !isPreview) {
     const value = safeDecodeURIComponent(solvedCookie.slice(`${SOLVED_COOKIE}=`.length));
     if (await verifySolvedToken(value, request)) {
       return next();
@@ -557,7 +558,9 @@ export default async function middleware(request: Request): Promise<Response> {
   // SEO bots are allowlisted by UA. This is a pragmatic trade-off for
   // search-engine visibility; if you want stricter control you can remove it
   // and rely on search engine verification/registration instead.
-  if (isSeoBot(ua)) {
+  // The preview query bypasses this so the challenge page can be inspected
+  // even with a solved cookie or an SEO bot UA.
+  if (isSeoBot(ua) && !isPreview) {
     return next();
   }
 
@@ -574,7 +577,7 @@ export default async function middleware(request: Request): Promise<Response> {
 
       const nonce = String(fd.get('nonce') || '');
       const response = String(fd.get('response') || '');
-      const originalPath = safeRedirect(String(fd.get('original_path') || '/'));
+      const originalPath = safeRedirect(stripPreviewParam(String(fd.get('original_path') || '/')));
 
       const challengeCookie = cookieHeader.split(';').map((part) => part.trim()).find((part) => part.startsWith(`${CHALLENGE_COOKIE}=`));
       if (!challengeCookie) return withSecurityHeaders(new Response('Challenge expired', { status: 403 }));
@@ -614,7 +617,7 @@ export default async function middleware(request: Request): Promise<Response> {
   }
 
   const challenge = crypto.randomUUID().replace(/-/g, '');
-  const originalPath = safeRedirect(`${url.pathname}${url.search}${url.hash}`);
+  const originalPath = safeRedirect(stripPreviewParam(`${url.pathname}${url.search}${url.hash}`));
   const challengeToken = await createChallengeToken(request, challenge);
   const html = challengePageHtml(challenge, originalPath);
 
