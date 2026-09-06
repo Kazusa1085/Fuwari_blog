@@ -42,3 +42,18 @@
 	font-size: 1rem;
 	line-height: 1.75;
 }
+
+/*
+ * Exact dark-mode fallback for the two main button component classes.
+ * The generated Tailwind v4 dark variants already have the same values;
+ * keeping an unlayered copy guards against any remaining layer-ordering
+ * regression without changing the intended colors.
+ */
+.dark .btn-plain,
+.dark .btn-regular {
+	color: rgba(255, 255, 255, 0.75);
+}
+.dark .btn-plain:hover,
+.dark .btn-regular:hover {
+	color: var(--primary);
+}
