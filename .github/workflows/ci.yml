@@ -28,8 +28,15 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # Astro check / type-check / Biome 目前仍有存量错误和格式化问题，
-      # 暂不纳入 CI，等后续代码清理完成后可再加回来。这里先保证每次构建成功。
+      - name: Astro check
+        run: pnpm astro check
+
+      - name: Type check
+        run: pnpm run type-check
+
+      - name: Biome check
+        run: pnpm exec biome check ./src
+
       - name: Build
         run: |
           ENABLE_CONTENT_SYNC=false pnpm build

@@ -1,10 +1,11 @@
 ---
-import { getPostUrlBySlug } from '../../utils/url-utils'
+import { getPostUrlBySlug } from "../../utils/url-utils";
 interface Props {
-  longestPosts: { title: string; slug: string; words: number }[]
+	longestPosts: { title: string; slug: string; words: number }[];
 }
-const { longestPosts } = Astro.props
-const formatWords = (w: number) => w >= 10000 ? (w / 10000).toFixed(1) + '万' : w.toLocaleString()
+const { longestPosts } = Astro.props;
+const formatWords = (w: number) =>
+	w >= 10000 ? `${(w / 10000).toFixed(1)}万` : w.toLocaleString();
 ---
 <div class="flex flex-col gap-1 text-sm">
   {longestPosts.map((post, i) => (

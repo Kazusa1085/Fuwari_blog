@@ -15,9 +15,7 @@ export const getStaticPaths = (async ({ paginate }) => {
 const { page } = Astro.props;
 
 const pageDescription =
-	page.currentPage === 1
-		? "文章列表。"
-		: `文章列表第 ${page.currentPage} 页。`;
+	page.currentPage === 1 ? "文章列表。" : `文章列表第 ${page.currentPage} 页。`;
 
 const len = page.data.length;
 ---

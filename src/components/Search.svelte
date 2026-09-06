@@ -74,10 +74,10 @@ const search = async (keyword: string, isDesktop: boolean): Promise<void> => {
 					const start = Math.max(0, contentIndex - 50);
 					const end = Math.min(post.content.length, contentIndex + 100);
 					excerpt = post.content.substring(start, end);
-					if (start > 0) excerpt = "..." + excerpt;
-					if (end < post.content.length) excerpt = excerpt + "...";
+					if (start > 0) excerpt = `...${excerpt}`;
+					if (end < post.content.length) excerpt = `${excerpt}...`;
 				} else {
-					excerpt = post.description || post.content.substring(0, 150) + "...";
+					excerpt = post.description || `${post.content.substring(0, 150)}...`;
 				}
 
 				return {

@@ -2,10 +2,10 @@
 
 import MainGridLayout from "../layouts/MainGridLayout.astro";
 
+import fs from "node:fs";
 import { getCollection, getEntry } from "astro:content";
 import { render } from "astro:content";
 import Markdown from "@components/misc/Markdown.astro";
-import fs from "node:fs";
 
 const friendsPost = await getEntry("spec", "friends");
 

@@ -50,7 +50,10 @@ function updateProgress() {
 			readingProgress.set(articleScroll <= 0 ? 0 : 100);
 			return;
 		}
-		const progress = Math.min(Math.max(Math.round((articleScroll / articleTotal) * 100), 0), 100);
+		const progress = Math.min(
+			Math.max(Math.round((articleScroll / articleTotal) * 100), 0),
+			100,
+		);
 		readingProgress.set(progress);
 		return;
 	}

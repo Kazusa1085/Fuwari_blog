@@ -1,9 +1,9 @@
 ---
 interface Props {
-  postsByYear: { year: number; count: number }[]
+	postsByYear: { year: number; count: number }[];
 }
-const { postsByYear } = Astro.props
-const max = Math.max(...postsByYear.map(y => y.count), 1)
+const { postsByYear } = Astro.props;
+const max = Math.max(...postsByYear.map((y) => y.count), 1);
 ---
 <div class="flex flex-col gap-1.5 text-sm">
   {postsByYear.map(({ year, count }) => (

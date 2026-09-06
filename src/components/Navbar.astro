@@ -2,7 +2,7 @@
 import { Icon } from "astro-icon/components";
 import { navBarConfig, siteConfig } from "../config";
 import { LinkPresets } from "../constants/link-presets";
-import { LinkPreset, type NavBarLink, type NavBarGroup } from "../types/config";
+import { LinkPreset, type NavBarGroup, type NavBarLink } from "../types/config";
 import { url } from "../utils/url-utils";
 
 import Search from "./Search.svelte";
@@ -14,10 +14,17 @@ type ResolvedNavBarGroup = { name: string; children: NavBarLink[] };
 type NavItem = NavBarLink | ResolvedNavBarGroup;
 
 function resolveLink(item: NavBarLink | LinkPreset): NavBarLink {
-	return typeof item === "number" ? LinkPresets[item] : item;
+	if (typeof item === "number") {
+		const preset = LinkPresets[item];
+		if (!preset) throw new Error(`Unknown LinkPreset: ${item}`);
+		return preset;
+	}
+	return item;
 }
 
-function isGroup(item: NavBarLink | LinkPreset | NavBarGroup): item is NavBarGroup {
+function isGroup(
+	item: NavBarLink | LinkPreset | NavBarGroup,
+): item is NavBarGroup {
 	return typeof item === "object" && "children" in item;
 }
 
@@ -25,7 +32,7 @@ function isResolvedGroup(item: NavItem): item is ResolvedNavBarGroup {
 	return "children" in item;
 }
 
-const navItems: NavItem[] = navBarConfig.links.map(item => {
+const navItems: NavItem[] = navBarConfig.links.map((item) => {
 	if (isGroup(item)) {
 		return { name: item.name, children: item.children.map(resolveLink) };
 	}
@@ -138,10 +145,11 @@ function loadButtonScript() {
     }
 
     document.querySelectorAll('.nav-group-toggle').forEach(btn => {
-        if (btn.dataset.bound) return;
-        btn.dataset.bound = 'true';
-        btn.addEventListener('click', () => {
-            const children = btn.closest('.nav-group')?.querySelector('.nav-group-children');
+        const navBtn = btn as HTMLElement;
+        if (navBtn.dataset.bound) return;
+        navBtn.dataset.bound = 'true';
+        navBtn.addEventListener('click', () => {
+            const children = navBtn.closest('.nav-group')?.querySelector('.nav-group-children');
             const arrow = btn.querySelector('.nav-group-arrow');
             if (!children) return;
             children.classList.toggle('max-h-0');
@@ -151,11 +159,12 @@ function loadButtonScript() {
     });
 
     document.querySelectorAll('.nav-dropdown-toggle').forEach(btn => {
-        if (btn.dataset.boundDropdown) return;
-        btn.dataset.boundDropdown = 'true';
-        btn.addEventListener('click', (e) => {
+        const navBtn = btn as HTMLElement;
+        if (navBtn.dataset.boundDropdown) return;
+        navBtn.dataset.boundDropdown = 'true';
+        navBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            const dropdown = btn.closest('.nav-dropdown');
+            const dropdown = navBtn.closest('.nav-dropdown');
             if (!dropdown) return;
             const willOpen = !dropdown.classList.contains('is-open');
             document.querySelectorAll('.nav-dropdown.is-open').forEach(d => {
@@ -165,7 +174,7 @@ function loadButtonScript() {
                 }
             });
             dropdown.classList.toggle('is-open', willOpen);
-            btn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+            navBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
         });
     });
 }
@@ -173,11 +182,11 @@ function loadButtonScript() {
 loadButtonScript();
 
 // 监听面板 class 变化，同步汉堡按钮的展开状态（覆盖 Layout.astro 的 setClickOutsideToClose 等外部关闭来源）
-if (!window.__navMenuObserverBound) {
+if (!(window as any).__navMenuObserverBound) {
     const navMenuPanel = document.getElementById("nav-menu-panel");
     const navMenuBtn = document.getElementById("nav-menu-switch");
     if (navMenuPanel && navMenuBtn) {
-        window.__navMenuObserverBound = true;
+        (window as any).__navMenuObserverBound = true;
         const syncMenuBtn = () => {
             const isOpen = !navMenuPanel.classList.contains("float-panel-closed");
             navMenuBtn.classList.toggle("is-open", isOpen);
@@ -188,8 +197,8 @@ if (!window.__navMenuObserverBound) {
     }
 }
 
-if (!window.__navDropdownOutsideBound) {
-    window.__navDropdownOutsideBound = true;
+if (!(window as any).__navDropdownOutsideBound) {
+    (window as any).__navDropdownOutsideBound = true;
     document.addEventListener('click', (e) => {
         const target = e.target;
         if (!(target instanceof Element) || !target.closest('.nav-dropdown')) {

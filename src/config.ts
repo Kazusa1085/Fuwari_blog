@@ -13,8 +13,7 @@ import { LinkPreset } from "./types/config";
 export const siteConfig: SiteConfig = {
 	title: "Kazusa酱的猫窝",
 	subtitle: "踩坑记录&碎碎念",
-	description:
-		"什么都写.exe",
+	description: "什么都写.exe",
 
 	keywords: [],
 	lang: "zh_CN", // 'en', 'zh_CN', 'zh_TW', 'ja', 'ko', 'es', 'th'
@@ -70,7 +69,8 @@ export const navBarConfig: NavBarConfig = {
 };
 
 export const profileConfig: ProfileConfig = {
-	avatar: "https://avatars.githubusercontent.com/u/195487617?s=400&u=0fc36034f2a535df94218c0b77e8b3adf1619d92&v=4", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
+	avatar:
+		"https://avatars.githubusercontent.com/u/195487617?s=400&u=0fc36034f2a535df94218c0b77e8b3adf1619d92&v=4", // Relative to the /src directory. Relative to the /public directory if it starts with '/'
 	name: "Kazusa1085",
 	bio: ["NOT A FAT CAT !!!"],
 	links: [

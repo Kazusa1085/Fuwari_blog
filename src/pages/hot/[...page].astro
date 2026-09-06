@@ -10,14 +10,17 @@ import { getWritingStats } from "../../utils/writing-stats";
 export const getStaticPaths = (async ({ paginate }) => {
 	const allPosts = await getSortedPosts();
 	const { allPostViews } = await getWritingStats();
-	const viewMap = new Map(allPostViews.map(v => [v.slug, v.views]));
+	const viewMap = new Map(allPostViews.map((v) => [v.slug, v.views]));
 
-	const pinned = allPosts.filter(p => p.data.pinned);
-	const normal = allPosts.filter(p => !p.data.pinned);
+	const pinned = allPosts.filter((p) => p.data.pinned);
+	const normal = allPosts.filter((p) => !p.data.pinned);
 	normal.sort((a, b) => {
 		const diff = (viewMap.get(b.id) ?? 0) - (viewMap.get(a.id) ?? 0);
 		if (diff !== 0) return diff;
-		return new Date(b.data.published).getTime() - new Date(a.data.published).getTime();
+		return (
+			new Date(b.data.published).getTime() -
+			new Date(a.data.published).getTime()
+		);
 	});
 
 	return paginate([...pinned, ...normal], { pageSize: PAGE_SIZE });
@@ -25,9 +28,10 @@ export const getStaticPaths = (async ({ paginate }) => {
 
 const { page } = Astro.props;
 
-const pageDescription = page.currentPage === 1
-	? "按热度排序的技术博客文章列表，浏览最受欢迎的原创技术文章。"
-	: `热门文章列表第 ${page.currentPage} 页，浏览更多热门技术文章。`;
+const pageDescription =
+	page.currentPage === 1
+		? "按热度排序的技术博客文章列表，浏览最受欢迎的原创技术文章。"
+		: `热门文章列表第 ${page.currentPage} 页，浏览更多热门技术文章。`;
 
 const len = page.data.length;
 ---

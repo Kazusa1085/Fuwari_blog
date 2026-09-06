@@ -1,8 +1,8 @@
 ---
+import fs from "node:fs";
+import { getCollection } from "astro:content";
 import ImageWrapper from "@components/misc/ImageWrapper.astro";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
-import { getCollection } from "astro:content";
-import fs from "node:fs";
 
 const apps = await getCollection("apps");
 

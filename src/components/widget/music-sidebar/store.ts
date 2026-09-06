@@ -3,7 +3,12 @@ import {
 	SKIP_ERROR_DELAY,
 	STORAGE_KEY_VOLUME,
 } from "./constants";
-import type { MusicPlayerConfig, MusicPlayerState, RepeatMode, Song } from "./types";
+import type {
+	MusicPlayerConfig,
+	MusicPlayerState,
+	RepeatMode,
+	Song,
+} from "./types";
 
 function getAssetPath(path: string): string {
 	if (!path) {
@@ -325,7 +330,9 @@ class MusicPlayerStore {
 			? [...this.config.localPlaylist]
 			: [];
 		if (this.state.playlist.length === 0) {
-			this.showError("本地播放列表为空，请在 content/music/config.json 中配置 localPlaylist");
+			this.showError(
+				"本地播放列表为空，请在 content/music/config.json 中配置 localPlaylist",
+			);
 		} else {
 			this.loadSong(this.state.playlist[0], false);
 		}
