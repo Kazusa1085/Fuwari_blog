@@ -20,7 +20,7 @@
  * - ALBIREO_SOLVED_TTL    (optional, default 86400000ms)
  */
 
-import { ipAddress, next } from '@vercel/functions';
+import { ipAddress, next } from "@vercel/functions";
 
 // ---------------------------------------------------------------------------
 // Configuration
@@ -30,38 +30,42 @@ const DEFAULT_DIFFICULTY = 4;
 const DEFAULT_CHALLENGE_TTL = 5 * 60 * 1000;
 const DEFAULT_SOLVED_TTL = 24 * 60 * 60 * 1000;
 
-const env = (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env ?? {};
-const SECRET_KEY = env.ALBIREO_SECRET ?? '';
+const env =
+	(globalThis as { process?: { env?: Record<string, string | undefined> } })
+		.process?.env ?? {};
+const SECRET_KEY = env.ALBIREO_SECRET ?? "";
 const DIFFICULTY = Number(env.ALBIREO_DIFFICULTY || DEFAULT_DIFFICULTY);
-const CHALLENGE_TTL = Number(env.ALBIREO_CHALLENGE_TTL || DEFAULT_CHALLENGE_TTL);
+const CHALLENGE_TTL = Number(
+	env.ALBIREO_CHALLENGE_TTL || DEFAULT_CHALLENGE_TTL,
+);
 const SOLVED_TTL = Number(env.ALBIREO_SOLVED_TTL || DEFAULT_SOLVED_TTL);
 // Kill switch: set ALBIREO_ENABLED=false to turn off the PoW challenge entirely.
-const ENABLED = (env.ALBIREO_ENABLED ?? 'true').toLowerCase() === 'true';
+const ENABLED = (env.ALBIREO_ENABLED ?? "true").toLowerCase() === "true";
 
-const CHALLENGE_COOKIE = 'albireo_challenge';
-const SOLVED_COOKIE = 'albireo_solved';
+const CHALLENGE_COOKIE = "albireo_challenge";
+const SOLVED_COOKIE = "albireo_solved";
 
 const SEO_BOT_AGENTS = [
-  'googlebot',
-  'bingbot',
-  'duckduckbot',
-  'slurp',
-  'yandexbot',
-  'baiduspider',
+	"googlebot",
+	"bingbot",
+	"duckduckbot",
+	"slurp",
+	"yandexbot",
+	"baiduspider",
 ];
 
 const SUSPICIOUS_UA_PATTERNS = [
-  'bot',
-  'crawler',
-  'spider',
-  'scraper',
-  'python-requests',
-  'go-http-client',
-  'curl',
-  'wget',
-  'libwww',
-  'httpx',
-  'headless',
+	"bot",
+	"crawler",
+	"spider",
+	"scraper",
+	"python-requests",
+	"go-http-client",
+	"curl",
+	"wget",
+	"libwww",
+	"httpx",
+	"headless",
 ];
 
 const BOT_UA_SCORE = 10;
@@ -82,175 +86,204 @@ const buckets = new Map<string, { count: number; resetAt: number }>();
 // ---------------------------------------------------------------------------
 
 function toHex(buffer: ArrayBuffer): string {
-  return Array.from(new Uint8Array(buffer))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
+	return Array.from(new Uint8Array(buffer))
+		.map((b) => b.toString(16).padStart(2, "0"))
+		.join("");
 }
 
 async function hmacSign(message: string): Promise<string> {
-  const key = await crypto.subtle.importKey(
-    'raw',
-    new TextEncoder().encode(SECRET_KEY),
-    { name: 'HMAC', hash: 'SHA-256' },
-    false,
-    ['sign'],
-  );
-  const signature = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(message));
-  return toHex(signature);
+	const key = await crypto.subtle.importKey(
+		"raw",
+		new TextEncoder().encode(SECRET_KEY),
+		{ name: "HMAC", hash: "SHA-256" },
+		false,
+		["sign"],
+	);
+	const signature = await crypto.subtle.sign(
+		"HMAC",
+		key,
+		new TextEncoder().encode(message),
+	);
+	return toHex(signature);
 }
 
 function timingSafeEqualHex(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
-  let diff = 0;
-  for (let i = 0; i < a.length; i += 1) {
-    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  }
-  return diff === 0;
+	if (a.length !== b.length) return false;
+	let diff = 0;
+	for (let i = 0; i < a.length; i += 1) {
+		diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+	}
+	return diff === 0;
 }
 
-async function hmacVerify(message: string, signature: string): Promise<boolean> {
-  const expected = await hmacSign(message);
-  return timingSafeEqualHex(expected, signature);
+async function hmacVerify(
+	message: string,
+	signature: string,
+): Promise<boolean> {
+	const expected = await hmacSign(message);
+	return timingSafeEqualHex(expected, signature);
 }
 
 function normalizeUA(ua: string): string {
-  return ua.trim().toLowerCase();
+	return ua.trim().toLowerCase();
 }
 
 function getClientKey(request: Request): string {
-  const ip = ipAddress(request) || 'unknown';
-  const ua = normalizeUA(request.headers.get('user-agent') || '');
-  return `${ip}|${ua}`;
+	const ip = ipAddress(request) || "unknown";
+	const ua = normalizeUA(request.headers.get("user-agent") || "");
+	return `${ip}|${ua}`;
 }
 
 async function hashClientKey(request: Request): Promise<string> {
-  const key = getClientKey(request);
-  // Include the secret in the hash so client-key hashes are not globally
-  // correlatable across deployments with different secrets.
-  return toHex(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(`${SECRET_KEY}|${key}`)));
+	const key = getClientKey(request);
+	// Include the secret in the hash so client-key hashes are not globally
+	// correlatable across deployments with different secrets.
+	return toHex(
+		await crypto.subtle.digest(
+			"SHA-256",
+			new TextEncoder().encode(`${SECRET_KEY}|${key}`),
+		),
+	);
 }
 
 function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+	return value
+		.replace(/&/g, "&amp;")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/"/g, "&quot;")
+		.replace(/'/g, "&#39;");
 }
 
 function escapeJsString(value: string): string {
-  return JSON.stringify(value)
-    .replace(/</g, '\\u003c')
-    .replace(/>/g, '\\u003e')
-    .replace(/&/g, '\\u0026')
-    .replace(/\u2028/g, '\\u2028')
-    .replace(/\u2029/g, '\\u2029');
+	return JSON.stringify(value)
+		.replace(/</g, "\\u003c")
+		.replace(/>/g, "\\u003e")
+		.replace(/&/g, "\\u0026")
+		.replace(/\u2028/g, "\\u2028")
+		.replace(/\u2029/g, "\\u2029");
 }
 
 function safeRedirect(path: string): string {
-  try {
-    if (path.startsWith('/') && !path.startsWith('//') && !path.includes('\n') && !path.includes('\r')) {
-      return path;
-    }
-  } catch {
-    // fall through
-  }
-  return '/';
+	try {
+		if (
+			path.startsWith("/") &&
+			!path.startsWith("//") &&
+			!path.includes("\n") &&
+			!path.includes("\r")
+		) {
+			return path;
+		}
+	} catch {
+		// fall through
+	}
+	return "/";
 }
 
 // `value` is base64url-encoded by cookie serialization in some browsers.
 function decodeBase64Url(value: string): string {
-  const normalized = value.replace(/-/g, '+').replace(/_/g, '/');
-  const pad = normalized.length % 4 === 0 ? '' : '='.repeat(4 - (normalized.length % 4));
-  return atob(normalized + pad);
+	const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
+	const pad =
+		normalized.length % 4 === 0 ? "" : "=".repeat(4 - (normalized.length % 4));
+	return atob(normalized + pad);
 }
 
 function encodeBase64Url(value: string): string {
-  return btoa(value).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+	return btoa(value)
+		.replace(/\+/g, "-")
+		.replace(/\//g, "_")
+		.replace(/=+$/g, "");
 }
 
 function safeDecodeURIComponent(value: string): string {
-  try {
-    return decodeURIComponent(value);
-  } catch {
-    return value;
-  }
+	try {
+		return decodeURIComponent(value);
+	} catch {
+		return value;
+	}
 }
 
 async function rateLimit(key: string, limit: number): Promise<boolean> {
-  const now = Date.now();
-  const bucket = buckets.get(key);
-  if (!bucket || bucket.resetAt <= now) {
-    buckets.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return true;
-  }
-  if (bucket.count >= limit) return false;
-  bucket.count += 1;
-  return true;
+	const now = Date.now();
+	const bucket = buckets.get(key);
+	if (!bucket || bucket.resetAt <= now) {
+		buckets.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+		return true;
+	}
+	if (bucket.count >= limit) return false;
+	bucket.count += 1;
+	return true;
 }
 
 // ---------------------------------------------------------------------------
 // Token generation / verification
 // ---------------------------------------------------------------------------
 
-async function createChallengeToken(request: Request, challenge: string): Promise<string> {
-  const clientHash = await hashClientKey(request);
-  const payload = `${challenge}.${Date.now()}.${clientHash}`;
-  const sig = await hmacSign(payload);
-  return encodeBase64Url(`${payload}.${sig}`);
+async function createChallengeToken(
+	request: Request,
+	challenge: string,
+): Promise<string> {
+	const clientHash = await hashClientKey(request);
+	const payload = `${challenge}.${Date.now()}.${clientHash}`;
+	const sig = await hmacSign(payload);
+	return encodeBase64Url(`${payload}.${sig}`);
 }
 
 async function verifyChallengeToken(
-  tokenB64: string,
-  request: Request,
+	tokenB64: string,
+	request: Request,
 ): Promise<{ challenge: string; issuedAt: number } | null> {
-  try {
-    const raw = decodeBase64Url(tokenB64);
-    const [challenge, issuedAtStr, clientHash, sig] = raw.split('.');
-    if (!challenge || !issuedAtStr || !clientHash || !sig) return null;
+	try {
+		const raw = decodeBase64Url(tokenB64);
+		const [challenge, issuedAtStr, clientHash, sig] = raw.split(".");
+		if (!challenge || !issuedAtStr || !clientHash || !sig) return null;
 
-    const payload = `${challenge}.${issuedAtStr}.${clientHash}`;
-    if (!(await hmacVerify(payload, sig))) return null;
+		const payload = `${challenge}.${issuedAtStr}.${clientHash}`;
+		if (!(await hmacVerify(payload, sig))) return null;
 
-    const currentClientHash = await hashClientKey(request);
-    if (currentClientHash !== clientHash) return null;
+		const currentClientHash = await hashClientKey(request);
+		if (currentClientHash !== clientHash) return null;
 
-    const issuedAt = Number(issuedAtStr);
-    if (!Number.isFinite(issuedAt) || Date.now() - issuedAt > CHALLENGE_TTL) return null;
+		const issuedAt = Number(issuedAtStr);
+		if (!Number.isFinite(issuedAt) || Date.now() - issuedAt > CHALLENGE_TTL)
+			return null;
 
-    return { challenge, issuedAt };
-  } catch {
-    return null;
-  }
+		return { challenge, issuedAt };
+	} catch {
+		return null;
+	}
 }
 
 async function createSolvedToken(request: Request): Promise<string> {
-  const clientHash = await hashClientKey(request);
-  const payload = `${Date.now()}.${clientHash}`;
-  const sig = await hmacSign(payload);
-  return encodeBase64Url(`${payload}.${sig}`);
+	const clientHash = await hashClientKey(request);
+	const payload = `${Date.now()}.${clientHash}`;
+	const sig = await hmacSign(payload);
+	return encodeBase64Url(`${payload}.${sig}`);
 }
 
-async function verifySolvedToken(tokenB64: string, request: Request): Promise<boolean> {
-  try {
-    const raw = decodeBase64Url(tokenB64);
-    const [issuedAtStr, clientHash, sig] = raw.split('.');
-    if (!issuedAtStr || !clientHash || !sig) return false;
+async function verifySolvedToken(
+	tokenB64: string,
+	request: Request,
+): Promise<boolean> {
+	try {
+		const raw = decodeBase64Url(tokenB64);
+		const [issuedAtStr, clientHash, sig] = raw.split(".");
+		if (!issuedAtStr || !clientHash || !sig) return false;
 
-    const payload = `${issuedAtStr}.${clientHash}`;
-    if (!(await hmacVerify(payload, sig))) return false;
+		const payload = `${issuedAtStr}.${clientHash}`;
+		if (!(await hmacVerify(payload, sig))) return false;
 
-    const currentClientHash = await hashClientKey(request);
-    if (currentClientHash !== clientHash) return false;
+		const currentClientHash = await hashClientKey(request);
+		if (currentClientHash !== clientHash) return false;
 
-    const issuedAt = Number(issuedAtStr);
-    if (!Number.isFinite(issuedAt) || Date.now() - issuedAt > SOLVED_TTL) return false;
+		const issuedAt = Number(issuedAtStr);
+		if (!Number.isFinite(issuedAt) || Date.now() - issuedAt > SOLVED_TTL)
+			return false;
 
-    return true;
-  } catch {
-    return false;
-  }
+		return true;
+	} catch {
+		return false;
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -258,19 +291,21 @@ async function verifySolvedToken(tokenB64: string, request: Request): Promise<bo
 // ---------------------------------------------------------------------------
 
 async function checkPoW(
-  challenge: string,
-  nonce: string,
-  response: string,
-  difficulty: number,
+	challenge: string,
+	nonce: string,
+	response: string,
+	difficulty: number,
 ): Promise<boolean> {
-  if (!/^[0-9a-f]{64}$/.test(response)) return false;
-  if (!/^\d+$/.test(nonce)) return false;
+	if (!/^[0-9a-f]{64}$/.test(response)) return false;
+	if (!/^\d+$/.test(nonce)) return false;
 
-  const message = `${challenge}${nonce}`;
-  const hash = toHex(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(message)));
-  const expectedPrefix = '0'.repeat(difficulty);
-  if (!hash.startsWith(expectedPrefix)) return false;
-  return timingSafeEqualHex(hash, response);
+	const message = `${challenge}${nonce}`;
+	const hash = toHex(
+		await crypto.subtle.digest("SHA-256", new TextEncoder().encode(message)),
+	);
+	const expectedPrefix = "0".repeat(difficulty);
+	if (!hash.startsWith(expectedPrefix)) return false;
+	return timingSafeEqualHex(hash, response);
 }
 
 // ---------------------------------------------------------------------------
@@ -278,23 +313,30 @@ async function checkPoW(
 // ---------------------------------------------------------------------------
 
 function suspicionScore(request: Request): number {
-  const ua = normalizeUA(request.headers.get('user-agent') || '');
-  const accept = request.headers.get('accept') || '';
+	const ua = normalizeUA(request.headers.get("user-agent") || "");
+	const accept = request.headers.get("accept") || "";
 
-  let score = 0;
-  if (!ua) score += MISSING_UA_SCORE;
-  if (!accept) score += MISSING_ACCEPT_SCORE;
-  if (SUSPICIOUS_UA_PATTERNS.some((pattern) => ua.includes(pattern))) score += BOT_UA_SCORE;
-  return score;
+	let score = 0;
+	if (!ua) score += MISSING_UA_SCORE;
+	if (!accept) score += MISSING_ACCEPT_SCORE;
+	if (SUSPICIOUS_UA_PATTERNS.some((pattern) => ua.includes(pattern)))
+		score += BOT_UA_SCORE;
+	return score;
 }
 
 function isSeoBot(ua: string): boolean {
-  const normalized = normalizeUA(ua);
-  return SEO_BOT_AGENTS.some((agent) => normalized.includes(agent));
+	const normalized = normalizeUA(ua);
+	return SEO_BOT_AGENTS.some((agent) => normalized.includes(agent));
 }
 
 function isPublicMetadataPath(pathname: string): boolean {
-  return pathname === '/robots.txt' || /^\/sitemap(?:\..*)?$/i.test(pathname) || /^\/sitemap-\d+\.xml$/i.test(pathname);
+	return (
+		pathname === "/robots.txt" ||
+		/^\/sitemap(?:\..*)?$/i.test(pathname) ||
+		/^\/sitemap-\d+\.xml$/i.test(pathname) ||
+		// Google Search Console / site verification HTML files must bypass PoW.
+		/^\/google[a-zA-Z0-9_-]+\.html$/i.test(pathname)
+	);
 }
 
 // ---------------------------------------------------------------------------
@@ -302,19 +344,22 @@ function isPublicMetadataPath(pathname: string): boolean {
 // ---------------------------------------------------------------------------
 
 function withSecurityHeaders(response: Response, noStore = true): Response {
-  if (noStore) {
-    response.headers.set('Cache-Control', 'private, no-cache, no-store, must-revalidate');
-  }
-  response.headers.set('X-Content-Type-Options', 'nosniff');
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  response.headers.set('X-Frame-Options', 'DENY');
-  return response;
+	if (noStore) {
+		response.headers.set(
+			"Cache-Control",
+			"private, no-cache, no-store, must-revalidate",
+		);
+	}
+	response.headers.set("X-Content-Type-Options", "nosniff");
+	response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+	response.headers.set("X-Frame-Options", "DENY");
+	return response;
 }
 
 function challengePageHtml(challenge: string, originalPath: string): string {
-  const jsChallenge = escapeJsString(challenge);
-  const jsOriginalPath = escapeJsString(originalPath);
-  return `<!DOCTYPE html>
+	const jsChallenge = escapeJsString(challenge);
+	const jsOriginalPath = escapeJsString(originalPath);
+	return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
@@ -487,132 +532,164 @@ startVerification();
 // ---------------------------------------------------------------------------
 
 function isStaticAsset(pathname: string): boolean {
-  return /\.(?:css|js|mjs|png|jpe?g|gif|webp|svg|ico|woff2?|ttf|otf|map|txt|wasm)$/i.test(pathname);
+	return /\.(?:css|js|mjs|png|jpe?g|gif|webp|svg|ico|woff2?|ttf|otf|map|txt|wasm)$/i.test(
+		pathname,
+	);
 }
 
 function isChallengeAsset(pathname: string): boolean {
-  return pathname.startsWith('/albireo-dist/');
+	return pathname.startsWith("/albireo-dist/");
 }
 
 export default async function middleware(request: Request): Promise<Response> {
-  if (!ENABLED) {
-    return next();
-  }
+	if (!ENABLED) {
+		return next();
+	}
 
-  if (!SECRET_KEY) {
-    return withSecurityHeaders(
-      new Response('ALBIREO_SECRET environment variable is not configured', { status: 503 }),
-    );
-  }
+	if (!SECRET_KEY) {
+		return withSecurityHeaders(
+			new Response("ALBIREO_SECRET environment variable is not configured", {
+				status: 503,
+			}),
+		);
+	}
 
-  const url = new URL(request.url);
-  const pathname = url.pathname;
-  const ua = request.headers.get('user-agent') || '';
+	const url = new URL(request.url);
+	const pathname = url.pathname;
+	const ua = request.headers.get("user-agent") || "";
 
-  // Never intercept the challenge's own static assets or Vercel internals.
-  if (isChallengeAsset(pathname) || pathname.startsWith('/_vercel/')) {
-    return next();
-  }
+	// Never intercept the challenge's own static assets or Vercel internals.
+	if (isChallengeAsset(pathname) || pathname.startsWith("/_vercel/")) {
+		return next();
+	}
 
-  // Allow metadata that search engines need, and don't require JS to fetch it.
-  if (isPublicMetadataPath(pathname)) {
-    return next();
-  }
+	// Allow metadata that search engines need, and don't require JS to fetch it.
+	if (isPublicMetadataPath(pathname)) {
+		return next();
+	}
 
-  // Static assets are not worth challenging; they are usually shared across
-  // pages and rarely contain article text on their own.
-  if (isStaticAsset(pathname)) {
-    return next();
-  }
+	// Static assets are not worth challenging; they are usually shared across
+	// pages and rarely contain article text on their own.
+	if (isStaticAsset(pathname)) {
+		return next();
+	}
 
-  // Pass through requests that already carry a valid signed solved cookie.
-  const cookieHeader = request.headers.get('cookie') || '';
-  const solvedCookie = cookieHeader.split(';').map((part) => part.trim()).find((part) => part.startsWith(`${SOLVED_COOKIE}=`));
-  if (solvedCookie) {
-    const value = safeDecodeURIComponent(solvedCookie.slice(`${SOLVED_COOKIE}=`.length));
-    if (await verifySolvedToken(value, request)) {
-      return next();
-    }
-  }
+	// Pass through requests that already carry a valid signed solved cookie.
+	const cookieHeader = request.headers.get("cookie") || "";
+	const solvedCookie = cookieHeader
+		.split(";")
+		.map((part) => part.trim())
+		.find((part) => part.startsWith(`${SOLVED_COOKIE}=`));
+	if (solvedCookie) {
+		const value = safeDecodeURIComponent(
+			solvedCookie.slice(`${SOLVED_COOKIE}=`.length),
+		);
+		if (await verifySolvedToken(value, request)) {
+			return next();
+		}
+	}
 
-  // SEO bots are allowlisted by UA. This is a pragmatic trade-off for
-  // search-engine visibility; if you want stricter control you can remove it
-  // and rely on search engine verification/registration instead.
-  if (isSeoBot(ua)) {
-    return next();
-  }
+	// SEO bots are allowlisted by UA. This is a pragmatic trade-off for
+	// search-engine visibility; if you want stricter control you can remove it
+	// and rely on search engine verification/registration instead.
+	if (isSeoBot(ua)) {
+		return next();
+	}
 
-  // Handle proof-of-work submission.
-  if (request.method === 'POST') {
-    const ip = ipAddress(request) || 'unknown';
-    if (!(await rateLimit(`verify:${ip}`, VERIFY_RATE_LIMIT))) {
-      return withSecurityHeaders(new Response('Too many requests', { status: 429 }));
-    }
+	// Handle proof-of-work submission.
+	if (request.method === "POST") {
+		const ip = ipAddress(request) || "unknown";
+		if (!(await rateLimit(`verify:${ip}`, VERIFY_RATE_LIMIT))) {
+			return withSecurityHeaders(
+				new Response("Too many requests", { status: 429 }),
+			);
+		}
 
-    try {
-      const fd = await request.formData();
-      if (!fd.has('verify')) return withSecurityHeaders(new Response('Bad Request', { status: 400 }));
+		try {
+			const fd = await request.formData();
+			if (!fd.has("verify"))
+				return withSecurityHeaders(
+					new Response("Bad Request", { status: 400 }),
+				);
 
-      const nonce = String(fd.get('nonce') || '');
-      const response = String(fd.get('response') || '');
-      const originalPath = safeRedirect(String(fd.get('original_path') || '/'));
+			const nonce = String(fd.get("nonce") || "");
+			const response = String(fd.get("response") || "");
+			const originalPath = safeRedirect(String(fd.get("original_path") || "/"));
 
-      const challengeCookie = cookieHeader.split(';').map((part) => part.trim()).find((part) => part.startsWith(`${CHALLENGE_COOKIE}=`));
-      if (!challengeCookie) return withSecurityHeaders(new Response('Challenge expired', { status: 403 }));
-      const token = safeDecodeURIComponent(challengeCookie.slice(`${CHALLENGE_COOKIE}=`.length));
+			const challengeCookie = cookieHeader
+				.split(";")
+				.map((part) => part.trim())
+				.find((part) => part.startsWith(`${CHALLENGE_COOKIE}=`));
+			if (!challengeCookie)
+				return withSecurityHeaders(
+					new Response("Challenge expired", { status: 403 }),
+				);
+			const token = safeDecodeURIComponent(
+				challengeCookie.slice(`${CHALLENGE_COOKIE}=`.length),
+			);
 
-      const verified = await verifyChallengeToken(token, request);
-      if (!verified) return withSecurityHeaders(new Response('Challenge invalid or expired', { status: 403 }));
+			const verified = await verifyChallengeToken(token, request);
+			if (!verified)
+				return withSecurityHeaders(
+					new Response("Challenge invalid or expired", { status: 403 }),
+				);
 
-      if (!(await checkPoW(verified.challenge, nonce, response, DIFFICULTY))) {
-        return withSecurityHeaders(new Response('Proof of work failed', { status: 403 }));
-      }
+			if (!(await checkPoW(verified.challenge, nonce, response, DIFFICULTY))) {
+				return withSecurityHeaders(
+					new Response("Proof of work failed", { status: 403 }),
+				);
+			}
 
-      const solvedToken = await createSolvedToken(request);
-      const res = new Response(JSON.stringify({ success: true, redirect: originalPath }), {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          'Set-Cookie': `${SOLVED_COOKIE}=${encodeURIComponent(solvedToken)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${Math.floor(SOLVED_TTL / 1000)}`,
-        },
-      });
-      return withSecurityHeaders(res);
-    } catch {
-      return withSecurityHeaders(new Response('Server error', { status: 500 }));
-    }
-  }
+			const solvedToken = await createSolvedToken(request);
+			const res = new Response(
+				JSON.stringify({ success: true, redirect: originalPath }),
+				{
+					status: 200,
+					headers: {
+						"Content-Type": "application/json",
+						"Set-Cookie": `${SOLVED_COOKIE}=${encodeURIComponent(solvedToken)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${Math.floor(SOLVED_TTL / 1000)}`,
+					},
+				},
+			);
+			return withSecurityHeaders(res);
+		} catch {
+			return withSecurityHeaders(new Response("Server error", { status: 500 }));
+		}
+	}
 
-  // Fast rejection for obvious crawler request signatures.
-  const score = suspicionScore(request);
-  if (score >= SUSPICIOUS_SCORE_THRESHOLD) {
-    return withSecurityHeaders(new Response('Forbidden', { status: 403 }));
-  }
+	// Fast rejection for obvious crawler request signatures.
+	const score = suspicionScore(request);
+	if (score >= SUSPICIOUS_SCORE_THRESHOLD) {
+		return withSecurityHeaders(new Response("Forbidden", { status: 403 }));
+	}
 
-  // Issue a challenge.
-  const ip = ipAddress(request) || 'unknown';
-  if (!(await rateLimit(`challenge:${ip}`, CHALLENGE_RATE_LIMIT))) {
-    return withSecurityHeaders(new Response('Too many requests', { status: 429 }));
-  }
+	// Issue a challenge.
+	const ip = ipAddress(request) || "unknown";
+	if (!(await rateLimit(`challenge:${ip}`, CHALLENGE_RATE_LIMIT))) {
+		return withSecurityHeaders(
+			new Response("Too many requests", { status: 429 }),
+		);
+	}
 
-  const challenge = crypto.randomUUID().replace(/-/g, '');
-  const originalPath = safeRedirect(`${url.pathname}${url.search}${url.hash}`);
-  const challengeToken = await createChallengeToken(request, challenge);
-  const html = challengePageHtml(challenge, originalPath);
+	const challenge = crypto.randomUUID().replace(/-/g, "");
+	const originalPath = safeRedirect(`${url.pathname}${url.search}${url.hash}`);
+	const challengeToken = await createChallengeToken(request, challenge);
+	const html = challengePageHtml(challenge, originalPath);
 
-  const res = new Response(html, {
-    status: 200,
-    headers: {
-      'Content-Type': 'text/html; charset=utf-8',
-      'Set-Cookie': `${CHALLENGE_COOKIE}=${encodeURIComponent(challengeToken)}; Path=/; HttpOnly; Secure; SameSite=Lax`,
-    },
-  });
-  return withSecurityHeaders(res);
+	const res = new Response(html, {
+		status: 200,
+		headers: {
+			"Content-Type": "text/html; charset=utf-8",
+			"Set-Cookie": `${CHALLENGE_COOKIE}=${encodeURIComponent(challengeToken)}; Path=/; HttpOnly; Secure; SameSite=Lax`,
+		},
+	});
+	return withSecurityHeaders(res);
 }
 
 export const config = {
-  matcher: [
-    // Intercept every route, but let Vercel internals and challenge assets
-    // through. Static assets are filtered inside the middleware logic as well.
-    '/((?!_vercel/|albireo-dist/).*)',
-  ],
+	matcher: [
+		// Intercept every route, but let Vercel internals and challenge assets
+		// through. Static assets are filtered inside the middleware logic as well.
+		"/((?!_vercel/|albireo-dist/).*)",
+	],
 };
