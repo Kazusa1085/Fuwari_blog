@@ -311,17 +311,18 @@ function withSecurityHeaders(response: Response, noStore = true): Response {
   return response;
 }
 
-function challengePageHtml(challenge: string, originalPath: string): string {
+function challengePageHtml(challenge: string, originalPath: string, preview = false): string {
   const jsChallenge = escapeJsString(challenge);
   const jsOriginalPath = escapeJsString(originalPath);
+  const previewFlag = preview ? 'true' : 'false';
   return `<!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline' blob:; worker-src blob:; child-src blob:; connect-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'self'; frame-ancestors 'none'">
-<title>正在確認您是真人 | Kazusa的貓窩</title>
+<title>正在确认您是真人</title>
 <style>
 :root {
   --hue: 345;
@@ -365,14 +366,6 @@ body {
   from { opacity: 0; transform: translateY(12px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.brand {
-  margin-bottom: 18px;
-  font-size: 0.75rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--primary);
-  opacity: 0.85;
-}
 h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: 0.02em; }
 .subtitle {
   margin-top: 8px;
@@ -413,17 +406,17 @@ h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: 0.02em; }
 </head>
 <body>
 <div class="card">
-  <div class="brand">Kazusa的貓窩</div>
-  <h1>正在確認您是真人</h1>
-  <p class="subtitle">這需要幾秒鐘，完成後會自動跳轉回剛才的頁面。</p>
+  <h1>正在确认您是真人</h1>
+  <p class="subtitle">这需要几秒钟，完成后会自动跳转回刚才的页面。</p>
   <div class="progress"><div class="progress-bar"></div></div>
-  <div class="status" id="status">準備中…</div>
-  <div class="footnote">Kazusa的貓窩 · 人性化驗證</div>
+  <div class="status" id="status">准备中…</div>
+  <div class="footnote">反爬虫验证程序</div>
 </div>
 <script>
 const CHALLENGE = ${jsChallenge};
 const ORIGINAL_PATH = ${jsOriginalPath};
 const DIFFICULTY = ${DIFFICULTY};
+const PREVIEW = ${previewFlag};
 const statusEl = document.getElementById('status');
 const setStatus = (text) => { statusEl.textContent = text; };
 
@@ -449,7 +442,7 @@ self.onmessage = async (e) => {
 \`;
 
 function startVerification() {
-  setStatus('正在計算…');
+  setStatus('正在计算…');
   const workers = [];
   const width = Math.max(1, (navigator.hardwareConcurrency || 4) - 1);
   let done = false;
@@ -458,7 +451,7 @@ function startVerification() {
     if (done) return;
     done = true;
     workers.forEach((w) => w.terminate());
-    setStatus('驗證中…');
+    setStatus('验证中…');
     const fd = new FormData();
     fd.append('nonce', nonce);
     fd.append('response', hash);
@@ -467,13 +460,13 @@ function startVerification() {
     fetch(window.location.href, { method: 'POST', body: fd }).then(async (res) => {
       if (res.ok) {
         const data = await res.json();
-        setStatus('驗證成功，正在跳轉…');
+        setStatus('验证成功，正在跳转…');
         setTimeout(() => { window.location.href = data.redirect; }, 350);
       } else {
-        setStatus('驗證失敗，請重新整理頁面再試一次');
+        setStatus('验证失败，请刷新页面再试一次');
       }
     }).catch(() => {
-      setStatus('與伺服器連線失敗，請重新整理頁面再試一次');
+      setStatus('与服务器连接失败，请刷新页面再试一次');
     });
   };
 
@@ -485,7 +478,11 @@ function startVerification() {
   }
 }
 
-startVerification();
+if (PREVIEW) {
+  setStatus('预览模式');
+} else {
+  startVerification();
+}
 </script>
 </body>
 </html>`;
@@ -619,7 +616,7 @@ export default async function middleware(request: Request): Promise<Response> {
   const challenge = crypto.randomUUID().replace(/-/g, '');
   const originalPath = safeRedirect(stripPreviewParam(`${url.pathname}${url.search}${url.hash}`));
   const challengeToken = await createChallengeToken(request, challenge);
-  const html = challengePageHtml(challenge, originalPath);
+  const html = challengePageHtml(challenge, originalPath, isPreview);
 
   const res = new Response(html, {
     status: 200,
