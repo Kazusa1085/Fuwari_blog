@@ -77,20 +77,20 @@ const { remarkPluginFrontmatter } = await render(entry);
 
         <!-- word count, read time and page views -->
         <div class="text-base text-black/40 dark:text-white/40 flex gap-4 transition items-center flex-wrap mt-2">
-            <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--btn-regular-bg)]/50 backdrop-blur-sm border border-[var(--line-divider)]">
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[var(--line-divider)]">
                 <Icon name="material-symbols:notes-rounded" class="text-base text-[var(--primary)] opacity-90"></Icon>
                 <span>{remarkPluginFrontmatter.words} 字</span>
             </div>
-            <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--btn-regular-bg)]/50 backdrop-blur-sm border border-[var(--line-divider)]">
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[var(--line-divider)]">
                 <Icon name="material-symbols:schedule-outline-rounded" class="text-base text-[var(--primary)] opacity-90"></Icon>
                 <span>{remarkPluginFrontmatter.minutes} 分钟</span>
             </div>
             <div class="flex items-center gap-3">
-                <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--btn-regular-bg)]/50 backdrop-blur-sm border border-[var(--line-divider)]">
+                <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[var(--line-divider)]">
                     <Icon name="material-symbols:visibility-outline-rounded" class="text-base text-[var(--primary)] opacity-90"></Icon>
                     <span id={`page-views-${entry.id}`} class="font-medium">--</span>
                 </span>
-                <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[var(--btn-regular-bg)]/50 backdrop-blur-sm border border-[var(--line-divider)]">
+                <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[var(--line-divider)]">
                     <Icon name="material-symbols:person-outline" class="text-base text-[var(--primary)] opacity-90"></Icon>
                     <span id={`page-visits-${entry.id}`} class="font-medium">--</span>
                 </span>
