@@ -6,22 +6,6 @@
     hover:before:scale-100 hover:before:opacity-100 before:bg-[var(--btn-plain-bg-hover)] active:before:bg-[var(--btn-plain-bg-active)] before:-z-10;
 }
 
-@utility text-90 {
-    @apply text-black/90 dark:text-white/90;
-}
-@utility text-75 {
-    @apply text-black/75 dark:text-white/75;
-}
-@utility text-50 {
-    @apply text-black/50 dark:text-white/50;
-}
-@utility text-30 {
-    @apply text-black/30 dark:text-white/30;
-}
-@utility text-25 {
-    @apply text-black/25 dark:text-white/25;
-}
-
 @layer components {
     .card-base {
         @apply rounded-[var(--radius-large)] overflow-hidden transition-all duration-300 ease-out;

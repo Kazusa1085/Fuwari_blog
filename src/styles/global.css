@@ -12,42 +12,33 @@
 @config "../../tailwind.config.cjs";
 
 /*
- * Tailwind v4 migration fallback.
- * These component classes are defined in main.css with dark: variants via @apply.
- * Keep an unlayered fallback so dark mode text stays readable even if the
- * generated dark variant is overridden by layer ordering. Can be removed after
- * the migration is fully verified.
- *
+ * Text color helpers used by the Fuwari theme.
+ * In Tailwind v4 these must be custom utilities so they are emitted as
+ * standalone classes and their dark: variants work like the v3 versions.
+ */
+@utility text-90 {
+	@apply text-black/90 dark:text-white/90;
+}
+@utility text-75 {
+	@apply text-black/75 dark:text-white/75;
+}
+@utility text-50 {
+	@apply text-black/50 dark:text-white/50;
+}
+@utility text-30 {
+	@apply text-black/30 dark:text-white/30;
+}
+@utility text-25 {
+	@apply text-black/25 dark:text-white/25;
+}
+
+/*
  * Tailwind v3 had .prose loaded after utility classes, so it won over
  * text-xl on Markdown wrappers. Tailwind v4 places both in the utilities
  * layer and text-xl wins. Restore the v3 typography sizing by keeping .prose
  * unlayered here.
  */
 .prose {
-  font-size: 1rem;
-  line-height: 1.75;
-}
-.dark .btn-plain,
-.dark .btn-regular,
-.dark .link,
-.dark .link-lg,
-.dark .text-90,
-.dark .text-75,
-.dark .text-50,
-.dark .text-30,
-.dark .text-25,
-.dark .meta-icon {
-  color: rgba(255, 255, 255, 0.85);
-}
-.dark .text-50,
-.dark .text-30,
-.dark .text-25 {
-  color: rgba(255, 255, 255, 0.45);
-}
-.dark .btn-plain:hover,
-.dark .btn-regular:hover,
-.dark .link:hover,
-.dark .link-lg:hover,
-.dark .meta-icon:hover {
-  color: var(--primary);
+	font-size: 1rem;
+	line-height: 1.75;
 }
