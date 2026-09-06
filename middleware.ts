@@ -321,32 +321,121 @@ function challengePageHtml(challenge: string, originalPath: string): string {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline' blob:; worker-src blob:; child-src blob:; connect-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'self'; frame-ancestors 'none'">
-<title>安全驗證 | Albireo</title>
+<title>正在確認您是真人 | Kazusa的貓窩</title>
 <style>
+:root {
+  --hue: 345;
+  --primary: oklch(0.75 0.14 var(--hue));
+  --primary-soft: oklch(0.75 0.14 var(--hue) / 0.16);
+  --page-bg: oklch(0.16 0.014 var(--hue));
+  --card-bg: oklch(0.23 0.015 var(--hue));
+  --card-bg-glass: oklch(0.23 0.015 var(--hue) / 0.78);
+  --card-border: oklch(1 0 0 / 0.08);
+  --text-main: oklch(1 0 0 / 0.85);
+  --text-muted: oklch(1 0 0 / 0.45);
+  --radius: 1rem;
+}
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { min-height: 100vh; display: grid; place-items: center; background: #0b0e14; color: #e5e7eb; font-family: system-ui, -apple-system, sans-serif; padding: 20px; }
-.card { max-width: 420px; width: 100%; background: #151a23; border: 1px solid #2a3140; border-radius: 16px; padding: 36px 28px; text-align: center; }
-h1 { font-size: 1.4rem; margin-bottom: 10px; }
-p { color: #9ca3af; line-height: 1.7; margin-bottom: 24px; }
-button { width: 100%; padding: 13px 0; border: 0; border-radius: 10px; background: #4f8cff; color: #fff; font-size: 1rem; cursor: pointer; }
-button:disabled { background: #3a4658; cursor: not-allowed; }
-.status { min-height: 1.5rem; margin-top: 16px; font-size: 0.85rem; color: #9ca3af; }
+html, body { min-height: 100%; }
+body {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "PingFang SC", "Noto Sans CJK TC", sans-serif;
+  color: var(--text-main);
+  background:
+    radial-gradient(1200px 600px at 20% -10%, oklch(0.75 0.14 var(--hue) / 0.12), transparent 60%),
+    radial-gradient(900px 500px at 90% 110%, oklch(0.75 0.14 var(--hue) / 0.08), transparent 55%),
+    var(--page-bg);
+}
+.card {
+  width: min(420px, 100%);
+  padding: 40px 32px 32px;
+  border-radius: var(--radius);
+  border: 1px solid var(--card-border);
+  background: var(--card-bg-glass);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  text-align: center;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+  animation: fade-up 0.45s ease-out both;
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.mascot {
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 38px;
+  border-radius: 999px;
+  background: var(--primary-soft);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 0 0 8px oklch(0.75 0.14 var(--hue) / 0.05);
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: 0.02em; }
+.subtitle {
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+.progress {
+  height: 6px;
+  margin: 28px 0 14px;
+  border-radius: 999px;
+  background: oklch(1 0 0 / 0.07);
+  overflow: hidden;
+}
+.progress-bar {
+  width: 40%;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--primary), oklch(0.8 0.12 calc(var(--hue) + 20)));
+  animation: loading 1.5s ease-in-out infinite;
+}
+@keyframes loading {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(320%); }
+}
+.status {
+  min-height: 1.4rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  transition: color 0.3s;
+}
+.footnote {
+  margin-top: 20px;
+  font-size: 0.72rem;
+  color: oklch(1 0 0 / 0.3);
+}
 </style>
 </head>
 <body>
 <div class="card">
-<h1>安全驗證</h1>
-<p>請確認您是真人，這需要幾秒鐘。</p>
-<button id="verify-btn">我是人類</button>
-<div class="status" id="status"></div>
+  <div class="mascot" aria-hidden="true">🐱</div>
+  <h1>正在確認您是真人</h1>
+  <p class="subtitle">這需要幾秒鐘，完成後會自動跳轉回剛才的頁面。</p>
+  <div class="progress"><div class="progress-bar"></div></div>
+  <div class="status" id="status">準備中…</div>
+  <div class="footnote">Kazusa的貓窩 · 人性化驗證</div>
 </div>
 <script>
 const CHALLENGE = ${jsChallenge};
 const ORIGINAL_PATH = ${jsOriginalPath};
 const DIFFICULTY = ${DIFFICULTY};
-const btn = document.getElementById('verify-btn');
-const status = document.getElementById('status');
-const setStatus = (text) => { status.textContent = text; };
+const statusEl = document.getElementById('status');
+const setStatus = (text) => { statusEl.textContent = text; };
 
 const WORKER_CODE = \`
 async function sha256Hex(buffer) {
@@ -369,9 +458,8 @@ self.onmessage = async (e) => {
 };
 \`;
 
-function mine() {
-  btn.disabled = true;
-  setStatus('計算中…');
+function startVerification() {
+  setStatus('正在計算…');
   const workers = [];
   const width = Math.max(1, (navigator.hardwareConcurrency || 4) - 1);
   let done = false;
@@ -389,15 +477,13 @@ function mine() {
     fetch(window.location.href, { method: 'POST', body: fd }).then(async (res) => {
       if (res.ok) {
         const data = await res.json();
-        setStatus('成功！');
-        setTimeout(() => { window.location.href = data.redirect; }, 400);
+        setStatus('驗證成功，正在跳轉…');
+        setTimeout(() => { window.location.href = data.redirect; }, 350);
       } else {
-        btn.disabled = false;
-        setStatus('驗證失敗，請重試');
+        setStatus('驗證失敗，請重新整理頁面再試一次');
       }
     }).catch(() => {
-      btn.disabled = false;
-      setStatus('與伺服器連線失敗，請重試');
+      setStatus('與伺服器連線失敗，請重新整理頁面再試一次');
     });
   };
 
@@ -409,7 +495,7 @@ function mine() {
   }
 }
 
-btn.addEventListener('click', mine);
+startVerification();
 </script>
 </body>
 </html>`;
