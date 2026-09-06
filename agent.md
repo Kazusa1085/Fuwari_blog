@@ -1,6 +1,8 @@
 # Fuwari Project Context for AI Agents
 
 > **File Purpose**: This document consolidates project context for AI agents (Claude, Gemini, etc.) to quickly understand the Fuwari project structure, technology stack, and workflows.
+>
+> **Deployment**: If the user asks to deploy/customize this repository for their own site, read and follow [`docs/AI_DEPLOYMENT_GUIDE.md`](./docs/AI_DEPLOYMENT_GUIDE.md) as the interactive runbook.
 
 ## Project Overview
 
