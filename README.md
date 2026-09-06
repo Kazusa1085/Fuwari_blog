@@ -6,7 +6,7 @@
 
 [![Astro](https://img.shields.io/badge/Astro-7.x-FF5D01?logo=astro&logoColor=white)](https://astro.build)
 [![Svelte](https://img.shields.io/badge/Svelte-5.x-FF3E00?logo=svelte&logoColor=white)](https://svelte.dev)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.x-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.x-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 [🖥️ 在线预览](https://www.micostar.cc) · [📦 初始仓库](https://github.com/saicaca/fuwari) · [📖 博客编辑指南](./BLOG_GUIDE.md) · [🛠️ 个性化修改指南](./FUWARI_CUSTOMIZATIONS.md)
