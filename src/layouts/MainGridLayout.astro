@@ -5,7 +5,6 @@ import Navbar from "@components/Navbar.astro";
 import SideBar from "@components/widget/SideBar.astro";
 import WritingStats from "@components/widget/WritingStats.astro";
 import type { MarkdownHeading } from "astro";
-import type { RelatedPostItem } from "@/types/widgets";
 import { Icon } from "astro-icon/components";
 import ImageWrapper from "../components/misc/ImageWrapper.astro";
 import ReadingProgressCard from "../components/widget/ReadingProgressCard.svelte";
@@ -26,7 +25,6 @@ interface Props {
 	lang?: string;
 	setOGTypeArticle?: boolean;
 	headings?: MarkdownHeading[];
-	relatedPosts?: RelatedPostItem[];
 }
 
 const {
@@ -36,7 +34,6 @@ const {
 	lang,
 	setOGTypeArticle,
 	headings = [],
-	relatedPosts = [],
 } = Astro.props;
 const hasBannerCredit =
 	siteConfig.banner.enable && siteConfig.banner.credit.enable;
@@ -88,7 +85,7 @@ const statsProps = await getWritingStats();
             </a>}
 
 
-            <SideBar class="mb-4 row-start-1 row-end-2 col-span-1 lg:row-start-1 lg:row-end-2 lg:col-span-1 lg:max-w-[17.5rem] onload-animation" headings={headings} relatedPosts={relatedPosts}></SideBar>
+            <SideBar class="mb-4 row-start-1 row-end-2 col-span-1 lg:row-start-1 lg:row-end-2 lg:col-span-1 lg:max-w-[17.5rem] onload-animation" headings={headings}></SideBar>
 
             <main id="swup-container" class="transition-swup-fade row-start-2 row-end-3 col-span-1 lg:row-start-1 lg:row-end-2 lg:col-span-1 overflow-hidden">
                 <div id="content-wrapper" class="onload-animation">

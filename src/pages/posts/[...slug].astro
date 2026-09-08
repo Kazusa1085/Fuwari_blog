@@ -56,15 +56,6 @@ const jsonLd = {
 	}),
 };
 
-const relatedPosts = (await getSortedPosts())
-	.filter(
-		(post) =>
-			post.id !== entry.id &&
-			post.data.tags.some((tag) => entry.data.tags.includes(tag)),
-	)
-	.slice(0, 3)
-	.map((post) => ({ id: post.id, title: post.data.title }));
-
 const breadcrumbJsonLd = {
 	"@context": "https://schema.org",
 	"@type": "BreadcrumbList",
@@ -90,7 +81,7 @@ const breadcrumbJsonLd = {
 	],
 };
 ---
-<MainGridLayout banner={entry.data.image} title={entry.data.title} description={entry.data.description} lang={entry.data.lang} setOGTypeArticle={true} headings={headings} relatedPosts={relatedPosts}>
+<MainGridLayout banner={entry.data.image} title={entry.data.title} description={entry.data.description} lang={entry.data.lang} setOGTypeArticle={true} headings={headings}>
     <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
     <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)}></script>
     <nav aria-label="面包屑" class="mb-2 text-sm text-50">
