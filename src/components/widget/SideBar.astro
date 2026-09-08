@@ -24,9 +24,7 @@ const relatedPosts = Astro.props.relatedPosts ?? [];
         
     <VisitorInfo class="onload-animation" style="animation-delay: 200ms"></VisitorInfo>
 
-    <div id="related-posts-container">
-        <RelatedPosts posts={relatedPosts} class="onload-animation" style="animation-delay: 250ms" />
-    </div>
+    <RelatedPosts posts={relatedPosts} class="onload-animation" style="animation-delay: 250ms" />
 
     <MusicSidebarWidget class="onload-animation" style="animation-delay: 300ms" />
 
