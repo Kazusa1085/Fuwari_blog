@@ -546,7 +546,7 @@ const breadcrumbJsonLd = {
             <h2 class="font-bold text-lg text-90 mb-3">相关文章</h2>
             <div class="flex flex-col gap-2">
                 {relatedPosts.map((post) => (
-                    <a href={getPostUrlBySlug(post.id)} class="link card-base p-3 text-75 hover:text-[var(--primary)]">
+                    <a href={getPostUrlBySlug(post.id)} class="card-base block p-3 text-75 hover:text-[var(--primary)] transition-colors">
                         {post.data.title}
                     </a>
                 ))}
