@@ -66,9 +66,9 @@ function sortPosts(mode: SortMode) {
 	});
 
 	// 重新排列 DOM：置顶在前，排序后的普通文章在后
-	[...pinnedCards, ...normalCards].forEach((card) =>
-		container.appendChild(card),
-	);
+	for (const card of [...pinnedCards, ...normalCards]) {
+		container.appendChild(card);
+	}
 }
 
 // Toast 提示

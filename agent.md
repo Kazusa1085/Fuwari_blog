@@ -19,7 +19,7 @@
 | **Content** | Astro Content Collections (Markdown) |
 | **Package Manager** | pnpm 9.x |
 | **Linting/Formatting** | Biome |
-| **Type Checking** | TypeScript (Strict Mode) |
+| **Type Checking** | TypeScript 6.x (pinned: Astro 7 `astro check` requires TS ≤ 6) |
 
 ### Key Features
 - **UI/UX**: Dark/Light theme toggle, Page transition animations (Swup), TOC, Sticky posts, **Post sorting** (by published/updated/views with cross-page navigation; labels: 文章创作时间/文章更新时间/浏览量排序), **Flat navbar links** (all links visible on `lg+`, no dropdown groups), **Reading progress indicator**, **Hot posts page** (`/hot/`) with build-time pageviews sorting.
@@ -83,8 +83,9 @@
 | :--- | :--- |
 | `pnpm install` | Install dependencies |
 | `pnpm dev` | Start dev server (`localhost:4321`) |
-| `pnpm build` | Build production version to `./dist/` |
+| `pnpm build` | Build production version to `./dist/` (prebuild cleans `.astro` / `node_modules/.astro` to avoid stale Expressive Code asset hashes) |
 | `pnpm preview` | Preview production build |
+| `pnpm clean:astro` | Manually clear Astro content-layer caches |
 | `pnpm new-post <filename>` | Create new post from template |
 | `pnpm lint` | Biome code check |
 | `pnpm format` | Biome code format |
@@ -194,7 +195,7 @@ Implemented in `src/pages/posts/[...slug].astro`.
 ## Deployment
 - **Output**: `./dist/`
 - **Vercel Config**: `vercel.json` included (Security headers, caching, URL rewrites).
-- **Environment**: Requires Node 18+.
+- **Environment**: Requires Node 22+.
 
 ## Development Conventions
 - **Styling**: Use Tailwind CSS utilities. Custom styles in `src/styles/`.
