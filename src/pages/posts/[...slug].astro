@@ -56,14 +56,6 @@ const jsonLd = {
 	}),
 };
 
-const relatedPosts = (await getSortedPosts())
-	.filter(
-		(post) =>
-			post.id !== entry.id &&
-			post.data.tags.some((tag) => entry.data.tags.includes(tag)),
-	)
-	.slice(0, 3);
-
 const breadcrumbJsonLd = {
 	"@context": "https://schema.org",
 	"@type": "BreadcrumbList",
@@ -539,20 +531,6 @@ const breadcrumbJsonLd = {
                  旧版 Go 编译器未做校验，Astro 7 的 Rust 编译器要求严格闭合） -->
             </div>
         </div>
-    <br>
-
-    {relatedPosts.length > 0 && (
-        <div class="mb-6">
-            <h2 class="font-bold text-lg text-90 mb-3">相关文章</h2>
-            <div class="flex flex-col gap-2">
-                {relatedPosts.map((post) => (
-                    <a href={getPostUrlBySlug(post.id)} class="card-base block p-3 text-75 hover:text-[var(--primary)] transition-colors">
-                        {post.data.title}
-                    </a>
-                ))}
-            </div>
-        </div>
-    )}
 
     <div class="flex flex-col md:flex-row justify-between mb-4 gap-4 overflow-hidden w-full">
         <a href={entry.data.nextSlug ? getPostUrlBySlug(entry.data.nextSlug) : "#"}
