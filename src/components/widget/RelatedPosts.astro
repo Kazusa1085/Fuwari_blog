@@ -1,0 +1,28 @@
+---
+import type { RelatedPostItem } from "@/types/widgets";
+import { getPostUrlBySlug } from "@utils/url-utils";
+import WidgetLayout from "./WidgetLayout.astro";
+
+interface Props {
+	posts?: RelatedPostItem[];
+	class?: string;
+	style?: string;
+}
+
+const { posts = [], class: className, style } = Astro.props;
+---
+
+{posts.length > 0 && (
+	<WidgetLayout id="related-posts" name="相关文章" class={className} style={style}>
+		<div class="flex flex-col gap-1">
+			{posts.map((post) => (
+				<a
+					href={getPostUrlBySlug(post.id)}
+					class="block rounded-lg px-3 py-2 text-75 hover:bg-[var(--btn-plain-bg-hover)] hover:text-[var(--primary)] active:bg-[var(--btn-plain-bg-active)] transition-colors"
+				>
+					{post.title}
+				</a>
+			))}
+		</div>
+	</WidgetLayout>
+)}
