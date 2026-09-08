@@ -29,12 +29,12 @@ function parseLocalDate(dateInput: string | Date | undefined): Date | null {
 		const parts = dateStr.split(/[-T:]/);
 		if (parts.length >= 3) {
 			return new Date(
-				Number.parseInt(parts[0]),
-				Number.parseInt(parts[1]) - 1,
-				Number.parseInt(parts[2]),
-				Number.parseInt(parts[3] || "0"),
-				Number.parseInt(parts[4] || "0"),
-				Number.parseInt(parts[5] || "0"),
+				Number.parseInt(parts[0], 10),
+				Number.parseInt(parts[1], 10) - 1,
+				Number.parseInt(parts[2], 10),
+				Number.parseInt(parts[3] || "0", 10),
+				Number.parseInt(parts[4] || "0", 10),
+				Number.parseInt(parts[5] || "0", 10),
 			);
 		}
 	}

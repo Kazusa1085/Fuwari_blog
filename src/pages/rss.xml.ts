@@ -1,13 +1,12 @@
 import { getImage } from "astro:assets";
-import { getCollection } from "astro:content";
-import { siteConfig } from "@/config";
-import { getSortedPosts } from "@/utils/content-utils";
-import rss from "@astrojs/rss";
 import type { RSSFeedItem } from "@astrojs/rss";
+import rss from "@astrojs/rss";
 import type { APIContext, ImageMetadata } from "astro";
 import MarkdownIt from "markdown-it";
 import { parse as htmlParser } from "node-html-parser";
 import sanitizeHtml from "sanitize-html";
+import { siteConfig } from "@/config";
+import { getSortedPosts } from "@/utils/content-utils";
 
 const markdownParser = new MarkdownIt();
 

@@ -1,6 +1,6 @@
+import { getCollection } from "astro:content";
 import fs from "node:fs";
 import path from "node:path";
-import { getCollection } from "astro:content";
 import type { APIRoute } from "astro";
 
 // 已提交URL记录文件路径

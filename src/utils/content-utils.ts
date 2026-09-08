@@ -38,12 +38,12 @@ export async function getTagList(): Promise<Tag[]> {
 	});
 
 	const countMap: { [key: string]: number } = {};
-	allBlogPosts.map((post: { data: { tags: string[] } }) => {
-		post.data.tags.map((tag: string) => {
+	for (const post of allBlogPosts) {
+		for (const tag of post.data.tags) {
 			if (!countMap[tag]) countMap[tag] = 0;
 			countMap[tag]++;
-		});
-	});
+		}
+	}
 
 	// sort tags
 	const keys: string[] = Object.keys(countMap).sort((a, b) => {
