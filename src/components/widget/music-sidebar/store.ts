@@ -28,11 +28,9 @@ class MusicPlayerStore {
 	private state: MusicPlayerState;
 	private config: MusicPlayerConfig | null = null;
 	private isInitialized = false;
-	private unregisterInteraction: (() => void) | undefined;
 	private listeners = new Set<(state: MusicPlayerState) => void>();
-	// 纯内部记账用，不对外广播，UI 不需要感知这两个字段
+	// 纯内部记账用，不对外广播，UI 不需要感知
 	private willAutoPlay = false;
-	private autoplayFailed = false;
 
 	constructor() {
 		this.state = this.createInitialState();
@@ -98,7 +96,6 @@ class MusicPlayerStore {
 		this.audio = new Audio();
 		this.setupAudioListeners();
 		this.loadVolumeFromStorage();
-		this.registerInteractionHandler();
 		await this.loadPlaylist();
 	}
 
@@ -162,7 +159,10 @@ class MusicPlayerStore {
 		this.showError("歌曲加载失败");
 
 		if (this.state.playlist.length > 1) {
-			setTimeout(() => this.next(true), SKIP_ERROR_DELAY);
+			// 只有用户本来就在播放时才自动跳到下一首；
+			// 首次加载失败时不要偷偷开始播放。
+			const shouldAutoPlay = this.state.isPlaying;
+			setTimeout(() => this.next(shouldAutoPlay), SKIP_ERROR_DELAY);
 		} else if (this.state.playlist.length <= 1) {
 			this.showError("播放列表为空");
 		}
@@ -171,8 +171,6 @@ class MusicPlayerStore {
 
 	// 播放列表加载完成后只是就绪（歌曲信息、封面、时长都会更新，音频也会
 	// 预加载缓冲），不会自动播放出声音——是否播放交给用户自己点播放按钮。
-	// autoplayFailed 这套机制目前用不上（因为不再主动尝试自动播放），保留着
-	// 是为了以后如果又想加回自动播放，不用重新设计这部分逻辑。
 	private handleAudioLoaded(): void {
 		this.state.isLoading = false;
 		if (this.audio?.duration && this.audio.duration > 1) {
@@ -183,14 +181,9 @@ class MusicPlayerStore {
 			};
 		}
 
-		if (this.willAutoPlay || this.state.isPlaying) {
-			const playPromise = this.audio?.play();
-			if (playPromise !== undefined) {
-				playPromise.catch(() => {
-					this.autoplayFailed = true;
-					this.state.isPlaying = false;
-				});
-			}
+		if (this.willAutoPlay) {
+			this.willAutoPlay = false;
+			this.audio?.play().catch(() => {});
 		}
 		this.broadcastState();
 	}
@@ -210,27 +203,6 @@ class MusicPlayerStore {
 				}
 			}
 		}
-	}
-
-	private registerInteractionHandler(): void {
-		const handler = () => {
-			if (this.autoplayFailed && this.audio) {
-				const playPromise = this.audio.play();
-				if (playPromise !== undefined) {
-					playPromise
-						.then(() => {
-							this.autoplayFailed = false;
-						})
-						.catch(() => {});
-				}
-			}
-		};
-		document.addEventListener("click", handler, { once: true });
-		document.addEventListener("keydown", handler, { once: true });
-		this.unregisterInteraction = () => {
-			document.removeEventListener("click", handler);
-			document.removeEventListener("keydown", handler);
-		};
 	}
 
 	private async loadPlaylist(): Promise<void> {
@@ -534,9 +506,6 @@ class MusicPlayerStore {
 	}
 
 	destroy(): void {
-		if (this.unregisterInteraction) {
-			this.unregisterInteraction();
-		}
 		if (this.audio) {
 			this.audio.pause();
 			this.audio.src = "";
