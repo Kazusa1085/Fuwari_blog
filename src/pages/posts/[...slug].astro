@@ -1,5 +1,6 @@
 ---
 import path from "node:path";
+import RelatedPosts from "@components/RelatedPosts.astro";
 import License from "@components/misc/License.astro";
 import Markdown from "@components/misc/Markdown.astro";
 
@@ -14,14 +15,41 @@ import { licenseConfig, profileConfig, siteConfig } from "../../config";
 import { formatDateToYYYYMMDD } from "../../utils/date-utils";
 
 export async function getStaticPaths() {
+	const relatedPostsLimit = 3;
 	const blogEntries = await getSortedPosts();
-	return blogEntries.map((entry) => ({
-		params: { slug: entry.id },
-		props: { entry },
-	}));
+	return blogEntries.map((entry) => {
+		const relatedByTag = blogEntries.filter(
+			(post) =>
+				post.id !== entry.id &&
+				post.data.tags.some((tag) => entry.data.tags.includes(tag)),
+		);
+
+		const related = relatedByTag.slice(0, relatedPostsLimit);
+
+		// 标签匹配不足时，用最新文章补足，保证每篇文章都有推荐内容。
+		if (related.length < relatedPostsLimit) {
+			for (const post of blogEntries) {
+				if (post.id === entry.id) continue;
+				if (related.some((item) => item.id === post.id)) continue;
+				related.push(post);
+				if (related.length === relatedPostsLimit) break;
+			}
+		}
+
+		return {
+			params: { slug: entry.id },
+			props: {
+				entry,
+				relatedPosts: related.map((post) => ({
+					id: post.id,
+					title: post.data.title,
+				})),
+			},
+		};
+	});
 }
 
-const { entry } = Astro.props;
+const { entry, relatedPosts = [] } = Astro.props;
 const { Content, headings, remarkPluginFrontmatter } = await render(entry);
 
 const jsonLd = {
@@ -531,6 +559,8 @@ const breadcrumbJsonLd = {
                  旧版 Go 编译器未做校验，Astro 7 的 Rust 编译器要求严格闭合） -->
             </div>
         </div>
+
+    <RelatedPosts posts={relatedPosts} />
 
     <div class="flex flex-col md:flex-row justify-between mb-4 gap-4 overflow-hidden w-full">
         <a href={entry.data.nextSlug ? getPostUrlBySlug(entry.data.nextSlug) : "#"}
