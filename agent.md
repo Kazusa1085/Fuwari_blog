@@ -162,6 +162,7 @@ Fuwari integrates IndexNow to automatically submit URLs to search engines (Bing,
 
 ### Implementation
 - **Scripts**: `scripts/submit-indexnow*.mjs`
+- **Key file**: `public/<INDEXNOW_KEY>.txt` must contain the key; verify `https://<host>/<INDEXNOW_KEY>.txt` returns HTTP 200 after deploy.
 - **State**: `.indexnow-submitted.json` (Do not commit)
 
 ---
