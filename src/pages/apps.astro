@@ -34,7 +34,7 @@ apps.sort((a, b) => {
       <a href={app.data.url}
          target={app.data.external ? "_blank" : undefined}
          rel={app.data.external ? "noopener noreferrer" : undefined}
-         class="card-base rounded-[var(--radius-large)] overflow-hidden group block hover:scale-[1.02] transition-transform duration-300">
+         class="card-base card-hoverable-scale rounded-[var(--radius-large)] overflow-hidden group block transition-transform duration-300">
         <div class="relative aspect-square bg-gradient-to-br from-black/5 to-black/10 dark:from-white/5 dark:to-white/10 flex items-center justify-center p-6">
           <div class="w-full h-full max-w-[120px] max-h-[120px] md:max-w-[140px] md:max-h-[140px] relative">
             <ImageWrapper src={app.data.image} alt={app.data.name} class="w-full h-full rounded-2xl shadow-lg group-hover:shadow-xl transition-shadow duration-300" fit="contain" dim={false} position="center" />

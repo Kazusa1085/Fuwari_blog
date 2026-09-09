@@ -19,6 +19,18 @@
         -webkit-transform: translateZ(0);
         transform: translateZ(0);
     }
+
+    /*
+     * .card-base 是无 layer 规则，Tailwind 的 hover:bg-* / hover:scale-* 工具类
+     * 会被它内部的 background-color / transform 覆盖。需要这类效果时使用下面
+     * 两个显式类，而不是在 .card-base 上叠加工具类。
+     */
+    .card-hoverable:hover {
+        background-color: var(--btn-card-bg-hover);
+    }
+    .card-hoverable-scale:hover {
+        transform: translateZ(0) scale(1.02);
+    }
     
     /* 增加毛玻璃效果工具类 */
     .glass-effect {

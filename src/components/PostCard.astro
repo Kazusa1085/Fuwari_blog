@@ -194,42 +194,19 @@ const { remarkPluginFrontmatter } = await render(entry);
             updateStatsUI(slug, pageViews, visitors);
             return;
         }
-        
+
         try {
-            // 调用全局工具获取 Umami 分享数据
-            const { websiteId, token } = await getUmamiShareData(umamiConfig.baseUrl, umamiConfig.shareId);
-            
-            // 第二步：获取统计数据（使用 path 参数过滤特定页面）
-            const currentTimestamp = Date.now();
-            const pagePath = encodeURIComponent(`eq./posts/${slug}/`);
-            const statsUrl = `${umamiConfig.baseUrl}/api/websites/${websiteId}/stats?startAt=0&endAt=${currentTimestamp}&unit=hour&timezone=${encodeURIComponent(umamiConfig.timezone)}&path=${pagePath}`;
-            
-            const statsResponse = await fetch(statsUrl, {
-                headers: {
-                    'x-umami-share-token': token,
-                    'x-umami-share-context': 'true'
-                }
+            const stats = await window.getUmamiStats(umamiConfig, {
+                path: `/posts/${slug}/`,
             });
-            
-            if (statsResponse.status === 401) {
-                clearUmamiShareCache();
-                return await fetchPostCardViews(slug);
-            }
-            
-            if (!statsResponse.ok) {
-                throw new Error('获取统计数据失败');
-            }
-            
-            const statsData = await statsResponse.json();
-            const pageViews = statsData.pageviews || 0;
-            const visitors = statsData.visitors || 0; // 修复: 使用 visitors 而非 visits
-            
+            const pageViews = stats?.pageviews ?? 0;
+            const visitors = stats?.visitors ?? 0;
+
             // 2. 写入缓存
             window.umamiCache[slug] = { pageViews, visitors };
-            
+
             // 3. 更新 UI
             updateStatsUI(slug, pageViews, visitors);
-
         } catch (error) {
             console.error('Error fetching page views for', slug, ':', error);
             updateStatsUI(slug, '-', '-');

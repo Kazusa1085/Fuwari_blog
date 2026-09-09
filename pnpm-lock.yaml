@@ -161,9 +161,6 @@ importers:
       sharp:
         specifier: ^0.35.4
         version: 0.35.4(@types/node@26.5.0)
-      sql.js:
-        specifier: ^1.14.2
-        version: 1.14.2
       stylus:
         specifier: ^0.64.0
         version: 0.64.0
@@ -4722,9 +4719,6 @@ packages:
 
   space-separated-tokens@2.0.2:
     resolution: {integrity: sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q==}
-
-  sql.js@1.14.2:
-    resolution: {integrity: sha512-3ZGPovObMFrdw79zrUHbfdE/DLIsy8jdNdssmMSQuRAymedU6q84asPt0kgiqrdMYlPegDItiIMfmIXzZnYFcw==}
 
   stable@0.1.8:
     resolution: {integrity: sha512-ji9qxRnOVfcuLDySj9qzhGSEFVobyt1kIOSkj1qZzYLzq7Tos/oUUWvotUPQLlrsidqsK6tBH89Bc9kL5zHA6w==}
@@ -10878,8 +10872,6 @@ snapshots:
   sourcemap-codec@1.4.8: {}
 
   space-separated-tokens@2.0.2: {}
-
-  sql.js@1.14.2: {}
 
   stable@0.1.8: {}
 

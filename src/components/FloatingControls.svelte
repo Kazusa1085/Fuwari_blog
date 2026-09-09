@@ -1,5 +1,6 @@
 <script lang="ts">
 import { onMount } from "svelte";
+import BackToTopButton from "./control/BackToTopButton.svelte";
 
 // 排序模式
 type SortMode = "published" | "updated" | "views";
@@ -11,7 +12,6 @@ const sortModes: { key: SortMode; label: string; icon: string }[] = [
 
 let currentSortIndex = 0;
 let isBackgroundHidden = false;
-let showBackToTop = false;
 let isHomePage = false;
 let isHotPage = false;
 let isPostPage = false;
@@ -141,11 +141,6 @@ function scrollToComments() {
 	}
 }
 
-// 返回顶部
-function backToTop() {
-	window.scroll({ top: 0, behavior: "smooth" });
-}
-
 // 应用保存的排序状态
 function applySavedSort() {
 	const currentPath = window.location.pathname;
@@ -258,12 +253,6 @@ onMount(() => {
 	document.addEventListener("swup:enable", registerSwupHooks);
 	document.addEventListener("swup:contentReplaced", handleSwupContentReplace);
 
-	// 监听滚动显示返回顶部按钮
-	const handleScroll = () => {
-		showBackToTop = window.scrollY > 300;
-	};
-	window.addEventListener("scroll", handleScroll, { passive: true });
-
 	// ESC 退出背景模式
 	const handleKeyDown = (e: KeyboardEvent) => {
 		if (e.key === "Escape" && isBackgroundHidden) {
@@ -273,7 +262,6 @@ onMount(() => {
 	window.addEventListener("keydown", handleKeyDown);
 
 	return () => {
-		window.removeEventListener("scroll", handleScroll);
 		window.removeEventListener("keydown", handleKeyDown);
 		document.removeEventListener("swup:enable", registerSwupHooks);
 		document.removeEventListener(
@@ -429,27 +417,7 @@ onMount(() => {
 
   <!-- 返回顶部按钮 -->
   {#if !isBackgroundHidden}
-    <button
-      class="control-btn back-to-top"
-      class:show={showBackToTop}
-      on:click={backToTop}
-      aria-label="返回顶部"
-      title="返回顶部"
-    >
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="20"
-        height="20"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <polyline points="18 15 12 9 6 15"></polyline>
-      </svg>
-    </button>
+    <BackToTopButton />
   {/if}
 </div>
 
@@ -515,18 +483,6 @@ onMount(() => {
     background: rgba(255, 255, 255, 0.25);
     border-color: rgba(255, 255, 255, 0.5);
     transform: scale(1.1);
-  }
-
-  .control-btn.back-to-top {
-    opacity: 0;
-    pointer-events: none;
-    transform: translateY(10px);
-  }
-
-  .control-btn.back-to-top.show {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateY(0);
   }
 
   @keyframes pulse {
