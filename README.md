@@ -95,7 +95,6 @@ src/
 └── plugins/           # 🔌 Rehype/Remark 插件
 scripts/
 ├── new-post.js        # ✍️ 创建新文章脚本
-├── migrate-from-sqlite.mjs  # 📥 SQLite 数据迁移
 └── submit-indexnow*.mjs     # 🔍 IndexNow 推送脚本
 ```
 

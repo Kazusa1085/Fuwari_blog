@@ -162,7 +162,6 @@ Fuwari integrates IndexNow to automatically submit URLs to search engines (Bing,
 
 ### Implementation
 - **Scripts**: `scripts/submit-indexnow*.mjs`
-- **API**: `src/pages/api/indexnow.ts`
 - **State**: `.indexnow-submitted.json` (Do not commit)
 
 ---
@@ -199,6 +198,8 @@ Implemented in `src/pages/posts/[...slug].astro`.
 
 ## Development Conventions
 - **Styling**: Use Tailwind CSS utilities. Custom styles in `src/styles/`.
+- **CSS entrypoints**: `src/layouts/Layout.astro` imports `src/styles/global.css`; the other `src/styles/*.css` / `*.styl` files are processed as part of the Astro/Tailwind CSS graph. When adding or removing style files, verify the build output and prefer explicit imports instead of relying on implicit loading.
+- **Component CSS layers**: component classes in `main.css` (`.card-base`, `.link`, etc.) are unlayered and therefore override Tailwind utilities. Do not combine `.link` / `.card-base` with padding, background, or transform utilities; use the dedicated `.card-hoverable` / `.card-hoverable-scale` classes instead.
 - **Logic**: Use Svelte for interactivity, Astro for static content.
 - **Path Aliases**:
     - `@components/*` -> `src/components/*`

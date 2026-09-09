@@ -17,49 +17,35 @@ const slugs = popularPosts.map((p) => p.slug);
   ))}
 </div>
 <script define:vars={{ slugs, umamiConfig }}>
-(function() {
+(async function() {
   if (!umamiConfig.enable) return;
 
-  function updateViews() {
-    window.umamiCache = window.umamiCache || {};
-    const currentTimestamp = Date.now();
+  window.umamiCache = window.umamiCache || {};
 
-    getUmamiShareData(umamiConfig.baseUrl, umamiConfig.shareId).then(({ websiteId, token }) => {
-      slugs.forEach(slug => {
-        // Use cache if available
-        if (window.umamiCache[slug]) {
-          const el = document.querySelector(`[data-popular-views="${slug}"]`);
-          if (el) el.textContent = window.umamiCache[slug].pageViews.toString();
-          return;
-        }
-
-        const pagePath = encodeURIComponent(`eq./posts/${slug}/`);
-        const statsUrl = `${umamiConfig.baseUrl}/api/websites/${websiteId}/stats?startAt=0&endAt=${currentTimestamp}&unit=hour&timezone=${encodeURIComponent(umamiConfig.timezone)}&path=${pagePath}`;
-
-        fetch(statsUrl, { headers: { 'x-umami-share-token': token, 'x-umami-share-context': 'true' } })
-          .then(res => {
-            if (res.status === 401) {
-              clearUmamiShareCache();
-              return null;
-            }
-            return res.ok ? res.json() : null;
-          })
-          .then(data => {
-            if (!data) return;
-            const pageViews = data.pageviews || 0;
-            window.umamiCache[slug] = { pageViews, visitors: data.visitors || 0 };
-            const el = document.querySelector(`[data-popular-views="${slug}"]`);
-            if (el) el.textContent = pageViews.toString();
-          })
-          .catch(() => {});
-      });
-    }).catch(() => {});
+  function updateView(slug, pageViews) {
+    const el = document.querySelector(`[data-popular-views="${slug}"]`);
+    if (el) el.textContent = pageViews.toString();
   }
 
-  if (typeof getUmamiShareData === 'function') {
-    updateViews();
-  } else {
-    window.addEventListener('load', updateViews);
+  for (const slug of slugs) {
+    if (window.umamiCache[slug]) {
+      updateView(slug, window.umamiCache[slug].pageViews);
+      continue;
+    }
+
+    try {
+      const stats = await window.getUmamiStats(umamiConfig, {
+        path: `/posts/${slug}/`,
+      });
+      const pageViews = stats?.pageviews ?? 0;
+      window.umamiCache[slug] = {
+        pageViews,
+        visitors: stats?.visitors ?? 0,
+      };
+      updateView(slug, pageViews);
+    } catch {
+      // 单个 slug 失败不影响其他条目
+    }
   }
 })();
 </script>

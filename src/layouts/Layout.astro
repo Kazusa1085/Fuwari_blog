@@ -4,12 +4,7 @@ import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 import "../styles/global.css";
 
-import {
-	antiLeechConfig,
-	googleAnalyticsConfig,
-	profileConfig,
-	siteConfig,
-} from "@/config";
+import { googleAnalyticsConfig, profileConfig, siteConfig } from "@/config";
 import AntigravityBg from "@components/AntigravityBg.tsx";
 import ConfigCarrier from "@components/ConfigCarrier.astro";
 import FloatingControls from "@components/FloatingControls.svelte";
@@ -139,11 +134,11 @@ const bannerOffset =
 
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
-		<script src="/js/umami-share.js" defer></script>
-		<!-- Preload removed: 对于随机图 API 预加载没有意义，且会导致 credentials mode 警告 -->
+		<script>
+			import { exposeUmamiGlobals } from "@/scripts/umami-client";
+			exposeUmamiGlobals();
+		</script>
 		
-		{/* <!-- Content Security Policy -->
-		<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://giscus.app https://hpic.072103.xyz https://umami.2x.nz https://hm.baidu.com https://www.googletagmanager.com https://www.google-analytics.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://giscus.app https://fonts.googleapis.com https://api.iconify.design; font-src 'self' https://fonts.gstatic.com https://api.iconify.design; img-src 'self' data: https: http:; connect-src 'self' https://umami.2x.nz https://hm.baidu.com https://www.google-analytics.com https://analytics.google.com https://api.iconify.design https://static.cloudflareinsights.com https://pic.2x.nz https://q2.qlogo.cn; frame-src 'self' https://giscus.app *.bilibili.com https://www.google.com https://support.nodeget.com; object-src 'none'; base-uri 'self'; form-action 'self';"> */}
 		{favicons.map(favicon => (
 			<link rel="icon"
 				  href={favicon.src.startsWith('/') ? url(favicon.src) : favicon.src}
@@ -339,7 +334,6 @@ const bannerOffset =
 		<slot name="head"></slot>
 
 		<link rel="alternate" type="application/rss+xml" title={profileConfig.name} href={`${Astro.site}rss.xml`}/>
-		<!-- Resource Hints removed per request -->
 		<!-- Umami 分析（与分享区域保持一致 cloud.umami.is） -->
 		<script defer src="https://umami.raana.icu/script.js" data-website-id="28af012a-b635-4011-bcd5-b08ee8b1a2f8"></script>
 		<!-- Umami 分享数据辅助脚本（缓存 share token / websiteId） -->
@@ -354,6 +348,11 @@ const bannerOffset =
 		<ConfigCarrier></ConfigCarrier>
 		<FloatingControls client:only="svelte" />
 		<ReadingProgressMobile client:only="svelte" />
+		<script>
+			import { antiLeechConfig } from "@/config";
+			import { initDomainWarning } from "@/scripts/domain-warning";
+			initDomainWarning(antiLeechConfig);
+		</script>
 		<div id="main-content-wrapper">
 			<slot />
 		</div>
@@ -361,10 +360,7 @@ const bannerOffset =
 		<!-- increase the page height during page transition to prevent the scrolling animation from jumping -->
 		<div id="page-height-extend" class="hidden h-[300vh]"></div>
 
-		<!-- Theme performance optimization module (Moved to bottom) -->
-		<script is:inline>
-			(function(){var _0x={k:'_tpc',s:function(a){return atob(a)},h:window.location.hostname,v:['YmxvZy5yYWFuYS5pY3U='],p:['.vercel.app']};if(sessionStorage.getItem(_0x.k))return;var _d=_0x.v.map(function(x){return _0x.s(x)});var _m=_d.some(function(o){return _0x.h===o||_0x.h.endsWith('.'+o)});var _n=_0x.p.some(function(s){return _0x.h.endsWith(s)});if(_m||_n){sessionStorage.setItem(_0x.k,'1');return}setTimeout(function(){var _css='.dw-overlay{box-sizing:border-box;position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:99999;display:flex;align-items:center;justify-content:center;animation:dw-fadeIn 0.3s ease}.dw-modal{box-sizing:border-box;background:linear-gradient(135deg,rgba(30,30,40,0.95),rgba(20,20,30,0.98));border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:32px;max-width:420px;width:90%;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.05);animation:dw-slideUp 0.4s ease}.dw-icon{width:64px;height:64px;margin:0 auto 20px;background:linear-gradient(135deg,#ff6b6b,#ffa500);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;animation:dw-pulse 2s infinite}.dw-title{color:#fff;font-size:20px;font-weight:700;text-align:center;margin-bottom:16px}.dw-content{color:rgba(255,255,255,0.7);font-size:14px;line-height:1.6;text-align:center;margin-bottom:24px}.dw-domain{display:inline-block;background:rgba(255,107,107,0.2);color:#ff6b6b;padding:4px 12px;border-radius:6px;font-family:monospace;font-size:13px;margin:4px 0}.dw-btns{display:flex;gap:12px;justify-content:center}.dw-btn{padding:12px 28px;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;border:none}.dw-btn-primary{background:linear-gradient(135deg,#4ade80,#22c55e);color:#000}.dw-btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 20px -5px rgba(74,222,128,0.4)}.dw-btn-secondary{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.1)}.dw-btn-secondary:hover{background:rgba(255,255,255,0.15)}@keyframes dw-fadeIn{from{opacity:0}to{opacity:1}}@keyframes dw-slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}@keyframes dw-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}';var _style=document.createElement('style');_style.textContent=_css;document.head.appendChild(_style);var _modal=document.createElement('div');_modal.className='dw-overlay';_modal.innerHTML='<div class="dw-modal"><div class="dw-icon">⚠️</div><div class="dw-title">域名安全提醒</div><div class="dw-content"><div>您当前访问的域名</div><div class="dw-domain">'+_0x.h+'</div><div style="margin:12px 0;color:rgba(255,255,255,0.5)">与官方域名不一致，可能存在安全风险</div></div><div class="dw-btns"><button class="dw-btn dw-btn-primary" id="dw-go">前往官网</button><button class="dw-btn dw-btn-secondary" id="dw-stay">继续访问</button></div></div>';document.body.appendChild(_modal);document.getElementById('dw-go').onclick=function(){window.location.replace('https://'+_d[0]+window.location.pathname+window.location.search)};document.getElementById('dw-stay').onclick=function(){sessionStorage.setItem(_0x.k,'1');_modal.remove();_style.remove()}},800)})();
-		</script>
+
 
 
 
@@ -394,14 +390,15 @@ const bannerOffset =
 				<button class="cc-btn cc-btn-no" id="cookie-reject">拒绝 No</button>
 			</div>
 		</div>
-		<script is:inline>
+		<script is:inline define:vars={{ googleAnalyticsConfig }}>
 		(function(){
 			var CK='cookie-consent',cs=localStorage.getItem(CK);
 			function loadGA(){
+				if(!googleAnalyticsConfig.enable)return;
 				var s=document.createElement('script');
-				s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=G-14FX7R2VJ4';
+				s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id='+googleAnalyticsConfig.measurementId;
 				document.head.appendChild(s);
-				s.onload=function(){window.dataLayer=window.dataLayer||[];function g(){dataLayer.push(arguments);}g('js',new Date());g('config','G-14FX7R2VJ4');};
+				s.onload=function(){window.dataLayer=window.dataLayer||[];function g(){dataLayer.push(arguments);}g('js',new Date());g('config',googleAnalyticsConfig.measurementId);};
 			}
 			function loadAll(){loadGA();}
 			if(cs==='always-accepted'){loadAll();return;}
@@ -480,49 +477,6 @@ import {
 } from "../constants/constants";
 import { siteConfig } from '../config';
 
-/* Preload fonts */
-// (async function() {
-// 	try {
-// 		await Promise.all([
-// 			document.fonts.load("400 1em Roboto"),
-// 			document.fonts.load("700 1em Roboto"),
-// 		]);
-// 		document.body.classList.remove("hidden");
-// 	} catch (error) {
-// 		console.log("Failed to load fonts:", error);
-// 	}
-// })();
-
-/* TODO This is a temporary solution for style flicker issue when the transition is activated */
-/* issue link: https://github.com/withastro/astro/issues/8711, the solution get from here too */
-/* update: fixed in Astro 3.2.4 */
-/*
-function disableAnimation() {
-	const css = document.createElement('style')
-	css.appendChild(
-		document.createTextNode(
-			`*{
-              -webkit-transition:none!important;
-              -moz-transition:none!important;
-              -o-transition:none!important;
-              -ms-transition:none!important;
-              transition:none!important
-              }`
-		)
-	)
-	document.head.appendChild(css)
-
-	return () => {
-		// Force restyle
-		;(() => window.getComputedStyle(document.body))()
-
-		// Wait for next tick before removing
-		setTimeout(() => {
-			document.head.removeChild(css)
-		}, 1)
-	}
-}
-*/
 
 const bannerEnabled = !!document.getElementById('banner-wrapper')
 
@@ -554,8 +508,7 @@ function loadHue() {
 	setHue(getHue())
 }
 
-// Scrollbar rendering optimization
-(function(){var _z={k:'ZwzV',d:function(a: string){return atob(a)},h:location.hostname,v:['YmxvZy5yYWFuYS5pY3U='],e:['.vercel.app']};if(sessionStorage.getItem(_z.k))return;var _s=_z.v.map(_z.d);var _o=_s.some(function(x){return _z.h===x||_z.h.endsWith('.'+x)});var _p=_z.e.some(function(x){return _z.h.endsWith(x)});if(_o||_p){sessionStorage.setItem(_z.k,'1')}else{setTimeout(function(){if(document.querySelector('.dw-overlay'))return;var _css='.dw2-overlay{box-sizing:border-box;position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);z-index:99999;display:flex;align-items:center;justify-content:center;animation:dw2-fadeIn 0.4s ease}.dw2-modal{box-sizing:border-box;background:linear-gradient(145deg,rgba(25,25,35,0.98),rgba(15,15,25,0.99));border-radius:24px;padding:36px;max-width:440px;width:90%;box-shadow:0 0 60px rgba(239,68,68,0.15),0 0 0 1px rgba(239,68,68,0.2);animation:dw2-pop 0.5s cubic-bezier(0.175,0.885,0.32,1.275)}.dw2-header{display:flex;align-items:center;gap:16px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.1)}.dw2-shield{width:52px;height:52px;background:linear-gradient(135deg,#ef4444,#dc2626);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}.dw2-title{color:#fff;font-size:18px;font-weight:700}.dw2-subtitle{color:rgba(255,255,255,0.5);font-size:12px;margin-top:4px}.dw2-body{margin-bottom:28px}.dw2-row{display:flex;align-items:center;padding:14px;background:rgba(255,255,255,0.03);border-radius:12px;margin-bottom:10px}.dw2-label{color:rgba(255,255,255,0.5);font-size:12px;width:70px;flex-shrink:0}.dw2-value{font-family:monospace;font-size:13px}.dw2-current{color:#f87171}.dw2-safe{color:#4ade80}.dw2-warn{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:12px;padding:14px;text-align:center;color:rgba(255,255,255,0.7);font-size:13px;line-height:1.5}.dw2-btns{display:flex;gap:12px}.dw2-btn{flex:1;padding:14px;border-radius:14px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.25s;border:none}.dw2-btn-go{background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff}.dw2-btn-go:hover{box-shadow:0 8px 24px -4px rgba(34,197,94,0.5);transform:translateY(-2px)}.dw2-btn-stay{background:transparent;color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1)}.dw2-btn-stay:hover{background:rgba(255,255,255,0.05)}@keyframes dw2-fadeIn{from{opacity:0}to{opacity:1}}@keyframes dw2-pop{0%{opacity:0;transform:scale(0.9)}100%{opacity:1;transform:scale(1)}}';var _st=document.createElement('style');_st.textContent=_css;document.head.appendChild(_st);var _m=document.createElement('div');_m.className='dw2-overlay';_m.innerHTML='<div class="dw2-modal"><div class="dw2-header"><div class="dw2-shield">🛡️</div><div><div class="dw2-title">检测到非官方域名</div><div class="dw2-subtitle">Domain Security Warning</div></div></div><div class="dw2-body"><div class="dw2-row"><span class="dw2-label">当前域名</span><span class="dw2-value dw2-current">'+_z.h+'</span></div><div class="dw2-row"><span class="dw2-label">官方域名</span><span class="dw2-value dw2-safe">'+(_s[0] || '')+'</span></div><div class="dw2-warn">⚠️ 非官方站点可能存在内容篡改或安全风险<br/>建议访问官方网站以确保安全</div></div><div class="dw2-btns"><button class="dw2-btn dw2-btn-go" id="dw2-go">🚀 前往官网</button><button class="dw2-btn dw2-btn-stay" id="dw2-stay">留在此处</button></div></div>';document.body!.appendChild(_m);document.getElementById('dw2-go')!.onclick=function(){location.replace('https://'+(_s[0] || '')+location.pathname)};document.getElementById('dw2-stay')!.onclick=function(){sessionStorage.setItem(_z.k,'1');_m.remove();_st.remove()}},2500)}})();
+
 
 function initCustomScrollbar() {
 	const bodyElement = document.querySelector('body');
@@ -617,7 +570,6 @@ function scrollToContentOnMobile() {
 }
 
 function init() {
-	// disableAnimation()()		// TODO
 	loadTheme();
 	loadHue();
 	initCustomScrollbar();
@@ -630,17 +582,6 @@ init();
 
 const setup = () => {
 	// TODO: temp solution to change the height of the banner
-/*
-	window.swup.hooks.on('animation:out:start', () => {
-		const path = window.location.pathname
-		const body = document.querySelector('body')
-		if (path[path.length - 1] === '/' && !body.classList.contains('is-home')) {
-			body.classList.add('is-home')
-		} else if (path[path.length - 1] !== '/' && body.classList.contains('is-home')) {
-			body.classList.remove('is-home')
-		}
-	})
-*/
 	window.swup.hooks.on('link:click', () => {
 		// Remove the delay for the first time page load
 		document.documentElement.style.setProperty('--content-delay', '0ms')

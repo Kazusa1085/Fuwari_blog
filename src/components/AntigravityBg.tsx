@@ -345,8 +345,6 @@ const Antigravity = (props: any) => {
 		return () => window.removeEventListener("resize", handleResize);
 	}, []);
 
-	const particleColor = isDarkMode ? "#38bdf8" : "#0284c7";
-
 	return (
 		<div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
 			<div className="absolute inset-0 z-10 w-full h-full">
