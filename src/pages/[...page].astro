@@ -6,6 +6,7 @@ import { profileConfig, siteConfig } from "../config";
 import { PAGE_SIZE } from "../constants/constants";
 import MainGridLayout from "../layouts/MainGridLayout.astro";
 import { getSortedPosts } from "../utils/content-utils";
+import { buildMetaDescription } from "../utils/seo-utils";
 
 const homeJsonLd = {
 	"@context": "https://schema.org",
@@ -29,7 +30,17 @@ export const getStaticPaths = (async ({ paginate }) => {
 const { page } = Astro.props;
 
 const pageDescription =
-	page.currentPage === 1 ? "文章列表。" : `文章列表第 ${page.currentPage} 页。`;
+	page.currentPage === 1
+		? buildMetaDescription({
+				description: siteConfig.description,
+				siteName: siteConfig.title,
+				subtitle: siteConfig.subtitle,
+			})
+		: buildMetaDescription({
+				description: `技术文章列表第 ${page.currentPage} 页。${siteConfig.description}`,
+				siteName: siteConfig.title,
+				subtitle: siteConfig.subtitle,
+			});
 
 const len = page.data.length;
 ---

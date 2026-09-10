@@ -13,7 +13,8 @@ import { LinkPreset } from "./types/config";
 export const siteConfig: SiteConfig = {
 	title: "Kazusa酱的猫窝",
 	subtitle: "踩坑记录&碎碎念",
-	description: "什么都写.exe",
+	description:
+		"Kazusa酱的猫窝，记录技术踩坑、开发笔记与生活碎碎念。内容涵盖 Unity 开发、AI 技术应用、服务器部署、OpenWRT 路由器刷机、Github API、前端工程化、工具软件与数码折腾等原创教程和实战经验，持续分享实用技巧、问题解决方案与日常折腾记录，欢迎一起交流学习，也欢迎在评论区留言交流。",
 
 	keywords: [],
 	lang: "zh_CN", // 'en', 'zh_CN', 'zh_TW', 'ja', 'ko', 'es', 'th'
