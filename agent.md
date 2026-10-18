@@ -137,7 +137,7 @@ Each friend link is a JSON file in `content/friends/`（同上，来自 Blog_Arc
 | :--- | :--- |
 | **Verify Changed Files** | Whitelist check: only `friends/<name>.json` allowed; `_order.json` modification blocked. Outputs `status`/`detail` without exiting on failure. |
 | **Validate JSON Content** | Schema validation (required fields, URL format, XSS check, no extra fields, 2KB size limit). Collects all errors before reporting. |
-| **Check Backlink** | Fetches `friendsPage` URL, checks for `href` containing `www.micostar.cc`. Outputs per-entry results. |
+| **Check Backlink** | Fetches `friendsPage` URL, checks for `href` containing `blog.raana.icu`. Outputs per-entry results. |
 | **Gate Check** | Aggregates results from above 3 steps. Only proceeds to Build/Merge if all pass. |
 | **Build Check** | Checks out this repo (Fuwari_blog) into a subdirectory, injects the PR's posts/friends/projects into its `content/`, then runs `pnpm build` there (skipped if Gate fails). |
 | **Auto Merge** | Squash merge with welcome message (skipped if Gate or Build fails) |
