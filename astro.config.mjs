@@ -30,6 +30,43 @@ import { pluginLineNumbers } from "@expressive-code/plugin-line-numbers";
 import { expressiveCodeConfig } from "./src/config.ts";
 import { pluginLanguageBadge } from "./src/plugins/expressive-code/language-badge.js";
 import { pluginCustomCopyButton } from "./src/plugins/expressive-code/custom-copy-button.js";
+import fs from "node:fs";
+import path from "node:path";
+
+// Content lives outside the Git repository; read post frontmatter so the
+// sitemap can carry a truthful <lastmod> instead of no timestamp at all.
+const contentPostsDir = path.join(process.cwd(), "content", "posts");
+const postLastmod = new Map();
+let latestPostDate;
+function collectPostLastmods(dir) {
+	for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+		const full = path.join(dir, entry.name);
+		if (entry.isDirectory()) {
+			collectPostLastmods(full);
+			continue;
+		}
+		if (!entry.isFile() || !entry.name.endsWith(".md")) continue;
+		const text = fs.readFileSync(full, "utf8");
+		const frontmatter = text.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+		if (!frontmatter) continue;
+		if (/^draft:\s*true\s*$/m.test(frontmatter[1])) continue;
+		const dateMatch =
+			frontmatter[1].match(/^updated:\s*(\d{4}-\d{2}-\d{2})/m) ||
+			frontmatter[1].match(/^published:\s*(\d{4}-\d{2}-\d{2})/m);
+		if (!dateMatch) continue;
+		const date = new Date(dateMatch[1] + "T00:00:00Z");
+		if (Number.isNaN(date.getTime())) continue;
+		const slug = path.relative(contentPostsDir, full).replace(/\.md$/, "").replace(/\\/g, "/");
+		postLastmod.set("/posts/" + slug + "/", date.toISOString());
+		if (!latestPostDate || date.toISOString() > latestPostDate)
+			latestPostDate = date.toISOString();
+	}
+}
+try {
+	if (fs.existsSync(contentPostsDir)) collectPostLastmods(contentPostsDir);
+} catch (error) {
+	console.warn("[sitemap] failed to read content/post dates:", error.message);
+}
 
 // https://astro.build/config
 export default defineConfig({
@@ -81,16 +118,31 @@ export default defineConfig({
             "simple-icons": ["*"],
         },
     }), svelte(), sitemap({
-        // 添加 sitemap 配置,确保格式正确
+        // /about/ only exists as a static meta-refresh fallback; the CDN
+        // redirects handle it, so it must not appear in the sitemap.
+        filter: (page) => {
+            const pathname = new URL(page).pathname;
+            return pathname !== "/about" && pathname !== "/about/";
+        },
+        // Add lastmod from the real post dates (updated || published).
         serialize(item) {
-            // 移除尾部斜杠(可选,根据您的 URL 结构)
-            // item.url = item.url.replace(/\/$/, '');
+            const pathname = new URL(item.url).pathname;
+            const date =
+                postLastmod.get(pathname) ??
+                (pathname === "/" ||
+                pathname === "/archive/" ||
+                pathname === "/hot/" ||
+                pathname === "/friends/" ||
+                pathname === "/apps/" ||
+                pathname === "/works/" ||
+                pathname.startsWith("/archive/tag/")
+                    ? latestPostDate
+                    : undefined);
+            if (date) item.lastmod = date;
             return item;
         },
-        // 可以添加 changefreq 和 priority
         changefreq: 'weekly',
         priority: 0.7,
-        // 确保所有 URL 都是绝对路径
         customPages: [],
     }),
     expressiveCode({
