@@ -15,7 +15,7 @@ function initFilterTabs(reset?: boolean): void {
 		const filterAttr = tabs[0]?.dataset.filterAttr;
 		if (!filterAttr) return;
 
-		const dataSelector = "[data-" + filterAttr + "]";
+		const dataSelector = `[data-${filterAttr}]`;
 		const parent: HTMLElement =
 			(container.closest(".card-base") as HTMLElement | null) ??
 			(document as unknown as HTMLElement);
