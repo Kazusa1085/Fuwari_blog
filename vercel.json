@@ -4,10 +4,10 @@
   "devCommand": "pnpm dev",
   "installCommand": "pnpm install",
   "framework": "astro",
-  "regions": ["hkg1"],
-
+  "regions": [
+    "hkg1"
+  ],
   "cleanUrls": false,
-
   "headers": [
     {
       "source": "/sitemap-index.xml",
@@ -58,15 +58,6 @@
       ]
     },
     {
-      "source": "/:path*\\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
-    },
-    {
       "source": "/:path*",
       "headers": [
         {
@@ -86,6 +77,73 @@
           "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self' 'unsafe-inline' https://umami.raana.icu https://www.googletagmanager.com https://www.google-analytics.com https://giscus.app https://fastly.jsdelivr.net https://api.iconify.design; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https:; frame-src https://giscus.app https://www.youtube.com https://player.bilibili.com; worker-src 'self' blob:; form-action 'self'"
         }
       ]
+    },
+    {
+      "source": "/_astro/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/favicon/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        }
+      ]
+    },
+    {
+      "source": "/cdn/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        }
+      ]
+    },
+    {
+      "source": "/music/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=300, s-maxage=86400"
+        }
+      ]
+    },
+    {
+      "source": "/uploads/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=300, s-maxage=86400"
+        }
+      ]
+    },
+    {
+      "source": "/js/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=300, s-maxage=86400"
+        }
+      ]
+    },
+    {
+      "source": "/sitemap.xml",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/xml; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, s-maxage=3600"
+        }
+      ]
     }
   ],
   "rewrites": [
@@ -95,12 +153,40 @@
     }
   ],
   "redirects": [
-    { "source": "/posts/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/", "destination": "/", "permanent": true },
-    { "source": "/posts/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2", "destination": "/", "permanent": true },
-    { "source": "/posts/%E3%80%90%E5%A4%87%E9%80%89%E7%94%A8%E4%B8%8D%E4%B8%BA%E5%AE%9E%E9%99%85%E5%87%BA%E7%8E%B0%E3%80%91", "destination": "/", "permanent": true },
-    { "source": "/posts/vercel%E9%83%A8%E7%BD%B2%E6%8C%87%E5%8D%97/", "destination": "/", "permanent": true },
-    { "source": "/posts/vercel%E9%83%A8%E7%BD%B2%E6%8C%87%E5%8D%97", "destination": "/", "permanent": true },
-    { "source": "/606", "destination": "https://lizard-parcel-a96.notion.site/2685723cc6b580da93ded9f42eeb8d08?pvs=74", "permanent": true },
-    { "source": "/608", "destination": "https://cloudrunmax.top/s/QpcO/608", "permanent": true }
+    {
+      "source": "/posts/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/posts/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E5%8D%9A%E5%AE%A2",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/posts/%E3%80%90%E5%A4%87%E9%80%89%E7%94%A8%E4%B8%8D%E4%B8%BA%E5%AE%9E%E9%99%85%E5%87%BA%E7%8E%B0%E3%80%91",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/posts/vercel%E9%83%A8%E7%BD%B2%E6%8C%87%E5%8D%97/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/posts/vercel%E9%83%A8%E7%BD%B2%E6%8C%87%E5%8D%97",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/606",
+      "destination": "https://lizard-parcel-a96.notion.site/2685723cc6b580da93ded9f42eeb8d08?pvs=74",
+      "permanent": true
+    },
+    {
+      "source": "/608",
+      "destination": "https://cloudrunmax.top/s/QpcO/608",
+      "permanent": true
+    }
   ]
 }

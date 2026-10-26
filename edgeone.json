@@ -11,11 +11,11 @@
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "public, s-maxage=86400, max-age=86400"
+          "value": "public, max-age=0, s-maxage=60"
         },
         {
           "key": "Pages-Cache-Control",
-          "value": "s-maxage=3600"
+          "value": "s-maxage=60"
         },
         {
           "key": "X-Content-Type-Options",
@@ -97,7 +97,7 @@
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
+          "value": "public, max-age=86400"
         }
       ]
     },
@@ -115,7 +115,7 @@
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
+          "value": "public, max-age=300, s-maxage=86400"
         }
       ]
     },
@@ -124,7 +124,29 @@
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
+          "value": "public, max-age=300, s-maxage=86400"
+        }
+      ]
+    },
+    {
+      "source": "/cdn/*",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        }
+      ]
+    },
+    {
+      "source": "/sitemap.xml",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/xml; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, s-maxage=3600"
         }
       ]
     }
