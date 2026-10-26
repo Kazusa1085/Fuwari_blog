@@ -22,11 +22,16 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
-          node-version: 22
+          node-version: 24
           cache: pnpm
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      # The post/friend/project content lives in a separate public repository.
+      # Pull it so checks and the build run against real content, not an empty folder.
+      - name: Sync content from Blog_Archive
+        run: git clone --depth 1 https://github.com/Kazusa1085/Blog_Archive.git content
 
       - name: Astro check
         run: pnpm astro check

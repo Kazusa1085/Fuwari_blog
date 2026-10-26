@@ -13,13 +13,13 @@
 ### Technology Stack
 | Category | Technology |
 | :--- | :--- |
-| **Framework** | Astro 7.x |
+| **Framework** | Astro 7.4.x |
 | **Styling** | Tailwind CSS 4.x + Stylus |
-| **Interactivity** | Svelte 5.x + Astro |
+| **Interactivity** | Svelte 5.x + Astro（three.js 背景已改为 idle 懒加载，React 依赖已移除） |
 | **Content** | Astro Content Collections (Markdown) |
-| **Package Manager** | pnpm 9.x |
+| **Package Manager** | pnpm 9.15.x |
 | **Linting/Formatting** | Biome |
-| **Type Checking** | TypeScript 6.x (pinned: Astro 7 `astro check` requires TS ≤ 6) |
+| **Type Checking** | TypeScript 6.0.x (pinned: `@astrojs/check`/`@astrojs/svelte` only accept TS ^5 || ^6) |
 
 ### Key Features
 - **UI/UX**: Dark/Light theme toggle, Page transition animations (Swup), TOC, Sticky posts, **Post sorting** (by published/updated/views with cross-page navigation; labels: 文章创作时间/文章更新时间/浏览量排序), **Flat navbar links** (all links visible on `lg+`, no dropdown groups), **Reading progress indicator**, **Hot posts page** (`/hot/`) with build-time pageviews sorting.
@@ -75,7 +75,7 @@
 ## Development Workflow
 
 ### Prerequisites
-- Node.js 22+ (LTS)
+- Node.js 24+ (LTS; `.node-version` pins 24.22.1)
 - pnpm 9+
 
 ### Common Commands
@@ -183,6 +183,11 @@ Fuwari integrates IndexNow to automatically submit URLs to search engines (Bing,
 ### Mermaid Diagrams
 Implemented in `src/pages/posts/[...slug].astro`.
 - **Features**: Async loading, theme synchronization, Swup compatibility, Details tag support.
+
+### Fonts & on-demand assets
+- **Astro Fonts API** (`astro.config.mjs` → `fonts`): self-hosted Roboto (400/500/700, latin) and JetBrains Mono (variable, latin normal); `<Font>` in `Layout.astro` injects `@font-face` + preload, no `@fontsource` imports.
+- **KaTeX CSS** is imported by `src/pages/posts/[...slug].astro` only, **Fancybox** JS/CSS is lazily imported by `Layout.astro` when the page actually has zoomable images.
+- **Three.js background** (`src/scripts/antigravity-bg.ts`) is a framework-free, idle-loaded module (desktop, no reduced-motion/save-data). Do not add React back for it.
 
 ### Image Handling
 - **Image Fallback**: Custom rehype plugin `rehype-image-fallback`.
