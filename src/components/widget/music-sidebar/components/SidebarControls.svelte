@@ -1,5 +1,5 @@
 <script lang="ts">
-import Icon from "@iconify/svelte";
+import Icon from "@components/Icon.svelte";
 
 import NextButton from "./NextButton.svelte";
 import PlayButton from "./PlayButton.svelte";

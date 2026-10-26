@@ -1,5 +1,5 @@
 <script lang="ts">
-import Icon from "@iconify/svelte";
+import Icon from "@components/Icon.svelte";
 import { onMount } from "svelte";
 import { url } from "@utils/url-utils.ts";
 
