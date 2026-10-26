@@ -7,6 +7,7 @@
   X-Content-Type-Options: nosniff
   X-Frame-Options: DENY
   X-XSS-Protection: 1; mode=block
+  Content-Security-Policy-Report-Only: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; script-src 'self' 'unsafe-inline' https://umami.raana.icu https://www.googletagmanager.com https://www.google-analytics.com https://giscus.app https://fastly.jsdelivr.net https://api.iconify.design; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https:; frame-src https://giscus.app https://www.youtube.com https://player.bilibili.com; worker-src 'self' blob:; form-action 'self'
 
 /sitemap-index.xml
   Content-Type: application/xml; charset=utf-8
