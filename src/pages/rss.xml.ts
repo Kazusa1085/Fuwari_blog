@@ -31,7 +31,7 @@ export async function GET(context: APIContext) {
 	return rss({
 		title: siteConfig.title + " - " + (siteConfig.subtitle || "技术博客"),
 		description: siteConfig.subtitle || "No description",
-		site: context.site,
+		site: context.site ?? new URL("https://blog.raana.icu"),
 		items,
 		customData:
 			"<language>" + siteConfig.lang.replace("_", "-") + "</language>",
