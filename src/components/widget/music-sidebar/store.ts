@@ -31,6 +31,8 @@ class MusicPlayerStore {
 	private listeners = new Set<(state: MusicPlayerState) => void>();
 	// 纯内部记账用，不对外广播，UI 不需要感知
 	private willAutoPlay = false;
+	// timeupdate fires ~4x/s; throttle state broadcasts to 4/s is pointless.
+	private lastTimeBroadcast = 0;
 
 	constructor() {
 		this.state = this.createInitialState();
@@ -59,7 +61,9 @@ class MusicPlayerStore {
 		return {
 			...this.state,
 			currentSong: { ...this.state.currentSong },
-			playlist: this.state.playlist.map((song) => ({ ...song })),
+			// The playlist is immutable internally; cloning it on every timeupdate
+			// (4x/second) was unnecessary allocation.
+			playlist: this.state.playlist,
 		};
 	}
 
@@ -94,6 +98,8 @@ class MusicPlayerStore {
 		}
 
 		this.audio = new Audio();
+		// Load audio bytes only when the visitor actually presses play.
+		this.audio.preload = "none";
 		this.setupAudioListeners();
 		this.loadVolumeFromStorage();
 		await this.loadPlaylist();
@@ -118,10 +124,12 @@ class MusicPlayerStore {
 		});
 
 		this.audio.addEventListener("timeupdate", () => {
-			if (this.audio) {
-				this.state.currentTime = this.audio.currentTime;
-				this.broadcastState();
-			}
+			if (!this.audio) return;
+			const now = Date.now();
+			if (now - this.lastTimeBroadcast < 250) return;
+			this.lastTimeBroadcast = now;
+			this.state.currentTime = this.audio.currentTime;
+			this.broadcastState();
 		});
 
 		this.audio.addEventListener("ended", () => {
@@ -328,7 +336,13 @@ class MusicPlayerStore {
 				this.audio.src = "";
 			}
 			this.audio.src = getAssetPath(song.url);
-			this.audio.load();
+			if (autoPlay) {
+				// Do not fetch audio bytes for the initial (paused) song; play()
+				// triggers the load when the visitor actually wants sound.
+				this.audio.load();
+			} else {
+				this.state.isLoading = false;
+			}
 		}
 		this.broadcastState();
 	}

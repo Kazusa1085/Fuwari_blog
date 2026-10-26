@@ -300,7 +300,20 @@ export function initVisitorInfo(): void {
 			}
 		};
 
-		fetchIpInfo();
+		// Privacy-friendly default: no third-party IP lookups until asked.
+		const toggle = document.getElementById(
+			"visitor-info-toggle",
+		) as HTMLButtonElement | null;
+		const details = document.getElementById("visitor-details");
+		toggle?.addEventListener(
+			"click",
+			() => {
+				toggle.hidden = true;
+				details?.classList.remove("hidden");
+				void fetchIpInfo();
+			},
+			{ once: true },
+		);
 
 		// IP 信息卡片切换显示
 		const setupPurityCheck = () => {

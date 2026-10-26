@@ -18,8 +18,14 @@ const style = Astro.props.style;
         <p>欢迎来看我的个人主页💡，正在补充完善技术栈中，我们共同进步 🚀</p>
     </div>
 
+    <!-- 默认不请求任何第三方 API；只有访客主动点击后才加载 -->
+    <button id="visitor-info-toggle" class="visitor-info-toggle" type="button">
+        <span class="visitor-info-toggle-title">显示访客信息</span>
+        <small>点击后才会向第三方 IP 地理 API 发送你的 IP</small>
+    </button>
+
     <!-- 信息内容 -->
-    <div class="visitor-content">
+    <div id="visitor-details" class="visitor-content hidden">
         <div class="info-item">
             <span class="icon-wrapper icon-ip">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M12 12.5a3.5 3.5 0 1 0 0-7a3.5 3.5 0 0 0 0 7M10.5 14h3a5.5 5.5 0 0 1 5.5 5.5v1h-14v-1A5.5 5.5 0 0 1 10.5 14M2 12c0 5.523 4.477 10 10 10s10-4.477 10-10S17.523 2 12 2S2 6.477 2 12"></path></svg>
@@ -82,6 +88,34 @@ const style = Astro.props.style;
 </WidgetLayout>
 
 <style>
+    .visitor-info-toggle {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+        width: 100%;
+        margin-top: 0.5rem;
+        padding: 0.55rem 0.7rem;
+        border-radius: 0.5rem;
+        border: 1px dashed rgba(255, 255, 255, 0.25);
+        background: rgba(255, 255, 255, 0.06);
+        color: rgba(255, 255, 255, 0.9);
+        cursor: pointer;
+        text-align: left;
+        transition: background 0.2s ease;
+    }
+    .visitor-info-toggle:hover {
+        background: rgba(255, 255, 255, 0.12);
+    }
+    .visitor-info-toggle-title {
+        font-size: 0.82rem;
+        font-weight: 600;
+    }
+    .visitor-info-toggle small {
+        font-size: 0.68rem;
+        color: rgba(255, 255, 255, 0.55);
+        line-height: 1.4;
+    }
     .welcome-message {
         padding-bottom: 0.75rem;
         margin-bottom: 0.75rem;
