@@ -83,6 +83,6 @@ export async function GET(context: APIContext) {
 		description: siteConfig.subtitle || "No description",
 		site: context.site,
 		items: feed,
-		customData: `<language>${siteConfig.lang}</language>`,
+		customData: `<language>${siteConfig.lang.replace("_", "-")}</language>`,
 	});
 }

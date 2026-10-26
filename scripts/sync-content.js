@@ -67,6 +67,16 @@ try {
 		} catch {
 			branch = "master";
 		}
+		// 保护本地未提交的草稿：只有 CI 才允许无条件 reset。
+		const dirty = execSync("git status --porcelain", { cwd: CONTENT_DIR })
+			.toString()
+			.trim();
+		if (dirty && process.env.CI !== "true") {
+			console.warn(
+				"[内容分离] content/ 有未提交改动，跳过同步以保护本地草稿；提交或备份后再试。",
+			);
+			process.exit(0);
+		}
 		run(`git checkout ${branch}`, CONTENT_DIR);
 		run(`git reset --hard origin/${branch}`, CONTENT_DIR);
 		console.log(`[内容分离] 同步完成（分支：${branch}）`);

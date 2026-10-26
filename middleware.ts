@@ -52,6 +52,14 @@ const SEO_BOT_AGENTS = [
 	"slurp",
 	"yandexbot",
 	"baiduspider",
+	// Social preview crawlers need the HTML to build link cards.
+	"twitterbot",
+	"facebookexternalhit",
+	"linkedinbot",
+	"discordbot",
+	"telegrambot",
+	"slackbot",
+	"pinterestbot",
 ];
 
 const SUSPICIOUS_UA_PATTERNS = [
@@ -332,7 +340,7 @@ function isSeoBot(ua: string): boolean {
 function isPublicMetadataPath(pathname: string): boolean {
 	return (
 		pathname === "/robots.txt" ||
-		/^\/sitemap(?:\..*)?$/i.test(pathname) ||
+		/^\/sitemap(?:-index)?(?:\..*)?$/i.test(pathname) ||
 		/^\/sitemap-\d+\.xml$/i.test(pathname) ||
 		pathname === "/rss.xml" ||
 		pathname === "/atom.xml" ||
@@ -550,10 +558,14 @@ export default async function middleware(request: Request): Promise<Response> {
 	}
 
 	if (!SECRET_KEY) {
+		// Fail closed on purpose: silently skipping the PoW gate would disable
+		// the protection (and its headers) without anyone noticing. Fix the env
+		// var, or explicitly set ALBIREO_ENABLED=false to turn the gate off.
 		return withSecurityHeaders(
-			new Response("ALBIREO_SECRET environment variable is not configured", {
-				status: 503,
-			}),
+			new Response(
+				"ALBIREO_SECRET environment variable is not configured; set it or set ALBIREO_ENABLED=false to disable the PoW gate.",
+				{ status: 503 },
+			),
 		);
 	}
 
@@ -683,6 +695,7 @@ export default async function middleware(request: Request): Promise<Response> {
 		status: 200,
 		headers: {
 			"Content-Type": "text/html; charset=utf-8",
+					"X-Robots-Tag": "noindex, nofollow",
 			"Set-Cookie": `${CHALLENGE_COOKIE}=${encodeURIComponent(challengeToken)}; Path=/; HttpOnly; Secure; SameSite=Lax`,
 		},
 	});

@@ -201,15 +201,20 @@ class TableOfContents extends HTMLElement {
     };
 
     connectedCallback() {
-        // wait for the onload animation to finish, which makes the `getBoundingClientRect` return correct values
+        // wait for the onload animation to finish so getBoundingClientRect is accurate.
+        // reduced-motion / disabled animations must not leave the TOC uninitialised,
+        // so fall back to a short timeout and guard against double init.
+        const own = this as any;
+        const start = () => {
+            if (own.initialised) return;
+            own.initialised = true;
+            this.init();
+        };
         const element = document.querySelector('.prose');
         if (element) {
-            element.addEventListener('animationend', () => {
-                this.init();
-            }, { once: true });
-        } else {
-            console.debug('Animation element not found');
+            element.addEventListener('animationend', start, { once: true });
         }
+        setTimeout(start, 1200);
     };
 
     init() {

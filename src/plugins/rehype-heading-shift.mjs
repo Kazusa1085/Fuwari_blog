@@ -9,23 +9,14 @@
  * - 多个 <h1> 会影响 SEO，搜索引擎建议每个页面只有一个 <h1>
  *
  * 解决方案：
- * - 将 h1 → h2
- * - 将 h2 → h3
- * - 将 h3 → h4
- * - 将 h4 → h5
- * - 将 h5 → h6
- * - h6 保持不变（已是最低级别）
+ * - 只将 Markdown 中的 h1 降为 h2，保证页面唯一 h1 是文章标题
+ * - h2–h6 保持原级别，避免出现 h1 → h3/h4 的层级跳跃
  */
 
 import { visit } from "unist-util-visit";
 
 const headingMap = {
 	h1: "h2",
-	h2: "h3",
-	h3: "h4",
-	h4: "h5",
-	h5: "h6",
-	// h6 保持不变
 };
 
 export default function rehypeHeadingShift() {

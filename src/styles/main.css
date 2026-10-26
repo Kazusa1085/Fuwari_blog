@@ -75,6 +75,8 @@
     }
     .float-panel-closed {
         @apply -translate-y-4 opacity-0 pointer-events-none scale-95;
+        /* keyboard and screen readers must not enter a closed panel */
+        visibility: hidden;
     }
     
     .search-panel mark {
