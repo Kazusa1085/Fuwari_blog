@@ -97,7 +97,6 @@ const bannerOffset =
 
 <!DOCTYPE html>
 <html lang={siteLang} class="bg-[var(--page-bg)] transition text-[14px] md:text-[16px]"
-	  data-overlayscrollbars-initialize
 >
 	<head>
 
@@ -356,7 +355,6 @@ const bannerOffset =
 
 	</head>
 	<body class=" min-h-screen transition " class:list={[{"lg:is-home": isHomePage, "enable-banner": enableBanner}]}
-		  data-overlayscrollbars-initialize
 	>
 		<div id="antigravity-bg" class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none" aria-hidden="true"></div>
 		<script>
@@ -504,13 +502,6 @@ const bannerOffset =
 </style>
 
 <script>
-import 'overlayscrollbars/overlayscrollbars.css';
-import {
-	OverlayScrollbars,
-	// ScrollbarsHidingPlugin,
-	// SizeObserverPlugin,
-	// ClickScrollPlugin
-} from 'overlayscrollbars';
 import {getHue, getStoredTheme, setHue, setTheme} from "../utils/setting-utils";
 import {pathsEqual, url} from "../utils/url-utils";
 import {
@@ -555,36 +546,6 @@ function loadHue() {
 
 
 
-function initCustomScrollbar() {
-	const bodyElement = document.querySelector('body');
-	if (!bodyElement) return;
-	OverlayScrollbars(
-		// docs say that a initialization to the body element would affect native functionality like window.scrollTo
-		// but just leave it here for now
-		{
-			target: bodyElement,
-			cancel: {
-				nativeScrollbarsOverlaid: true,    // don't initialize the overlay scrollbar if there is a native one
-			}
-		}, {
-		scrollbars: {
-			theme: 'scrollbar-base scrollbar-auto py-1',
-			autoHide: 'move',
-			autoHideDelay: 500,
-			autoHideSuspend: false,
-		},
-	});
-	
-	const katexElements = document.querySelectorAll('.katex-display') as NodeListOf<HTMLElement>;
-	katexElements.forEach((ele) => {
-		OverlayScrollbars(ele, {
-			scrollbars: {
-				theme: 'scrollbar-base scrollbar-auto py-1',
-			}
-		});
-	});
-}
-
 function showBanner() {
 	if (!siteConfig.banner.enable) return;
 	
@@ -602,14 +563,8 @@ function scrollToContentOnMobile() {
 		const target = document.getElementById('swup-container')
 		if (target) {
 			const navbarHeight = 72
-			const viewport = document.querySelector('.os-viewport') as HTMLElement
-			if (viewport) {
-				const y = target.getBoundingClientRect().top + viewport.scrollTop - navbarHeight
-				viewport.scrollTo({ top: y, behavior: 'smooth' })
-			} else {
-				const y = target.getBoundingClientRect().top + window.scrollY - navbarHeight
-				window.scrollTo({ top: y, behavior: 'smooth' })
-			}
+			const y = target.getBoundingClientRect().top + window.scrollY - navbarHeight
+			window.scrollTo({ top: y, behavior: 'smooth' })
 		}
 	}
 }
@@ -617,7 +572,6 @@ function scrollToContentOnMobile() {
 function init() {
 	loadTheme();
 	loadHue();
-	initCustomScrollbar();
 	showBanner();
 	setTimeout(scrollToContentOnMobile, 350)
 }

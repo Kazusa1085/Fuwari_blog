@@ -1,44 +1,35 @@
 @reference "./global.css";
 
-.scrollbar-base.os-scrollbar {
-    @apply transition-all;
-    pointer-events: unset;
-
-    &.os-scrollbar-horizontal {
-        @apply py-1 px-2 h-4;
-        .os-scrollbar-track .os-scrollbar-handle {
-            @apply rounded-full h-1;
-        }
-        &:hover .os-scrollbar-track .os-scrollbar-handle {
-            @apply h-2;
-        }
-    }
-
-    &.os-scrollbar-vertical {
-        @apply px-1 py-1 w-4;
-        .os-scrollbar-track .os-scrollbar-handle {
-            @apply rounded-full w-1;
-        }
-        &:hover .os-scrollbar-track .os-scrollbar-handle {
-            @apply w-2;
-        }
-    }
+/* Native scrollbars replace the previous OverlayScrollbars runtime. */
+html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-bg) transparent;
 }
 
-.os-scrollbar {
-    &.scrollbar-auto {
-        --os-handle-bg: var(--scrollbar-bg);
-        --os-handle-bg-hover: var(--scrollbar-bg-hover);
-        --os-handle-bg-active: var(--scrollbar-bg-active);
-    }
-    &.scrollbar-dark {
-        --os-handle-bg: var(--scrollbar-bg-dark);
-        --os-handle-bg-hover: var(--scrollbar-bg-hover-dark);
-        --os-handle-bg-active: var(--scrollbar-bg-active-dark);
-    }
-    &.scrollbar-light {
-        --os-handle-bg: var(--scrollbar-bg-light);
-        --os-handle-bg-hover: var(--scrollbar-bg-hover-light);
-        --os-handle-bg-active: var(--scrollbar-bg-active-light);
-    }
+html::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+html::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+html::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-bg);
+    border-radius: 999px;
+}
+
+html::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-bg-hover);
+}
+
+html::-webkit-scrollbar-thumb:active {
+    background: var(--scrollbar-bg-active);
+}
+
+/* Wide math/code blocks keep their own horizontal scrollbar. */
+.katex-display,
+.custom-md pre {
+    scrollbar-width: thin;
 }
