@@ -30,9 +30,18 @@ interface Props {
 	description?: string;
 	lang?: string;
 	setOGTypeArticle?: boolean;
+	/** Render a slim page shell for 404s: no decorative islands, no scroll UI. */
+	minimal?: boolean;
 }
 
-let { title, banner, description, lang, setOGTypeArticle } = Astro.props;
+let {
+	title,
+	banner,
+	description,
+	lang,
+	setOGTypeArticle,
+	minimal = false,
+} = Astro.props;
 
 // A relative cover path cannot be resolved here (it is handled by
 // ImageWrapper at build time), so fall back to the default OG image instead of
@@ -356,7 +365,7 @@ const bannerOffset =
 	</head>
 	<body class=" min-h-screen transition " class:list={[{"lg:is-home": isHomePage, "enable-banner": enableBanner}]}
 	>
-		<div id="antigravity-bg" class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none" aria-hidden="true"></div>
+		{!minimal && <div id="antigravity-bg" class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none" aria-hidden="true"></div>}
 		<script>
 			// The particle background is decorative: skip mobile, save-data and
 			// reduced-motion visitors, then load three.js on idle so it never
@@ -388,8 +397,8 @@ const bannerOffset =
 			}
 		</script>
 		<ConfigCarrier></ConfigCarrier>
-		<FloatingControls client:only="svelte" />
-		<ReadingProgressMobile client:only="svelte" />
+		{!minimal && <FloatingControls client:only="svelte" />}
+		{!minimal && <ReadingProgressMobile client:only="svelte" />}
 		<script>
 			import { antiLeechConfig } from "@/config";
 			import { initDomainWarning } from "@/scripts/domain-warning";

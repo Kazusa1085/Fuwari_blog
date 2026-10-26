@@ -8,7 +8,10 @@ interface Post {
 	published?: string | Date;
 }
 
-let { posts = [] } = $props<{ posts: Post[] }>();
+let { posts = [], instance = "" } = $props<{
+	posts: Post[];
+	instance?: string;
+}>();
 
 let daysRange = $state(7); // Default to 7 days as requested/shown in screenshot
 let filteredPosts = $state<Post[]>([]);
@@ -74,7 +77,7 @@ $effect(() => {
 });
 </script>
 
-<div class="flex flex-col gap-3">
+<div class="flex flex-col gap-3" data-instance={instance}>
   <!-- Time range selector -->
   <div class="flex flex-row gap-2">
     {#each ranges as range}

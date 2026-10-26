@@ -10,7 +10,7 @@ const buildYear = new Date().getFullYear();
 <div class="transition border-t border-black/10 dark:border-white/15 my-10 border-dashed mx-32"></div>
 <div class="transition border-dashed border-[oklch(85%_0.01_var(--hue))] dark:border-white/15 rounded-2xl mb-12 flex flex-col items-center justify-center px-6">
     <div class="transition text-50 text-sm text-center">
-        &copy; <span id="copyright-year">{startYear}{buildYear > startYear ? ` - ${buildYear}` : ''}</span> {profileConfig.name}，采用
+        &copy; <span data-copyright-year>{startYear}{buildYear > startYear ? ` - ${buildYear}` : ''}</span> {profileConfig.name}，采用
         <a class="transition link text-[var(--primary)] font-medium" target="_blank" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可。
         <br>
         <a class="transition link text-[var(--primary)] font-medium" target="_blank" href={url('rss.xml')}>RSS</a> /
@@ -31,10 +31,11 @@ const buildYear = new Date().getFullYear();
     // Astro 静态站点：构建时年份不会自动更新。
     // 这里用浏览器时间在访问时更新年份范围。
     (function () {
-        const el = document.getElementById('copyright-year');
-        if (!el) return;
+        const els = document.querySelectorAll('[data-copyright-year]');
+        if (els.length === 0) return;
         const startYear = 2024;
         const nowYear = new Date().getFullYear();
-        el.textContent = nowYear > startYear ? `${startYear} - ${nowYear}` : String(startYear);
+        const text = nowYear > startYear ? `${startYear} - ${nowYear}` : String(startYear);
+        els.forEach((el) => { el.textContent = text; });
     })();
 </script>

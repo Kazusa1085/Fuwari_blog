@@ -23,6 +23,8 @@ interface Props {
 	}[];
 	allPostViews?: { slug: string; views: number }[];
 	class?: string;
+	/** Distinguishes mobile and 2xl sidebar instances so DOM ids stay unique. */
+	instance?: string;
 }
 
 const {
@@ -36,22 +38,23 @@ const {
 	updatedPosts,
 } = Astro.props;
 const className = Astro.props.class;
+const suffix = Astro.props.instance ? "-" + Astro.props.instance : "";
 ---
 <div class:list={[className, "w-full flex flex-col gap-4"]}>
-  <WidgetLayout name="写作概览" id="stats-overview" class="bg-[var(--card-bg)]">
+  <WidgetLayout name="写作概览" id={`stats-overview${suffix}`} class="bg-[var(--card-bg)]">
     <StatsOverview totalPosts={totalPosts} totalWords={totalWords} totalMinutes={totalMinutes} avgWords={avgWords} />
   </WidgetLayout>
-  <Tag class="bg-[var(--card-bg)]" />
-  <WidgetLayout name="年度发文" id="stats-yearly" class="bg-[var(--card-bg)]">
+  <Tag class="bg-[var(--card-bg)]" instance={Astro.props.instance} />
+  <WidgetLayout name="年度发文" id={`stats-yearly${suffix}`} class="bg-[var(--card-bg)]">
     <StatsYearlyChart postsByYear={postsByYear} />
   </WidgetLayout>
-  {popularPosts.length > 0 && <WidgetLayout name="热门文章" id="stats-popular" class="bg-[var(--card-bg)]">
-    <StatsPopularPosts popularPosts={popularPosts} />
+  {popularPosts.length > 0 && <WidgetLayout name="热门文章" id={`stats-popular${suffix}`} class="bg-[var(--card-bg)]">
+    <StatsPopularPosts popularPosts={popularPosts} instance={Astro.props.instance} />
   </WidgetLayout>}
-  <WidgetLayout name="最长文章" id="stats-posts" class="bg-[var(--card-bg)]">
+  <WidgetLayout name="最长文章" id={`stats-posts${suffix}`} class="bg-[var(--card-bg)]">
     <StatsTopPosts longestPosts={longestPosts} />
   </WidgetLayout>
-  <WidgetLayout name="二次更新文章" id="updated-posts" isCollapsed={false} class="block bg-[var(--card-bg)] dark:bg-[#1e1e1e]/80">
-    <UpdatedPosts client:load posts={updatedPosts} />
+  <WidgetLayout name="二次更新文章" id={`updated-posts${suffix}`} isCollapsed={false} class="block bg-[var(--card-bg)] dark:bg-[#1e1e1e]/80">
+    <UpdatedPosts client:load posts={updatedPosts} instance={Astro.props.instance} />
   </WidgetLayout>
 </div>

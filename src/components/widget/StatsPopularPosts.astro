@@ -3,11 +3,13 @@ import { umamiConfig } from "../../config";
 import { getPostUrlBySlug } from "../../utils/url-utils";
 interface Props {
 	popularPosts: { title: string; slug: string; views: number }[];
+	instance?: string;
 }
 const { popularPosts } = Astro.props;
+const suffix = Astro.props.instance ? "-" + Astro.props.instance : "";
 const slugs = popularPosts.map((p) => p.slug);
 ---
-<div class="flex flex-col gap-1 text-sm" id="stats-popular-list">
+<div class="flex flex-col gap-1 text-sm" id={`stats-popular-list${suffix}`}>
   {popularPosts.map((post, i) => (
     <a href={`${getPostUrlBySlug(post.slug)}#post-container`} class="flex items-start gap-2 px-2 py-1 rounded hover:bg-[var(--btn-regular-bg)] transition">
       <span class="text-xs text-[var(--primary)] shrink-0 mt-0.5">{i + 1}</span>

@@ -94,7 +94,7 @@ const statsProps = await getWritingStats();
                     <slot></slot>
                     <!-- Mobile/tablet writing stats -->
                     <div class="block 2xl:hidden onload-animation mt-6">
-                        <WritingStats {...statsProps} />
+                        <WritingStats {...statsProps} instance="mobile" />
                     </div>
                     <div class="footer col-span-1 onload-animation hidden lg:block">
                         <Footer></Footer>
@@ -105,7 +105,7 @@ const statsProps = await getWritingStats();
             <!-- Right sidebar: writing stats (2xl+ only) -->
             <div class="hidden 2xl:block row-start-1 row-end-2 col-span-1 onload-animation">
                 <div class="sticky top-4">
-                    <WritingStats {...statsProps} />
+                    <WritingStats {...statsProps} instance="desktop" />
                 </div>
             </div>
 
