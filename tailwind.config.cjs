@@ -6,7 +6,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Roboto", "sans-serif", ...defaultTheme.fontFamily.sans],
+        sans: ["var(--font-roboto)", "sans-serif", ...defaultTheme.fontFamily.sans],
       },
       screens: {
         '3xl': '1800px',

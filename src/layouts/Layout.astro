@@ -1,11 +1,11 @@
 ---
-import "@fontsource/roboto/400.css";
-import "@fontsource/roboto/500.css";
-import "@fontsource/roboto/700.css";
 import "../styles/global.css";
+import "../styles/variables.styl";
+import "../styles/main.css";
+import "../styles/scrollbar.css";
+import "../styles/transition.css";
 
 import { googleAnalyticsConfig, profileConfig, siteConfig } from "@/config";
-import AntigravityBg from "@components/AntigravityBg.tsx";
 import ConfigCarrier from "@components/ConfigCarrier.astro";
 import FloatingControls from "@components/FloatingControls.svelte";
 import ReadingProgressMobile from "@components/ReadingProgressMobile.svelte";
@@ -21,8 +21,8 @@ import {
 } from "../constants/constants";
 import { defaultFavicons } from "../constants/icon";
 import type { Favicon } from "../types/config";
+import { Font } from "astro:assets";
 import { url, pathsEqual } from "../utils/url-utils";
-import "katex/dist/katex.css";
 
 interface Props {
 	title?: string;
@@ -134,6 +134,13 @@ const bannerOffset =
 
 		<meta name="viewport" content="width=device-width" />
 		<meta name="generator" content={Astro.generator} />
+		<Font cssVariable="--font-roboto" preload={[{ weight: 400 }]} />
+		<Font cssVariable="--font-jetbrains-mono" />
+		<link rel="preconnect" href="https://www.loliapi.com" />
+		<link rel="preconnect" href="https://img.micostar.cc" crossorigin />
+		<link rel="dns-prefetch" href="https://avatars.githubusercontent.com" />
+		<link rel="dns-prefetch" href="https://umami.raana.icu" />
+		<link rel="dns-prefetch" href="https://giscus.app" />
 		<script>
 			import { exposeUmamiGlobals } from "@/scripts/umami-client";
 			exposeUmamiGlobals();
@@ -344,7 +351,37 @@ const bannerOffset =
 	<body class=" min-h-screen transition " class:list={[{"lg:is-home": isHomePage, "enable-banner": enableBanner}]}
 		  data-overlayscrollbars-initialize
 	>
-		<AntigravityBg client:only="react" />
+		<div id="antigravity-bg" class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none" aria-hidden="true"></div>
+		<script>
+			// The particle background is decorative: skip mobile, save-data and
+			// reduced-motion visitors, then load three.js on idle so it never
+			// competes with first paint / LCP.
+			const antigravityHost = document.getElementById("antigravity-bg");
+			const antigravityAllowed =
+				antigravityHost &&
+				window.innerWidth >= 768 &&
+				!window.matchMedia("(prefers-reduced-motion: reduce)").matches &&
+				!((navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData);
+			if (antigravityAllowed) {
+				let started = false;
+				const start = () => {
+					if (started || !antigravityHost) return;
+					started = true;
+					import("../scripts/antigravity-bg")
+						.then(({ startAntigravityBackground }) => startAntigravityBackground(antigravityHost))
+						.catch(() => {});
+				};
+				const schedule = () => {
+					if ("requestIdleCallback" in window) {
+						window.requestIdleCallback(start, { timeout: 2500 });
+					} else {
+						setTimeout(start, 1200);
+					}
+				};
+				if (document.readyState === "complete") schedule();
+				else window.addEventListener("load", schedule, { once: true });
+			}
+		</script>
 		<ConfigCarrier></ConfigCarrier>
 		<FloatingControls client:only="svelte" />
 		<ReadingProgressMobile client:only="svelte" />
@@ -483,6 +520,7 @@ const bannerEnabled = !!document.getElementById('banner-wrapper')
 function setClickOutsideToClose(panel: string, ignores: string[]) {
 	document.addEventListener("click", event => {
 		let panelDom = document.getElementById(panel);
+		if (!panelDom) return;
 		let tDom = event.target;
 		if (!(tDom instanceof Node)) return;		// Ensure the event target is an HTML Node
 		for (let ig of ignores) {
@@ -491,7 +529,7 @@ function setClickOutsideToClose(panel: string, ignores: string[]) {
 				return;
 			}
 		}
-		panelDom!.classList.add("float-panel-closed");
+		panelDom.classList.add("float-panel-closed");
 	});
 }
 setClickOutsideToClose("display-setting", ["display-setting", "display-settings-switch"])
@@ -697,68 +735,75 @@ function scrollFunction() {
 		}
 	}
 }
-window.onscroll = scrollFunction
+let scrollTicking = false;
+function onScrollRaf() {
+	if (scrollTicking) return;
+	scrollTicking = true;
+	requestAnimationFrame(() => {
+		scrollFunction();
+		scrollTicking = false;
+	});
+}
+window.addEventListener("scroll", onScrollRaf, { passive: true });
 
-window.onresize = () => {
+window.addEventListener("resize", () => {
 	// calculate the --banner-height-extend, which needs to be a multiple of 4 to avoid blurry text
 	let offset = Math.floor(window.innerHeight * (BANNER_HEIGHT_EXTEND / 100));
 	offset = offset - offset % 4;
 	document.documentElement.style.setProperty('--banner-height-extend', `${offset}px`);
-}
+}, { passive: true });
 
 </script>
 
 <script>
-import { Fancybox } from "@fancyapps/ui"
-import "@fancyapps/ui/dist/fancybox/fancybox.css"
+// Image lightbox: only load Fancybox (JS + CSS) when the current page
+// actually contains zoomable images, and keep working across Swup visits.
+import fancyboxCssUrl from "@fancyapps/ui/dist/fancybox/fancybox.css?url";
 
-const setup = () => {
-	(Fancybox.bind as any)(".custom-md img, #post-cover img", {
-		wheel: 'zoom',
-		clickContent: 'close',
-		dblclickContent: 'zoom',
-		click: 'close',
-		dblclick: 'zoom',
-		Panels: {
-			display: ['counter', 'zoom']
-		},
-		Images: {
-			panning: true,
-			zoom: true,
-			protect: false
-		}
-	})
-
-	window.swup.hooks.on("page:view", () => {
-		(Fancybox.bind as any)(".custom-md img, #post-cover img", {
-			wheel: 'zoom',
-			clickContent: 'close',
-			dblclickContent: 'zoom',
-			click: 'close',
-			dblclick: 'zoom',
-			Panels: {
-				display: ['counter', 'zoom']
-			},
-			Images: {
-				panning: true,
-				zoom: true,
-				protect: false
-			}
-		})
-	})
-
-	window.swup.hooks.on(
-		"content:replace",
-		() => {
-			Fancybox.unbind(".custom-md img, #post-cover img")
-		},
-		{ before: true },
-	)
-}
-
+const FANCYBOX_SELECTOR = ".custom-md img, #post-cover img";
+const fancyboxOptions = {
+	wheel: "zoom",
+	clickContent: "close",
+	dblclickContent: "zoom",
+	click: "close",
+	dblclick: "zoom",
+	Panels: { display: ["counter", "zoom"] },
+	Images: { panning: true, zoom: true, protect: false },
+};
+let fancybox: any = null;
+const injectFancyboxCss = () => {
+	if (document.querySelector("link[data-fancybox-css]")) return;
+	const link = document.createElement("link");
+	link.rel = "stylesheet";
+	link.href = fancyboxCssUrl;
+	link.dataset.fancyboxCss = "1";
+	document.head.appendChild(link);
+};
+const loadFancybox = () => {
+	if (fancybox) return Promise.resolve(fancybox);
+	return import("@fancyapps/ui").then((mod) => {
+		fancybox = (mod as any).Fancybox;
+		injectFancyboxCss();
+		return fancybox;
+	});
+};
+const bindFancybox = () => {
+	if (!document.querySelector(FANCYBOX_SELECTOR)) return;
+	loadFancybox().then((Fancybox) => {
+		Fancybox.bind(FANCYBOX_SELECTOR, fancyboxOptions);
+	});
+};
+const unbindFancybox = () => {
+	if (fancybox) fancybox.unbind(FANCYBOX_SELECTOR);
+};
+const setupFancybox = () => {
+	bindFancybox();
+	window.swup.hooks.on("page:view", bindFancybox);
+	window.swup.hooks.on("content:replace", unbindFancybox, { before: true });
+};
 if (window.swup) {
-	setup()
+	setupFancybox();
 } else {
-	document.addEventListener("swup:enable", setup)
+	document.addEventListener("swup:enable", setupFancybox);
 }
 </script>

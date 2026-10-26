@@ -1,10 +1,9 @@
 import sitemap from "@astrojs/sitemap";
 import svelte from "@astrojs/svelte";
-import react from "@astrojs/react";
 import tailwindcss from "@tailwindcss/vite";
 import swup from "@swup/astro";
 import icon from "astro-icon";
-import { defineConfig } from "astro/config";
+import { defineConfig, fontProviders } from "astro/config";
 import { unified } from "@astrojs/markdown-remark";
 import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeComponents from "rehype-components";/* Render the custom directive content */
@@ -36,6 +35,29 @@ import { pluginCustomCopyButton } from "./src/plugins/expressive-code/custom-cop
 export default defineConfig({
     site: "https://blog.raana.icu",
     base: "/",
+    // Astro Fonts API (stable since v6): downloads and self-hosts only the
+    // weights/subsets we use, emits optimized @font-face rules with fallback
+    // metrics, and lets <Font /> preload the above-the-fold family.
+    fonts: [
+        {
+            provider: fontProviders.fontsource(),
+            name: "Roboto",
+            cssVariable: "--font-roboto",
+            weights: [400, 500, 700],
+            styles: ["normal"],
+            subsets: ["latin"],
+            fallbacks: ["sans-serif"],
+        },
+        {
+            provider: fontProviders.fontsource(),
+            name: "JetBrains Mono",
+            cssVariable: "--font-jetbrains-mono",
+            weights: ["100 800"],
+            styles: ["normal"],
+            subsets: ["latin"],
+            fallbacks: ["monospace"],
+        },
+    ],
     trailingSlash: "always",
     integrations: [swup({
         theme: false,
@@ -58,7 +80,7 @@ export default defineConfig({
             "fa6-solid": ["*"],
             "simple-icons": ["*"],
         },
-    }), svelte(), react(), sitemap({
+    }), svelte(), sitemap({
         // 添加 sitemap 配置,确保格式正确
         serialize(item) {
             // 移除尾部斜杠(可选,根据您的 URL 结构)

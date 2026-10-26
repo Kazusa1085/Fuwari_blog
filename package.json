@@ -28,7 +28,6 @@
 	"dependencies": {
 		"@astrojs/check": "^0.9.12",
 		"@astrojs/markdown-remark": "^7.3.4",
-		"@astrojs/react": "^7.1.1",
 		"@astrojs/rss": "^4.0.19",
 		"@astrojs/sitemap": "^3.7.4",
 		"@astrojs/svelte": "^9.1.1",
@@ -36,20 +35,15 @@
 		"@expressive-code/plugin-collapsible-sections": "^0.44.3",
 		"@expressive-code/plugin-line-numbers": "^0.44.3",
 		"@fancyapps/ui": "^6.1.15",
-		"@fontsource-variable/jetbrains-mono": "^5.3.0",
-		"@fontsource/roboto": "^5.3.0",
 		"@iconify-json/fa6-brands": "^1.2.6",
 		"@iconify-json/fa6-regular": "^1.2.4",
 		"@iconify-json/fa6-solid": "^1.2.4",
 		"@iconify-json/material-symbols": "^1.2.95",
 		"@iconify-json/simple-icons": "^1.2.101",
 		"@iconify/svelte": "^5.2.3",
-		"@react-three/fiber": "^9.8.2",
 		"@swup/astro": "^1.8.0",
 		"@tailwindcss/typography": "^0.5.20",
 		"@tailwindcss/vite": "^4.3.3",
-		"@types/react": "^19.3.0",
-		"@types/react-dom": "^19.3.0",
 		"@types/three": "^0.186.0",
 		"@vercel/functions": "^3.10.3",
 		"astro": "^7.4.2",
@@ -61,9 +55,6 @@
 		"mdast-util-to-string": "^4.0.0",
 		"node-html-parser": "^9.0.5",
 		"overlayscrollbars": "^2.17.0",
-		"photoswipe": "^5.4.4",
-		"react": "^19.3.1",
-		"react-dom": "^19.3.1",
 		"reading-time": "^1.5.0",
 		"rehype-autolink-headings": "^7.1.0",
 		"rehype-components": "^0.3.0",
@@ -71,7 +62,6 @@
 		"rehype-katex": "^7.0.1",
 		"rehype-slug": "^6.0.0",
 		"remark-directive": "^4.0.0",
-		"remark-directive-rehype": "^1.0.0",
 		"remark-github-admonitions-to-directives": "^2.1.0",
 		"remark-math": "^6.0.0",
 		"remark-sectionize": "^2.1.0",
@@ -93,8 +83,10 @@
 		"@types/mdast": "^4.0.4",
 		"@types/sanitize-html": "^2.16.2",
 		"postcss-import": "^17.0.1",
-		"rehype": "^13.0.2",
-		"oxc-transform-react": "^0.152.0"
+		"rehype": "^13.0.2"
+	},
+	"engines": {
+		"node": ">=24.0.0"
 	},
 	"packageManager": "pnpm@9.15.9"
 }
