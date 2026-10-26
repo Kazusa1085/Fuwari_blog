@@ -47,6 +47,18 @@
 - 特点：不使用 Cookie，不追踪用户
 - 隐私政策：[GitHub 隐私声明](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement)
 
+### 访客信息卡（可选功能）
+
+本站侧栏的“访客信息”卡**默认不加载**任何内容，也不会向第三方发送请求。只有当你主动点击“显示访客信息”后，浏览器才会请求第三方 IP 地理 API，用于：
+
+- 显示你当前出口 IP 的粗略地理位置、运营商、操作系统/浏览器（由浏览器 UA 推断）；
+- 计算与博主的直线距离（仅用于展示，不保存）；
+- 可选的 IP 纯净度卡片（`my.ippure.com`）需要再次点击才会加载。
+
+可能涉及的第三方域名（按代码顺序，命中即停止）：`api.ip.sb`、`ipinfo.io`、`api.vore.top`、`ipwho.is`、`freegeoip.app`、`ipapi.co`、`api.vvhan.com`、`ip-api.com`、`my.ippure.com`。
+
+这些服务会收到你的 IP 与 User-Agent；本站不保存这些数据，也不把它们写入日志。如果你不点击，就不会发出这些请求。
+
 ## Cookie 和本地存储
 
 我们的网站可能使用以下技术：
