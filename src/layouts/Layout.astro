@@ -756,54 +756,74 @@ window.addEventListener("resize", () => {
 </script>
 
 <script>
-// Image lightbox: only load Fancybox (JS + CSS) when the current page
-// actually contains zoomable images, and keep working across Swup visits.
-import fancyboxCssUrl from "@fancyapps/ui/dist/fancybox/fancybox.css?url";
+// Image lightbox: PhotoSwipe (MIT). JS + CSS are loaded only on first
+// intent (pointer over an image, or a click), so a normal page view costs
+// nothing and the library still works across Swup visits.
+import photoswipeCssUrl from "photoswipe/style.css?url";
 
-const FANCYBOX_SELECTOR = ".custom-md img, #post-cover img";
-const fancyboxOptions = {
-	wheel: "zoom",
-	clickContent: "close",
-	dblclickContent: "zoom",
-	click: "close",
-	dblclick: "zoom",
-	Panels: { display: ["counter", "zoom"] },
-	Images: { panning: true, zoom: true, protect: false },
-};
-let fancybox: any = null;
-const injectFancyboxCss = () => {
-	if (document.querySelector("link[data-fancybox-css]")) return;
+const PSWP_SELECTOR = ".custom-md img, #post-cover img";
+let photoswipeModule: Promise<any> | null = null;
+let photoswipeCssInjected = false;
+
+const injectPhotoSwipeCss = () => {
+	if (photoswipeCssInjected || document.querySelector("link[data-pswp-css]")) return;
+	photoswipeCssInjected = true;
 	const link = document.createElement("link");
 	link.rel = "stylesheet";
-	link.href = fancyboxCssUrl;
-	link.dataset.fancyboxCss = "1";
+	link.href = photoswipeCssUrl;
+	link.dataset.pswpCss = "1";
 	document.head.appendChild(link);
 };
-const loadFancybox = () => {
-	if (fancybox) return Promise.resolve(fancybox);
-	return import("@fancyapps/ui").then((mod) => {
-		fancybox = (mod as any).Fancybox;
-		injectFancyboxCss();
-		return fancybox;
+
+const loadPhotoSwipe = () => {
+	if (!photoswipeModule) {
+		injectPhotoSwipeCss();
+		photoswipeModule = import("photoswipe").then((mod) => mod.default ?? mod);
+	}
+	return photoswipeModule;
+};
+
+const openPhotoSwipe = async (clicked: HTMLImageElement) => {
+	const PhotoSwipe = await loadPhotoSwipe();
+	const images = Array.from(
+		document.querySelectorAll<HTMLImageElement>(PSWP_SELECTOR),
+	).filter((img) => Boolean(img.currentSrc || img.src));
+	if (images.length === 0) return;
+	const items = images.map((img) => ({
+		src: img.currentSrc || img.src,
+		width: img.naturalWidth || 1600,
+		height: img.naturalHeight || 900,
+		alt: img.alt || "",
+	}));
+	const gallery = new PhotoSwipe({
+		dataSource: items,
+		index: Math.max(0, images.indexOf(clicked)),
+		bgOpacity: 0.92,
+		showHideAnimationType: "fade",
+		wheelToZoom: true,
 	});
+	gallery.init();
 };
-const bindFancybox = () => {
-	if (!document.querySelector(FANCYBOX_SELECTOR)) return;
-	loadFancybox().then((Fancybox) => {
-		Fancybox.bind(FANCYBOX_SELECTOR, fancyboxOptions);
-	});
+
+const onLightboxClick = (event: MouseEvent) => {
+	const target = event.target;
+	if (!(target instanceof Element)) return;
+	const image = target.closest(PSWP_SELECTOR) as HTMLImageElement | null;
+	if (!image) return;
+	event.preventDefault();
+	void openPhotoSwipe(image);
 };
-const unbindFancybox = () => {
-	if (fancybox) fancybox.unbind(FANCYBOX_SELECTOR);
+document.addEventListener("click", onLightboxClick);
+
+let photoswipePrefetched = false;
+const prefetchPhotoSwipe = (event: Event) => {
+	if (photoswipePrefetched) return;
+	const target = event.target;
+	if (!(target instanceof Element)) return;
+	if (!target.closest(PSWP_SELECTOR)) return;
+	photoswipePrefetched = true;
+	void loadPhotoSwipe();
 };
-const setupFancybox = () => {
-	bindFancybox();
-	window.swup.hooks.on("page:view", bindFancybox);
-	window.swup.hooks.on("content:replace", unbindFancybox, { before: true });
-};
-if (window.swup) {
-	setupFancybox();
-} else {
-	document.addEventListener("swup:enable", setupFancybox);
-}
+document.addEventListener("pointerover", prefetchPhotoSwipe, { passive: true });
+document.addEventListener("touchstart", prefetchPhotoSwipe, { passive: true });
 </script>

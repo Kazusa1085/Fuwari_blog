@@ -186,7 +186,7 @@ Implemented in `src/pages/posts/[...slug].astro`.
 
 ### Fonts & on-demand assets
 - **Astro Fonts API** (`astro.config.mjs` → `fonts`): self-hosted Roboto (400/500/700, latin) and JetBrains Mono (variable, latin normal); `<Font>` in `Layout.astro` injects `@font-face` + preload, no `@fontsource` imports.
-- **KaTeX CSS** is imported by `src/pages/posts/[...slug].astro` only, **Fancybox** JS/CSS is lazily imported by `Layout.astro` when the page actually has zoomable images.
+- **KaTeX CSS** is imported by `src/pages/posts/[...slug].astro` only, **PhotoSwipe** (MIT) JS/CSS is imported by `Layout.astro` on first image intent/click only.
 - **Three.js background** (`src/scripts/antigravity-bg.ts`) is a framework-free, idle-loaded module (desktop, no reduced-motion/save-data). Do not add React back for it.
 
 ### Image Handling
