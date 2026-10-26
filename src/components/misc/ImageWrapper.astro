@@ -62,7 +62,7 @@ if (isLocal) {
 		.replace(/\\/g, "/");
 	let file = files[normalizedPath];
 	if (!file && basePath.startsWith("content/")) {
-		const contentKey = "/" + path.posix.join(basePath, src).replace(/^\/+/, "");
+		const contentKey = `/${path.posix.join(basePath, src).replace(/^\/+/, "")}`;
 		file = contentFiles[contentKey];
 	}
 	if (!file) {

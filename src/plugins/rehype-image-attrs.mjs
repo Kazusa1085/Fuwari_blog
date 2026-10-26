@@ -50,7 +50,7 @@ export default function rehypeImageAttrs() {
 								? ""
 								: style.trimEnd().endsWith(";")
 									? style
-									: style + ";";
+									: `${style};`;
 						node.properties.style =
 							prefix +
 							"aspect-ratio:" +
