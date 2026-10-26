@@ -49,56 +49,48 @@ if (isLocal) {
 			import: "default",
 		},
 	);
+	// Covers can live in the external content repo (top-level content/), which
+	// is outside src/. Vite can still glob them from the project root.
+	const contentFiles = import.meta.glob<ImageMetadata>(
+		"/content/**/*.{jpeg,jpg,png,gif,webp,avif}",
+		{
+			import: "default",
+		},
+	);
 	let normalizedPath = path
 		.normalize(path.join("../../", basePath, src))
 		.replace(/\\/g, "/");
-	const file = files[normalizedPath];
+	let file = files[normalizedPath];
+	if (!file && basePath.startsWith("content/")) {
+		const contentKey = "/" + path.posix.join(basePath, src).replace(/^\/+/, "");
+		file = contentFiles[contentKey];
+	}
 	if (!file) {
 		console.error(
 			`\n[ERROR] Image file not found: ${normalizedPath.replace("../../", "src/")}`,
 		);
+	} else {
+		img = await file();
 	}
-	img = await file();
 }
 
 const imageClass = `w-full h-full object-${fit}`;
 const imageStyle = `object-position: ${position}`;
 ---
 <div id={id} class:list={[className, 'overflow-hidden relative image-wrapper']} style={`--theme-hue: ${siteConfig.themeColor.hue}`}>
-    <!-- 加载条: 仅在非 LCP 图片时显示 -->
-    {!isLCP && <div class="loading-bar absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-1 bg-gray-200 dark:bg-gray-700 z-10 rounded-full overflow-hidden">
-        <div class="loading-progress h-full w-8 bg-[oklch(0.70_0.14_var(--theme-hue))] animate-loading-progress rounded-full"></div>
-    </div>}
-    
     <!-- 图片内容 -->
     {dim && <div class="transition absolute inset-0 dark:bg-black/10 bg-opacity-50 pointer-events-none"></div>}
     
-    {isLocal && img && <Image src={img} alt={alt || ""} class={`${imageClass} image-content ${!isLCP ? 'opacity-0 transition-opacity duration-500' : ''}`} style={imageStyle} onload={!isLCP ? "this.style.opacity='1'; this.parentElement.querySelector('.loading-bar').style.opacity='0';" : undefined} loading={isLCP ? "eager" : "lazy"} fetchpriority={effectiveFetchPriority} />}
+    {isLocal && img && <Image src={img} alt={alt || ""} class={`${imageClass} image-content`} style={imageStyle} loading={isLCP ? "eager" : "lazy"} fetchpriority={effectiveFetchPriority} />}
     
     {!isLocal && (
         imageFallbackConfig.enable && src.includes(imageFallbackConfig.originalDomain) ? 
-            <img src={isPublic ? url(src) : src} alt={alt || ""} class={`${imageClass} image-content ${!isLCP ? 'opacity-0 transition-opacity duration-500' : ''}`} style={imageStyle} onload={!isLCP ? "this.style.opacity='1'; this.parentElement.querySelector('.loading-bar').style.opacity='0';" : undefined} onerror={`this.onerror=null; this.src='${(isPublic ? url(src) : src).replace(imageFallbackConfig.originalDomain, imageFallbackConfig.fallbackDomain)}';`} loading={isLCP ? "eager" : "lazy"} fetchpriority={effectiveFetchPriority} /> :
-            <img src={isPublic ? url(src) : src} alt={alt || ""} class={`${imageClass} image-content ${!isLCP ? 'opacity-0 transition-opacity duration-500' : ''}`} style={imageStyle} onload={!isLCP ? "this.style.opacity='1'; this.parentElement.querySelector('.loading-bar').style.opacity='0';" : undefined} loading={isLCP ? "eager" : "lazy"} fetchpriority={effectiveFetchPriority} />
+            <img src={isPublic ? url(src) : src} alt={alt || ""} class={`${imageClass} image-content`} style={imageStyle} onerror={`this.onerror=null; this.src='${(isPublic ? url(src) : src).replace(imageFallbackConfig.originalDomain, imageFallbackConfig.fallbackDomain)}';`} loading={isLCP ? "eager" : "lazy"} fetchpriority={effectiveFetchPriority} /> :
+            <img src={isPublic ? url(src) : src} alt={alt || ""} class={`${imageClass} image-content`} style={imageStyle} loading={isLCP ? "eager" : "lazy"} fetchpriority={effectiveFetchPriority} />
     )}
 </div>
 
 <style>
-    .loading-bar {
-        transition: opacity 0.5s ease-out;
-    }
-    
-    @keyframes loading-progress {
-        0% {
-            transform: translateX(-100%);
-        }
-        100% {
-            transform: translateX(400%);
-        }
-    }
-    
-    .animate-loading-progress {
-        animation: loading-progress 1.5s ease-in-out infinite;
-    }
     
     .image-wrapper:hover .image-content {
         transform: scale(1.05);
