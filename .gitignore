@@ -14,9 +14,10 @@ yarn-error.log*
 pnpm-debug.log*
 
 # environment variables
-.env
-.env.local
-.env.production
+.env*
+!.env.example
+.wrangler/
+.dev.vars
 
 # macOS-specific files
 .DS_Store
@@ -42,3 +43,8 @@ ori
 # （见 scripts/sync-content.js），不在这个仓库里重复跟踪
 content/
 content.backup-*/
+
+# local tooling artifacts
+*.tsbuildinfo
+Thumbs.db
+coverage/
