@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { readSitemapUrls, submitUrls } from "./indexnow-lib.mjs";
+import { readSitemapEntries, readSitemapUrls, submitUrls } from "./indexnow-lib.mjs";
 
 const SUBMITTED_URLS_FILE = join(process.cwd(), ".indexnow-submitted.json");
 const dryRun = process.env.INDEXNOW_DRY_RUN === "true";
@@ -31,6 +31,7 @@ function showStatus() {
 	const data = getSubmittedUrls();
 	console.log("IndexNow status:");
 	console.log("  submitted URLs: " + (data.urls ? data.urls.length : 0));
+	console.log("  urls with lastmod: " + Object.keys(data.lastmod || {}).length);
 	console.log("  last submitted: " + (data.lastSubmitted || "never"));
 	console.log("  total runs: " + (data.totalSubmissions || 0));
 }
@@ -45,40 +46,49 @@ function clearStatus() {
 }
 
 async function submitIncremental() {
-	const currentUrls = readSitemapUrls();
+	const entries = readSitemapEntries();
 	const data = getSubmittedUrls();
 	const submitted = new Set(data.urls || []);
-	const newUrls = currentUrls.filter((url) => !submitted.has(url));
+	const previousLastmod = data.lastmod || {};
+	const changed = entries.filter((entry) => {
+		if (!submitted.has(entry.url)) return true;
+		// A changed post keeps its URL but gets a newer <lastmod>; IndexNow
+		// should be notified again in that case.
+		return Boolean(entry.lastmod) && entry.lastmod !== previousLastmod[entry.url];
+	});
 
-	if (newUrls.length === 0) {
-		console.log("No new URLs to submit");
-		console.log("  total pages: " + currentUrls.length);
+	if (changed.length === 0) {
+		console.log("No new or updated URLs to submit");
+		console.log("  total pages: " + entries.length);
 		console.log("  already submitted: " + submitted.size);
 		return;
 	}
 
-	console.log("Submitting " + newUrls.length + " new URL(s)");
-	const result = await submitUrls(newUrls, { dryRun });
+	console.log("Submitting " + changed.length + " new/updated URL(s)");
+	const result = await submitUrls(changed.map((entry) => entry.url), { dryRun });
 	saveSubmittedUrls({
-		urls: [...submitted, ...newUrls],
+		urls: entries.map((entry) => entry.url),
+		lastmod: Object.fromEntries(entries.map((entry) => [entry.url, entry.lastmod || ""])),
 		lastSubmitted: new Date().toISOString(),
 		totalSubmissions: (data.totalSubmissions || 0) + 1,
 		lastSubmissionDetails: {
-			newUrlsCount: newUrls.length,
-			totalUrlsCount: currentUrls.length,
+			newUrlsCount: changed.length,
+			totalUrlsCount: entries.length,
 			timestamp: new Date().toISOString(),
 			status: result.statuses.join(","),
-			newUrls,
+			newUrls: changed.map((entry) => entry.url),
 		},
 	});
 }
 
 async function forceSubmitAll() {
-	const urls = readSitemapUrls();
+	const entries = readSitemapEntries();
+	const urls = entries.map((entry) => entry.url);
 	console.log("Force-submitting " + urls.length + " URL(s)");
 	const result = await submitUrls(urls, { dryRun });
 	saveSubmittedUrls({
 		urls,
+		lastmod: Object.fromEntries(entries.map((entry) => [entry.url, entry.lastmod || ""])),
 		lastSubmitted: new Date().toISOString(),
 		totalSubmissions: 1,
 		lastSubmissionDetails: {

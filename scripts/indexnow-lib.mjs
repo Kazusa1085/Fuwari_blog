@@ -39,7 +39,17 @@ export function getIndexNowConfig() {
 	return { key, host, keyLocation };
 }
 
-export function readSitemapUrls() {
+function decodeXml(value) {
+	return value
+		.trim()
+		.replace(/&amp;/g, "&")
+		.replace(/&lt;/g, "<")
+		.replace(/&gt;/g, ">")
+		.replace(/&quot;/g, '"')
+		.replace(/&#39;/g, "'");
+}
+
+export function readSitemapEntries() {
 	const distDir = join(process.cwd(), "dist");
 	if (!existsSync(distDir))
 		throw new Error("dist/ not found; run pnpm build first");
@@ -49,21 +59,30 @@ export function readSitemapUrls() {
 	if (files.length === 0)
 		throw new Error("no sitemap-N.xml files found in dist/");
 
-	const urls = new Set();
+	const entries = new Map();
 	for (const file of files) {
 		const xml = readFileSync(join(distDir, file), "utf8");
-		for (const match of xml.matchAll(/<loc>([\s\S]*?)<\/loc>/g)) {
-			const decoded = match[1]
-				.trim()
-				.replace(/&amp;/g, "&")
-				.replace(/&lt;/g, "<")
-				.replace(/&gt;/g, ">")
-				.replace(/&quot;/g, '"')
-				.replace(/&#39;/g, "'");
-			if (decoded) urls.add(decoded);
+		for (const block of xml.match(/<url>[\s\S]*?<\/url>/g) || []) {
+			const loc = block.match(/<loc>([\s\S]*?)<\/loc>/);
+			if (!loc) continue;
+			const lastmod = block.match(/<lastmod>([\s\S]*?)<\/lastmod>/);
+			const url = decodeXml(loc[1]);
+			if (!url) continue;
+			entries.set(url, lastmod ? decodeXml(lastmod[1]) : "");
+		}
+		// fallback for sitemap files without <url> wrappers
+		if (entries.size === 0) {
+			for (const match of xml.matchAll(/<loc>([\s\S]*?)<\/loc>/g)) {
+				const url = decodeXml(match[1]);
+				if (url) entries.set(url, "");
+			}
 		}
 	}
-	return [...urls];
+	return [...entries].map(([url, lastmod]) => ({ url, lastmod }));
+}
+
+export function readSitemapUrls() {
+	return readSitemapEntries().map((entry) => entry.url);
 }
 
 export async function submitUrls(urls, { dryRun = false } = {}) {
