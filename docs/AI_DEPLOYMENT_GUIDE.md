@@ -100,7 +100,8 @@ export default defineConfig({
 文件：`src/config.ts` 和 `src/layouts/Layout.astro`
 
 - `antiLeechConfig.officialSites` 改为你的域名。
-- 两段域名安全提醒脚本中的 `v` / `_d` 数组中的 base64 也要对应你的域名。
+- 该配置只控制客户端“非官方域名”提示，不是真正的防盗链；真防盗链需要在 Vercel / Cloudflare / EdgeOne 侧配置 Referer 白名单。
+- 如果修改了 `src/scripts/domain-warning.ts` 的提示逻辑，请确认域名列表与 `officialSites` 一致。
 
 > 如果没有改，会在非官方域名访问时弹出安全警告。
 
@@ -112,7 +113,7 @@ IndexNow 需要在 `public/` 放一个校验文件：
 public/{INDEXNOW_KEY}.txt
 ```
 
-内容随意（通常是你 GitHub 用户名）。
+文件内容**必须与 key 完全一致**（不要有空格或换行）。key 需为 8–128 位 `[A-Za-z0-9-]`；IndexNow 脚本启动时会校验 `public/{key}.txt`，缺失或不匹配会直接失败。
 
 ---
 
@@ -127,15 +128,15 @@ ENABLE_CONTENT_SYNC=true
 CONTENT_REPO_URL=https://github.com/你的用户名/你的内容仓库.git
 ```
 
-Vercel / GitHub Actions 构建时会自动 clone 内容仓库到 `content/`。
+- Vercel：把 `ENABLE_CONTENT_SYNC=true` 与 `CONTENT_REPO_URL` 配成环境变量，构建时会自动 clone；推送 `main` 后由 Vercel Git 集成自动重新部署。
+- GitHub Actions：`deploy.yml` 在 `main` push / `repository_dispatch` 时构建并提交 IndexNow。
+- 如果另外使用 Deploy Hook：Hook URL 相当于 bearer 能力，只放 Secret，**不要 echo 到公开日志**；当前仓库的 `deploy.yml` 不调用 Hook，依赖 Vercel 自动部署。
 
 #### 私有内容仓库
 
-- 在 Vercel 环境变量或 GitHub Actions Secret 中设置完整地址：
-  ```text
-  CONTENT_REPO_URL=https://你的token@github.com/你的用户名/你的内容仓库.git
-  ```
-- 建议使用只读 Fine-grained PAT，不要使用有全仓库权限的 token。
+- 不要把 PAT 直接拼进 URL（会进入构建日志和 `content/.git/config`）。
+- 私有仓库优先用只读 deploy key（SSH），或在 CI 里用 `git -c http.extraheader=...` 注入并 mask。
+- 如必须用 PAT，使用只读 Fine-grained PAT，限制到单一内容仓库，并定期轮换。
 
 ### 2.2 不使用内容分离
 
@@ -243,8 +244,14 @@ Value: 有权限向博客仓库发 repository_dispatch 的 GitHub PAT
 
 ### 4.5 GitHub Pages 的 PoW 限制
 
-GitHub Pages 是纯静态托管，**不能直接运行 Anubis/Albireo 中间件**。
-如果需要在 GitHub Pages 上做 PoW 防爬，需要 Cloudflare Worker / VPS 反转代理，或迁移到 Vercel / Cloudflare Pages。
+本项目 PoW 是 Vercel Routing Middleware（`middleware.ts`），**只在 Vercel 平台生效**：
+
+| 平台 | 能否运行本项目 PoW |
+|---|---|
+| Vercel | ✅ |
+| Cloudflare Pages / EdgeOne 静态托管 / GitHub Pages | ❌（需要 Cloudflare Worker / VPS 反向代理自行实现） |
+
+Cloudflare / EdgeOne 的配置文件只负责 headers、缓存与跳转，不执行 `middleware.ts`。
 
 ---
 
@@ -297,10 +304,12 @@ INDEXNOW_HOST=你的域名
 
 中间件文件：`middleware.ts`
 
-- `ALBIREO_ENABLED=false` 可完全关闭
-- `ALBIREO_SECRET` 必须设置，否则 503
-- SEO 白名单目前按 UA 放行，若需要更严格可改为校验 IP / 关闭白名单
-- `npx vercel dev` 本地可测试
+- `ALBIREO_ENABLED=false` 可完全关闭；即使关闭，也建议保留 `ALBIREO_SECRET` 以免以后开启时忘记配置。
+- `ALBIREO_SECRET` 必须设置，否则 fail-closed 返回 503（不会静默关闭防护）。
+- SEO / 社交预览白名单目前按 UA 放行，**不是安全边界**（可被伪造）；若要更严格可改为校验 IP 或关闭白名单。
+- 中间件只在 Vercel 生效；Cloudflare Pages / EdgeOne 静态托管不会执行它。
+- CSP 目前是 `Content-Security-Policy-Report-Only`（三平台 header 已配置），只上报不拦截；稳定后再考虑 enforce。
+- `npx vercel dev` 本地可测试。
 
 ---
 
@@ -332,6 +341,7 @@ INDEXNOW_HOST=你的域名
 - 确认 `CONTENT_REPO_URL` 可访问
 - 私有仓库需要 token
 - 查看构建日志中的 `[内容分离]`
+- CI 中同步失败会直接失败（fail-closed），不会用空内容构建
 
 ### 8.3 Vercel 上友链/文章为空
 

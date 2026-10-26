@@ -164,6 +164,8 @@ lang: zh_CN           # 指定语言 (可选)
 
 ## 📄 许可证
 
+第三方软件与素材许可见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。
+
 本项目基于 [MIT License](./LICENSE) 开源。
 
 内容遵循 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/) 协议。
