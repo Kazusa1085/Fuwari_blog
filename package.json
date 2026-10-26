@@ -6,7 +6,7 @@
 		"dev": "astro dev",
 		"start": "astro dev",
 		"build": "astro build",
-		"build:indexnow": "astro build && node scripts/submit-indexnow-incremental.mjs",
+		"build:indexnow": "pnpm build && node scripts/submit-indexnow-incremental.mjs",
 		"submit-indexnow": "node scripts/submit-indexnow.mjs",
 		"submit-indexnow-inc": "node scripts/submit-indexnow-incremental.mjs",
 		"submit-indexnow-force": "node scripts/submit-indexnow-incremental.mjs --force",
@@ -17,13 +17,15 @@
 		"type-check": "tsc --noEmit",
 		"new-post": "node scripts/new-post.js",
 		"format": "biome format --write ./src",
-		"lint": "biome check --write ./src",
+		"lint": "biome check ./src",
 		"update-timestamp": "node scripts/update-post-timestamp.mjs",
 		"sync-content": "node scripts/sync-content.js",
 		"clean:astro": "node scripts/clean-astro-cache.js",
 		"predev": "node scripts/sync-content.js || true",
 		"prebuild": "node scripts/clean-astro-cache.js && node scripts/sync-content.js",
-		"prepare": "node -e \"const fs=require('fs');const src='scripts/pre-commit';const dst='.git/hooks/pre-commit';if(fs.existsSync(src)&&fs.existsSync('.git')){fs.mkdirSync('.git/hooks',{recursive:true});fs.copyFileSync(src,dst);console.log('Git hook installed!')}\""
+		"prepare": "node -e \"const fs=require('fs');const src='scripts/pre-commit';const dst='.git/hooks/pre-commit';if(fs.existsSync(src)&&fs.existsSync('.git')){fs.mkdirSync('.git/hooks',{recursive:true});fs.copyFileSync(src,dst);console.log('Git hook installed!')}\"",
+		"update-hot-ranking": "node scripts/update-hot-ranking.mjs",
+		"lint:fix": "biome check --write ./src"
 	},
 	"dependencies": {
 		"@astrojs/check": "^0.9.12",
@@ -88,5 +90,7 @@
 	"engines": {
 		"node": ">=24.0.0"
 	},
-	"packageManager": "pnpm@9.15.9"
+	"packageManager": "pnpm@9.15.9",
+	"private": true,
+	"license": "MIT"
 }

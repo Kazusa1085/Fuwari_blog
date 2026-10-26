@@ -35,22 +35,23 @@ try {
 
 const ENABLE_CONTENT_SYNC = process.env.ENABLE_CONTENT_SYNC === "true";
 const CONTENT_REPO_URL = process.env.CONTENT_REPO_URL || "";
-const CONTENT_DIR = path.resolve(
-	rootDir,
-	process.env.CONTENT_DIR || "content",
-);
+const CONTENT_DIR = path.resolve(rootDir, process.env.CONTENT_DIR || "content");
 
 function run(cmd, cwd) {
 	execSync(cmd, { stdio: "inherit", cwd });
 }
 
 if (!ENABLE_CONTENT_SYNC) {
-	console.log("[内容分离] 未启用（ENABLE_CONTENT_SYNC 不是 true），使用 content/ 目录下的本地内容。");
+	console.log(
+		"[内容分离] 未启用（ENABLE_CONTENT_SYNC 不是 true），使用 content/ 目录下的本地内容。",
+	);
 	process.exit(0);
 }
 
 if (!CONTENT_REPO_URL) {
-	console.warn("[内容分离] ENABLE_CONTENT_SYNC=true 但未设置 CONTENT_REPO_URL，跳过同步，使用本地内容。");
+	console.warn(
+		"[内容分离] ENABLE_CONTENT_SYNC=true 但未设置 CONTENT_REPO_URL，跳过同步，使用本地内容。",
+	);
 	process.exit(0);
 }
 
@@ -58,7 +59,9 @@ try {
 	const isGitRepo = fs.existsSync(path.join(CONTENT_DIR, ".git"));
 
 	if (isGitRepo) {
-		console.log(`[内容分离] 检测到已克隆的内容仓库，正在拉取更新：${CONTENT_DIR}`);
+		console.log(
+			`[内容分离] 检测到已克隆的内容仓库，正在拉取更新：${CONTENT_DIR}`,
+		);
 		run("git fetch --all --prune", CONTENT_DIR);
 
 		let branch = "main";
@@ -71,7 +74,7 @@ try {
 		const dirty = execSync("git status --porcelain", { cwd: CONTENT_DIR })
 			.toString()
 			.trim();
-		if (dirty && process.env.CI !== "true") {
+		if (dirty && !process.env.CI) {
 			console.warn(
 				"[内容分离] content/ 有未提交改动，跳过同步以保护本地草稿；提交或备份后再试。",
 			);
@@ -83,7 +86,9 @@ try {
 	} else {
 		if (fs.existsSync(CONTENT_DIR)) {
 			const backupDir = `${CONTENT_DIR}.backup-${Date.now()}`;
-			console.log(`[内容分离] content/ 已存在但不是独立仓库，先备份到：${backupDir}`);
+			console.log(
+				`[内容分离] content/ 已存在但不是独立仓库，先备份到：${backupDir}`,
+			);
 			fs.renameSync(CONTENT_DIR, backupDir);
 		}
 
@@ -92,5 +97,12 @@ try {
 		console.log("[内容分离] 克隆完成。");
 	}
 } catch (error) {
-	console.warn("[内容分离] 同步失败，将使用当前 content/ 目录下已有的内容继续构建：", error.message);
+	console.error("[内容分离] 同步失败：", error.message);
+	if (process.env.CI) {
+		// CI must never build or deploy with stale/empty content.
+		process.exit(1);
+	}
+	console.warn(
+		"[内容分离] 本地同步失败，继续使用现有 content/ 目录；请检查网络或 CONTENT_REPO_URL。",
+	);
 }

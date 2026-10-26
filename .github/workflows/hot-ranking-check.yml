@@ -15,81 +15,33 @@ permissions:
 jobs:
   check-ranking:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
-      - name: Check top 5 ranking changes
-        id: check
-        shell: bash
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      # Posts live in the separate public Blog_Archive repository. The old
+      # shell version read content/posts/*.md without syncing it first, so it
+      # always produced an empty list; sync the content explicitly instead.
+      - name: Sync content from Blog_Archive
+        env:
+          ENABLE_CONTENT_SYNC: "true"
+          CONTENT_REPO_URL: "https://github.com/Kazusa1085/Blog_Archive.git"
+        run: node scripts/sync-content.js
+
+      - name: Update hot ranking data
+        id: update
+        run: node scripts/update-hot-ranking.mjs
+
+      - name: Commit and push when the top 5 changed
+        if: steps.update.outputs.changed == 'true'
         run: |
-          UMAMI_BASE="https://umami.raana.icu"
-          SHARE_ID="aX4gXRBc1JEdp6wW"
-          TIMEZONE="Asia/Shanghai"
-
-          if ! SHARE_RES=$(curl -fsS "${UMAMI_BASE}/api/share/${SHARE_ID}"); then
-            echo "Umami share API is unavailable, skipping this run."
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          if [ -z "$SHARE_RES" ]; then
-            echo "Umami share API returned an empty response, skipping this run."
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          WEBSITE_ID=$(echo "$SHARE_RES" | jq -r '.websiteId')
-          TOKEN=$(echo "$SHARE_RES" | jq -r '.token')
-          END_AT=$(date +%s)000
-
-          if [ -z "$WEBSITE_ID" ] || [ "$WEBSITE_ID" = "null" ] || [ -z "$TOKEN" ] || [ "$TOKEN" = "null" ]; then
-            echo "Umami share payload is incomplete, skipping this run."
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          > /tmp/all_views.txt
-          > /tmp/all_views.json
-
-          for f in content/posts/*.md; do
-            slug=$(basename "$f" .md | tr '[:upper:]' '[:lower:]')
-            encoded_path=$(printf 'eq./posts/%s/' "$slug" | jq -sRr @uri)
-            encoded_timezone=$(printf '%s' "$TIMEZONE" | jq -sRr @uri)
-            url="${UMAMI_BASE}/api/websites/${WEBSITE_ID}/stats?startAt=0&endAt=${END_AT}&unit=hour&timezone=${encoded_timezone}&path=${encoded_path}"
-
-            pv=$(
-              curl -fsS \
-                -H "x-umami-share-token: ${TOKEN}" \
-                -H "x-umami-share-context: true" \
-                "$url" | jq '.pageviews // 0' 2>/dev/null || echo 0
-            )
-
-            echo "${pv} ${slug}" >> /tmp/all_views.txt
-            echo "{\"slug\":\"${slug}\",\"views\":${pv}}" >> /tmp/all_views.json
-          done
-
-          mkdir -p src/data
-          jq -s 'sort_by(-.views)' /tmp/all_views.json > src/data/post-views.json
-
-          CURRENT_TOP5=$(sort -rn /tmp/all_views.txt | head -5 | awk '{print $2}' | paste -sd,)
-          echo "current=${CURRENT_TOP5}" >> "$GITHUB_OUTPUT"
-          echo "Current Top 5: ${CURRENT_TOP5}"
-
-          CACHE_FILE=".hot-ranking-cache.txt"
-          if [ -f "$CACHE_FILE" ] && [ "$(cat "$CACHE_FILE")" = "$CURRENT_TOP5" ]; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-            echo "Ranking unchanged"
-          else
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-            echo "Ranking changed, redeploy needed"
-          fi
-
-      - name: Update cache and push
-        if: steps.check.outputs.changed == 'true'
-        run: |
-          echo "${{ steps.check.outputs.current }}" > .hot-ranking-cache.txt
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add src/data/post-views.json .hot-ranking-cache.txt
@@ -97,7 +49,6 @@ jobs:
             echo "No changes to commit"
             exit 0
           fi
-
           git commit -m "chore: update post views data"
           git pull --rebase origin main
           git push origin HEAD:main
