@@ -695,7 +695,7 @@ export default async function middleware(request: Request): Promise<Response> {
 		status: 200,
 		headers: {
 			"Content-Type": "text/html; charset=utf-8",
-					"X-Robots-Tag": "noindex, nofollow",
+			"X-Robots-Tag": "noindex, nofollow",
 			"Set-Cookie": `${CHALLENGE_COOKIE}=${encodeURIComponent(challengeToken)}; Path=/; HttpOnly; Secure; SameSite=Lax`,
 		},
 	});

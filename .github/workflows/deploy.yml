@@ -41,6 +41,7 @@ jobs:
   build:
     name: Build site
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout your repository using git
         uses: actions/checkout@v7
@@ -49,9 +50,9 @@ jobs:
         uses: pnpm/action-setup@v6
 
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version-file: .nvmrc
           cache: pnpm
 
       - name: Install dependencies
@@ -94,6 +95,7 @@ jobs:
     name: Submit URLs to IndexNow
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     environment: Production
     steps:
       # 提交脚本（scripts/submit-indexnow-incremental.mjs）只用了 Node 内置的
@@ -103,10 +105,10 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v7
         with:
-          node-version: 24
-          # actions/setup-node@v5 新增了行为：只要 package.json 里有
+          node-version-file: .nvmrc
+          # actions/setup-node 会自动根据 packageManager 字段尝试 pnpm 缓存，
           # packageManager 字段（我们是 pnpm@9.15.9），就会自动尝试跑 pnpm
           # 相关缓存逻辑，即使没有显式写 cache: pnpm 也一样。这个 job 故意不装
           # pnpm（脚本只用 Node 内置模块，不需要），所以要显式关掉这个自动检测，
@@ -121,7 +123,7 @@ jobs:
 
       # 恢复上次的提交记录缓存
       - name: Restore IndexNow submission cache
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         id: cache-restore
         with:
           path: .indexnow-submitted.json
@@ -142,19 +144,11 @@ jobs:
         env:
           INDEXNOW_KEY: ${{ vars.INDEXNOW_KEY }}
           INDEXNOW_HOST: ${{ vars.INDEXNOW_HOST }}
-        run: |
-          echo "Starting IndexNow incremental submission..."
-          if node scripts/submit-indexnow-incremental.mjs; then
-            echo "✅ IndexNow incremental submission successful"
-          else
-            echo "❌ IndexNow submission failed, but continuing..."
-            exit 0
-          fi
-        continue-on-error: true
+        run: node scripts/submit-indexnow-incremental.mjs
 
       # 保存更新后的提交记录到缓存
       - name: Save IndexNow submission cache
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v6
         if: always()
         with:
           path: .indexnow-submitted.json

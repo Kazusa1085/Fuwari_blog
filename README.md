@@ -63,7 +63,7 @@
 ## 🚀 快速开始
 
 ### 环境要求
-- **Node.js** 22+
+- **Node.js** 24+（LTS；`.node-version` 锁定 24.22.1）
 - **pnpm** 9+
 
 ### 安装与运行
@@ -109,7 +109,8 @@ scripts/
 | `pnpm preview` | 预览生产构建 |
 | `pnpm new-post "标题"` | 创建新文章 |
 | `pnpm build:indexnow` | 构建并推送 IndexNow |
-| `pnpm lint` | 代码检查 |
+| `pnpm lint` | Biome 检查（只读，不写文件） |
+| `pnpm lint:fix` | Biome 自动修复 |
 | `pnpm format` | 代码格式化 |
 
 ---

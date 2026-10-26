@@ -87,7 +87,7 @@
 | `pnpm preview` | Preview production build |
 | `pnpm clean:astro` | Manually clear Astro content-layer caches |
 | `pnpm new-post <filename>` | Create new post from template |
-| `pnpm lint` | Biome code check |
+| `pnpm lint` | Biome check（只读，不写文件） |
 | `pnpm format` | Biome code format |
 | `pnpm type-check` | TypeScript type check |
 
